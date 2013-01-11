@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<script type="text/javascript" src="vendor/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="vendor/jquery-ui.min.js"></script>
+<script type="text/javascript" src="vendor/jquery.livequery.js"></script>
+<script type="text/javascript" src="vendor/three.js"></script>
+
+
+<style>
+
+.inventoryWrapper {
+	position:absolute;
+	right:0;
+	margin-right:-300px;
+	display:none;
+	
+}
+
+.inventoryWindow {
+	width:300px;
+	height:400px;
+	background: rgba(0,255,255,.5) url(img/chat2/tileBG.png);
+	box-shadow: 0px 0px 10px rgba(0,0,0,.3);
+	border-radius: 5px;
+}
+
+.inventoryTab {
+	background:url(img/chat2/anchorTab.png);
+	width:20px;
+	height:40px;
+	position:absolute;
+	margin-left:-20px;
+}
+
+.inventoryViewer {
+	position:absolute;
+	margin:40px 20px 20px 20px;
+	width:245px;
+	height:330px;
+	background:rgba(0,0,0,.1);
+	overflow:auto;
+	padding:5px;
+	border-radius:3px;
+}
+
+.inventoryHeader {
+	position:absolute;
+	margin-top:5px;
+	width:100%;
+	text-align:center;
+	line-height:30px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:22px;
+	font-weight:bold;
+	color:#FFF;
+	text-transform:uppercase;
+}
+
+.inventoryItems {
+	
+}
+
+.item {
+	width:70px;
+	height:70px;
+	float:left;
+	border-radius:4px;
+	margin:5px;
+	background: rgba(255,255,0,.25);
+	z-index:100;
+	overflow:hidden;
+}
+
+.item p {
+	font-family:"Arial Black", Gadget, sans-serif;
+	font-size:10px;
+}
+
+/* -------------------  */
+
+/* Turn on a 13x13 scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-button:vertical {
+    background-color: rgba(102,204,255,1);
+}
+
+/* Turn on single button up on top, and down on bottom */
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+    display: block;
+}
+
+/* Turn off the down area up on top, and up area on bottom */
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement {
+    display: none;
+}
+
+/* Place The scroll down button at the bottom */
+::-webkit-scrollbar-button:vertical:increment {
+    background-color: rgba(102,204,255,.1);
+}
+
+/* Place The scroll up button at the up */
+::-webkit-scrollbar-button:vertical:decrement {
+    background-color: rgba(102,204,255,.1);
+}
+
+::-webkit-scrollbar-track:vertical {
+    display: none;
+}
+
+/* Top area above thumb and below up button */
+::-webkit-scrollbar-track-piece:vertical:start {
+}
+
+/* Bottom area below thumb and down button */
+::-webkit-scrollbar-track-piece:vertical:end {
+}
+
+/* Track below and above */
+::-webkit-scrollbar-track-piece {
+    background-color: rgba(102,204,255,.1);
+}
+
+/* The thumb itself */
+::-webkit-scrollbar-thumb:vertical {
+    height: 50px;
+    background-color: rgba(102,204,255,.25);
+}
+
+/* Corner */
+::-webkit-scrollbar-corner:vertical {
+    background-color: rgba(102,204,255,.1);
+}
+
+/* Resizer */
+::-webkit-scrollbar-resizer:vertical {
+    background-color: rgba(102,204,255,.1);
+}
+
+/* -------------------  */
+
+
+</style>
+<link href="vendor/jquery-ui.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div class="inventoryWrapper">
+    <div class="inventoryWindow">
+    	<div class="inventoryTab">
+        </div>
+        <div class="inventoryHeader">Inventory
+        </div>
+        <div class="inventoryViewer">
+        	<div class="inventoryItems">
+                <div class="item"></div>
+                <div class="item"><p>Item Name</p><p>Item Description</p></div> 
+                <div class="item"></div> 
+                <div class="item"></div> 
+                <div class="item"></div>
+            </div>
+        </div>
+            
+    </div>
+</div>
+<br>
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+	////////////
+	// variables
+	////////////
+	var isInvOpen = false;
+	
+	//////////
+	// methods
+	//////////
+
+	//////////////////
+	// Inventory FadeIn
+	//////////////////
+	$('.inventoryWrapper').fadeTo(3000, 1);	
+	
+	////////////////
+	// Window Events
+	////////////////
+	
+	// tab hover reveal
+	$('.inventoryTab').livequery(function(e){
+		$(this).click(function () {
+			if(!isInvOpen){
+				$('.inventoryWrapper').animate(
+					{right: '295'},
+					{complete: function() {isInvOpen = true;}}
+				);
+			}
+			if(isInvOpen){
+				$('.inventoryWrapper').animate(
+					{right: '0'},
+					{complete: function() {isInvOpen = false;}}
+				);
+			}
+		});
+	});
+	
+	$('.inventoryWindow').livequery(function(e){
+		$(this).resizable({
+			handles: "s",
+			alsoResize: ".inventoryViewer"
+		});
+		
+	});
+	
+	$('.inventoryItems').livequery(function(e){		
+		$(this).sortable({
+			connectWith: ".workbench",
+			helper: "clone",
+			appendTo: document.body
+		});
+        $(this).disableSelection();
+	});
+	
+	
+	//////////
+	// 3d Shit
+	//////////
+	
+	var renderer = new THREE.WebGLRenderer({antialias: true});
+      renderer.setSize(70,70);
+					   
+	$(".item:first-child").append(renderer.domElement);
+	
+	//document.body.appendChild(renderer.domElement);
+	var camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
+	camera.position.z = 300;
+	
+	var scene = new THREE.Scene();
+	var cube = new THREE.Mesh(new THREE.CubeGeometry(100,100,100),
+               new THREE.MeshNormalMaterial({color: 0x000000}));
+	scene.add(cube);
+	
+	var light = new THREE.PointLight(0xFFFFFF);
+	light.position.x = 10;
+	light.position.y = 50;
+	light.position.z = 130;
+    scene.add(light);
+	
+	function animate(t) {
+        // spin the camera in a circle
+        camera.position.x = Math.sin(t/1000)*300;
+        camera.position.y = 150;
+        camera.position.z = Math.cos(t/1000)*300;
+        // you need to update lookAt every frame
+        camera.lookAt(scene.position);
+        // renderer automatically clears unless autoClear = false
+        renderer.render(scene, camera);
+        window.requestAnimationFrame(animate, renderer.domElement);
+      };
+      animate(new Date().getTime());
+	
+	renderer.setClearColorHex(0x000000, 0);
+	
+	var renderer2 = new THREE.WebGLRenderer({antialias: true});
+      renderer2.setSize(70,70);
+					   
+	$(".item:last-child").append(renderer2.domElement);
+	
+	//document.body.appendChild(renderer.domElement);
+	var camera2 = new THREE.PerspectiveCamera(45, 1, 1, 10000);
+	camera2.position.z = 300;
+	
+	var scene2 = new THREE.Scene();
+	var cube2 = new THREE.Mesh(new THREE.CubeGeometry(100,100,100),
+               new THREE.MeshNormalMaterial({color: 0x000000}));
+	scene2.add(cube2);
+	
+	var light2 = new THREE.PointLight(0xFFFFFF);
+	light2.position.x = 10;
+	light2.position.y = 50;
+	light2.position.z = 130;
+    scene2.add(light);
+	
+	function animate2(t) {
+        // spin the camera in a circle
+        camera2.position.x = Math.sin(t/1000)*300;
+        camera2.position.y = 150;
+        camera2.position.z = Math.cos(t/1000)*300;
+        // you need to update lookAt every frame
+        camera2.lookAt(scene2.position);
+        // renderer automatically clears unless autoClear = false
+        renderer2.render(scene2, camera2);
+        window.requestAnimationFrame(animate2, renderer2.domElement);
+      };
+      animate2(new Date().getTime());
+	
+	renderer2.setClearColorHex(0x000000, 0);
+
+	
+	
+	//$('.item').livequery(function(e){
+//		$(this).draggable( {revert: true, helper: "clone" });
+//	});
+});
+</script>
+
+
+</body>
+</html>

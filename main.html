@@ -1,0 +1,142 @@
+<html>
+<head>
+	
+	<link rel="stylesheet" href="css/overcast/jquery-ui-1.9.1.custom.css" />
+	<link type="text/css" rel="stylesheet" href="css/main.css" />
+	
+	<link href="css/chatbox.css" rel="stylesheet" type="text/css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="js/libs/jquery-1.8.2.min.js"><\/script>')</script>
+	<script type="text/javascript" src="js/lib/jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery-ui-1.9.1.custom.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery.livequery.js"></script>
+	<script type="text/javascript" src="js/lib/knockout-2.2.0.js"></script>
+	<script type="text/javascript" src="js/plugins.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="vendor/three.js"></script>
+	<script type="text/javascript" src="vendor/plugins/FlyControls.js"></script>
+	<script type="text/javascript" src="vendor/TrackballControls.js"></script>
+
+</head>
+	
+<body>
+
+<script src='/_ah/channel/jsapi'></script>
+<audio id="PingSound" style="display: none;"></audio>
+
+<div id='wholepage' class='divcentered'>
+	
+	<div id='Register'>
+		<form id='regform'>
+			<label>MetaUser Name</label><br />
+			<input id='regname' name='name' type='text' /><br />
+			<label>MetaUser Description</label><br />
+			<input id='reginfo' name='info' type='text' /><br />
+			<input id='regsubmit' class='button' type='button' value='Register MetaUser' />
+		</form>
+	</div>
+	
+	<div id='centermenu'>
+		<input type='button' id='BtnToggleUC' class='mebutton' value='Toggle UniCon' /><br />
+		<input type='button' id='BtnOpenYTI'  class='mebutton' value='YouTube Itemizer' /><br />
+		<input type='button' id='BtnRefresh'  class='mebutton' value='Manual Override' /><br />
+		<input type='button' id='BtnDebugger' class='mebutton' value='Debugger' /><br />
+	</div>
+	
+	<div id='YTLinken'>
+		<form id='ytser'>
+			<input id='ytlink' name='ytlink' type='text' />
+			<input id='ytsubmit' class='button' type='button' value='Create YT Item' />
+		</form>
+	</div>
+	
+	<div id='WorkBench'></div>
+	
+	<div id='MetaTube'></div>
+	
+	
+	
+	<div id='MetaSheet'>
+		<div id='MetaInfo'></div>
+		<div id='MetaInventory'></div>
+	</div>
+	
+	<div id='LocationSheet'>
+		<div id='LocationInfo'></div>
+		<div id='LocationMetas'></div>
+		<div id='LocationItems'></div>
+	</div>
+	
+	<div id='MetaVision' class='typingfield'></div>
+	
+	<div id='View'></div>
+	
+	<div id='IMs'></div>
+	
+
+	<div id='UniCon'>
+		Welcome to the Universal Constructor (UniCon)!<br>
+		<br>
+		<span id='ucstaticmenu'>
+			<input id='Create' action='create' bname='Compile New' class='button ucstaticbutton' type='button' value='Create With...' />
+			<input id='Modify' action='modify' bname='Commit Changes' class='button ucstaticbutton' type='button' value='Modify...' /><br />
+			<input id='Test' action='test' bname='Test It!' class='button' type='button' value='Test' /><br />
+		</span>
+		
+		<span id='ucselect'>
+			<input id='UniCon' name='UniCon' class='button ucselect dynamenu' creates='Crystal' metakind='UniCon' type='button' value='UniCon' />
+			<input id='Primers' name='Primer' class='button ucselect' creates='Crystal' metakind='Crystal' type='button' value='Primers' />
+			<input id='Shards' name='Shard' class='button ucselect' creates='Crystal' metakind='Crystal' type='button' value='Shards' />
+			<input id='Frags' name='Frag' class='button ucselect' creates='Blueprint' metakind='Crystal' type='button' value='Frags' />
+			<input id='Blueprints' name='Blueprint' class='button ucselect' creates='Object' metakind='Blueprint' type='button' value='Blueprints' />
+			<input id='Objects' name='Object' class='button ucselect' creates='Object' metakind='Object' type='button' value='Objects (LIMB)' /><br />
+			<br />
+		</span>
+		<span id='dynamenu' class='dynamenu'></span>
+		<span id='ucnav'>
+			<input id='ucback' name='unibuttons' class='button' type='button' value='Cancel/Back' /><br />
+		</span>
+		<form id='ucform'></form>
+		<span id='ucformbutton'>
+			<label>Custom Field</label><br />
+			<input id='customField' name='customfield' type='textfield'>
+			<input id='addfield' name='addfield' compiletype='' class='addfield' type='button' creates='' value='Add Field' action='addfield' /><br />
+			<input id='compilebutton' name='compile' compiletype='' class='compilebutton' type='button' creates='' value='Compile' />
+			<input id='destroybutton' name='destroy' compiletype='' class='compilebutton' type='button' creates='' value='Destroy' action='destroy' />
+		</span>
+		
+	</div>
+	
+<div id="dialog_window_minimized_container"></div>
+
+<table class="chatWrapper" cellpadding="0" cellspacing="0">
+	<tr>
+    	<td width="20" class="chatAnchor"></td>
+        <td width="*">
+       	  <div class="chatActions">
+            	<select name="chatChannel" class="chatChannel" id="chatChannel1">
+            	  <option value="Global" selected>Global</option>
+            	  <option value="Local">Local</option>
+            	  <option value="Loopback">Loopback</option>
+           	  </select>
+              <input name="chatInputMsg" class="chatInputMsg" id="chatInputMsg1" type="text" value="enter message">
+          </div>
+          <div class="chatBox">
+          	<div class="tabWrapper">
+            	<div class="tabs">General</div>
+            </div>
+            <div class="messages"></div>
+          </div>   
+        </td>
+        <td width="25" class="chatSettings"><div class="chatPreferences"></div></td>
+    </tr>
+</table>
+<script src="js/chatbox.js"></script>
+<script type="text/javascript" src="js/lib/obs.js"></script>
+<script type="text/javascript">
+myWorld = new World3D();
+</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ME UI 3D</title>
+
+<script type="text/javascript" src="vendor/jquery.min.js"></script>
+<script type="text/javascript" src="vendor/jquery-ui.min.js"></script>
+<script type="text/javascript" src="vendor/jquery.livequery.js"></script>
+<script type="text/javascript" src="vendor/three.js"></script>
+<script type="text/javascript" src="vendor/tquery.min.js"></script>
+<script type="text/javascript" src="vendor/ShaderExtras.js"></script>
+<script type="text/javascript" src="vendor/plugins/FlyControls.js"></script>
+<script type="text/javascript" src="vendor/TrackballControls.js"></script>
+<script type="text/javascript" src="vendor/shaders/CopyShader.js"></script>
+<script type="text/javascript" src="vendor/shaders/ConvolutionShader.js"></script>
+<script type="text/javascript" src="vendor/shaders/FilmShader.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/BloomPass.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/EffectComposer.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/FilmPass.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/MaskPass.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/RenderPass.js"></script>
+<script type="text/javascript" src="vendor/postprocessing/ShaderPass.js"></script>
+
+
+
+
+<style>
+body {
+	margin:0;
+}
+
+#cubeID {
+	position:absolute;
+	margin:10px;
+}
+</style>
+<link href="vendor/jquery-ui.css" rel="stylesheet" type="text/css">
+<link href="css/chatbox.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<div id="cubeID">hmm</div>
+<table class="chatWrapper" cellpadding="0" cellspacing="0">
+	<tr>
+    	<td width="20" class="chatAnchor"></td>
+        <td width="*">
+       	  <div class="chatActions">
+            	<select name="chatChannel" class="chatChannel" id="chatChannel1">
+            	  <option value="Loopback" selected>Loopback</option>
+            	  <option value="Global">Global</option>
+            	  <option value="Local">Local</option>
+           	  </select>
+              <input name="chatInputMsg" class="chatInputMsg" id="chatInputMsg1" type="text" value="enter message">
+          </div>
+          <div class="chatBox">
+          	<div class="tabWrapper">
+            	<div class="tabs">General</div>
+            </div>
+            <div class="messages"></div>
+          </div>   
+        </td>
+        <td width="25" class="chatSettings"><div class="chatPreferences"></div></td>
+    </tr>
+</table>
+<script src="js/test3.js"></script>
+<script src="js/chatbox.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+application: mealpha8
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+
+- url: /favicon\.ico
+  static_files: static/images/favicon.png
+  upload: static/images/favicon\.png
+
+- url: /resolution/.*
+  script: resolution.app
+
+- url: /main
+  static_files: main.html
+  upload: main.html
+  
+- url: /obsTest
+  static_files: obsTest.html
+  upload: obsTest.html
+  
+- url: /test
+  static_files: test1.html
+  upload: test1.html
+
+- url: /edenop.*
+  script: edenop.app
+
+- url: /unicon.*
+  script: unicon.app
+
+- url: /css
+  static_dir: css
+
+- url: /img
+  static_dir: img
+
+- url: /js
+  static_dir: js
+  
+- url: /vendor
+  static_dir: vendor
+
+- url: /.*
+  script: resolution.app
+
+libraries:
+- name: jinja2
+  version: latest
