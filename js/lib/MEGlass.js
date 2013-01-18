@@ -121,14 +121,14 @@ MEGlass.prototype.remove = function(id,context) {
 /////////////////////////////////////////
 // testing and examples
 /////////////////////////////////////////
-
-// make a new glassmaking shop
-myglass = new MEGlass();
-
-// do stuff with it
-myglass.create({id:500, title:"Wasp", context:'body'});
-myglass.create({id:550});
-myglass.title(550,"This Bomb Shiznitz");
-myglass.append(500,"<h1>Content:</h1><p>There is none</p>");
-myglass.append(550,"<h1>Content:</h1><p>550 Content...</p>");
-myglass.append(500,"<h1>Moar Content:</h1><p>New 500 Content...</p>");
+//
+//// make a new glassmaking shop
+//myglass = new MEGlass();
+//
+//// do stuff with it
+//myglass.create({id:500, title:"Wasp", context:'body'});
+//myglass.create({id:550});
+//myglass.title(550,"This Bomb Shiznitz");
+//myglass.append(500,"<h1>Content:</h1><p>There is none</p>");
+//myglass.append(550,"<h1>Content:</h1><p>550 Content...</p>");
+//myglass.append(500,"<h1>Moar Content:</h1><p>New 500 Content...</p>");

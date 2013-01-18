@@ -13,7 +13,7 @@ function World3D() {
 	self.aspect = self.viewWidth/self.viewHeight;
 	self.nearCull = 0.1;
 	self.farCull = 3000;
-	self.container = $('body');
+	self.container = $('#threedee');
 	self.clock = new THREE.Clock();
 	
 	self.renderer = new THREE.WebGLRenderer();

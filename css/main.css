@@ -13,6 +13,13 @@ body
 	margin-top:10px;
 	
 }
+
+#threedee {
+ width:100%;
+ height:100%;
+ position:absolute;
+}
+
 .divcentered {
   width:100%;
   margin-left: auto ;
