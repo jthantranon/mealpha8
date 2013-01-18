@@ -2,15 +2,22 @@ $(document).ready(function() {
 	NewGlassMetaSheet();
 	function NewGlassMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			//NewGlass = new MEGlass();
-			//NewGlass.create({id:cmeta.kid})
+			Glass = new MEGlass();
+			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:cmeta.kid,id:cmeta.kid};
+			Glass.create(glassargs);
+			EngraveMetaGlass(cmeta);
+			$('#'+cmeta.kid).droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+			});
 		});
+		
 	}
 	
-	myglass = new MEGlass();
+	//myglass = new MEGlass();
 	
-	var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
-	myglass.create(glassargs);
+	//var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
+	//myglass.create(glassargs);
 	//myglass.title(9430,'New Title');
 	//myglass.append(9430,'test');
 
@@ -52,7 +59,7 @@ $(document).ready(function() {
 		$('#wholepage').show();
 		OpenSesh(); 			// Init Channel API
 		GlassLocSheet(); 		// Load Static UX
-		GlassMetaSheet();
+		//GlassMetaSheet();
 		BindKPMove();			// Misc
 	}
 	
@@ -170,9 +177,20 @@ $(document).ready(function() {
 				);
 	}
 	
+	function NGAL(cmeta,label,appendage){
+		Glass.append(cmeta.kid, "<label>"+label+"</label><br>"+
+			"<span>" + appendage + "</span><br>");
+	}
+	
 	function GALO(Anchor,sob,label){
 		Anchor.append(
 				"<label>"+label+": "+"</label><br>"
+				);
+	}
+	
+	function NGALO(cmeta,label){
+		Glass.append(cmeta.kid,
+				"<label>"+label+"</label><br>"
 				);
 	}
 	
@@ -194,6 +212,15 @@ $(document).ready(function() {
 	
 	function GAO(Anchor,sob,obj){
 		Anchor.append(
+				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
+				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+				">"
+				);
+		$('.dragit').draggable(draggableArguments);
+	}
+	
+	function NGAO(cmeta,obj){
+		Glass.append(cmeta.kid,
 				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
 				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
 				">"
@@ -235,6 +262,27 @@ $(document).ready(function() {
 			GALO(Anchor,sob,'Inventory');
 			$.each(inventory, function() {
 				GAO(Anchor,sob,this);
+			});
+		});
+	}
+	
+	function EngraveMetaGlass(cmeta){
+		var args = {
+					Name:cmeta.name,
+					Info:cmeta.info,
+					KID:cmeta.kid,
+					Location:cmeta.xyz,
+					MasterID:cmeta.masterid,
+					DataBits:cmeta.databits
+		};
+		
+		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			$.each(args, function(k,v){
+				NGAL(cmeta,k,v);
+			});
+			NGALO(cmeta,'Inventory');
+			$.each(inventory, function() {
+				NGAO(cmeta,this);
 			});
 		});
 	}
@@ -616,19 +664,19 @@ $(document).ready(function() {
 		.dialog({ autoOpen: false, title: 'UniCon', dialogClass:'transparent90' });
 	
 	
-	$('#WorkBench').dialog({ width: 350, height: 150, title: 'WorkBench', position: {my: 'middle middle', at: 'middle middle', of: document}, overflow: scroll })
-		.droppable({ drop: function (event, ui){
-			if (ui.draggable.data('itype') === 'YouTube'){
-					parsedlink = $.parseyturl(ui.draggable.data("ytlink"));
-					Amb(parsedlink);
-					Amb(ui.draggable.data("itype"));
-					YouTube(parsedlink);
-				} else {
-					Amb("You can't load this type of object... yet.");
-					OpenObj(ui.draggable.data('metakind'),ui.draggable.data('metaid'));
-				}
-			}
-		});
+//	$('#WorkBench').dialog({ width: 350, height: 150, title: 'WorkBench', position: {my: 'middle middle', at: 'middle middle', of: document}, overflow: scroll })
+//		.droppable({ drop: function (event, ui){
+//			if (ui.draggable.data('itype') === 'YouTube'){
+//					parsedlink = $.parseyturl(ui.draggable.data("ytlink"));
+//					Amb(parsedlink);
+//					Amb(ui.draggable.data("itype"));
+//					YouTube(parsedlink);
+//				} else {
+//					Amb("You can't load this type of object... yet.");
+//					OpenObj(ui.draggable.data('metakind'),ui.draggable.data('metaid'));
+//				}
+//			}
+//		});
 	
 	
 	//////////////
