@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<link href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+
+<style>
+body {
+	background-color:#CCCCCC;
+}
+
+.glassWrapper {
+	width:300px;
+	background-image:url(img/glass/glassBG.png), url(img/glass/glassSideBG.png);
+	background-position: center, left top;
+	background-repeat:repeat,repeat-y;
+	position:absolute;
+	box-shadow: 0px 0px 10px rgba(0,0,0,.25);
+	border-radius:3px;
+	
+}
+
+.glassLeft {
+	width:10px;
+	height:10px;
+/*	background:#00CC00;*/
+	float: left;
+	margin-left: -100%;
+}
+
+.glassCenter {
+	height:10px;
+/*	background:#CC0066;*/
+	margin: 0 10px 0 10px;
+}
+
+.glassRight {
+	width:10px;
+	height:10px;
+/*	background:#6CF;*/
+	float: left;
+	margin-left:-10px;
+}
+
+.innertube {
+	height:10px;
+	margin:0px;
+}
+
+.centerWrap {
+	float:left;
+	width:100%;
+	height:10px;
+}
+
+.glassHeader {
+	position:absolute;
+	margin-top:-16px;
+	width:100%;
+}
+
+.glassTitle {
+	width:100%;
+	height:36px;
+	background-image:url(img/glass/glassTitleBGHover.png);
+	color:#FFFFFF;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:13px;
+	line-height:34px;
+	text-transform:uppercase;
+	font-weight:bold;
+	text-indent:10px;
+	box-shadow: 0px 0px 10px rgba(255,255,255,.5);
+	
+	transition: text-shadow 2s;
+	-moz-transition: text-shadow 2s; /* Firefox 4 */
+	-webkit-transition: text-shadow 2s; /* Safari and Chrome */
+	-o-transition: text-shadow 2s; /* Opera */
+}
+
+.glassTitle:hover{
+	text-shadow: 0 0 10px #fff;
+}
+
+.glassContent {
+	margin:10px;
+	color:#666;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:14px;
+	overflow:auto;
+}
+
+.glassContent p {
+	margin-top:2px;
+}
+.glassContent h1 {
+	color:#AA7528;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:10px;
+	text-transform:uppercase;
+	margin-bottom:2px;
+	margin-top:0;
+}
+
+.clearfix {
+	clear:both;
+	height:0px;
+}
+
+.glassTabsLeft {
+	position:absolute;
+	background-image:url(img/glass/glassTabLeft.png);
+	height:36px;
+	width:20px;
+	margin-left:-20px;
+	margin-top:-36px;
+}
+
+.glassTabsRightWrapper {
+	position:absolute;
+	height:36px;
+	width:100%;
+	text-align:right;
+	margin-top:-36px;
+	z-index:-1;
+}
+
+.glassTabsRight {
+	background-image:url(img/glass/glassTabRight.png);
+	height:36px;
+	width:20px;
+	float:right;
+	margin-right:-20px;
+}
+
+</style>
+
+</head>
+
+<body>
+<div class="glassWrapper">
+	<div class="glassHeader">
+        <div class="centerWrap">
+            <div class="glassCenter">
+                <div class="innertube"><img src="img/glass/topBorderCenter.png" width="100%" height="10"></div>
+            </div>
+        </div> 
+        <div class="glassLeft">
+            <div class="innertube"><img src="img/glass/topBorderLeft.png" width="10" height="10"></div>
+        </div>  
+        <div class="glassRight">
+            <div class="innertube"><img src="img/glass/topBorderRight.png" width="10" height="10"></div>
+        </div>   
+	</div>
+  <div class="glassTitle">The Title</div>
+  <div class="glassTabWrapper">
+      <div class="glassTabsLeft"></div>
+      <div class="glassTabsRightWrapper">
+          <div class="glassTabsRight"></div>
+      </div>
+  </div>
+    <div class="glassContent">
+      <h1>Name:</h1>
+      <p>The title.</p>
+      <h1>Name:</h1>
+      <p>This is the way</p>
+      <h1>Name:</h1>
+      <p>ksahkjsahjd</p>
+      <h1>Name:</h1>
+      <p>alkasd alskdl asdljaslkj a</p>
+      <p>lkas aslkja s</p>
+      <p>sdadasdsa</p>
+      <h1>Name:</h1>
+      <p>The title.</p>
+      <h1>Name:</h1>
+      <p>This is the way</p>
+      <h1>Name:</h1>
+      <p>ksahkjsahjd</p>
+      <h1>Name:</h1>
+      <p>alkasd alskdl asdljaslkj a</p>
+      <p>lkas aslkja s</p>
+      <p>sdadasdsa</p>
+    </div>
+</div>
+
+<script type="text/javascript">
+$('.glassWrapper').resizable({ alsoResize: ".glassContent" });
+$('.glassWrapper').draggable({handle:'.glassTabWrapper'});
+</script>
+
+
+</body>
+</html>
