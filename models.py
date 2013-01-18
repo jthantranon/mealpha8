@@ -30,12 +30,26 @@ class Blueprint(ndb.Expando):
     lattice = ndb.StringProperty()
 
 class Location(ndb.Expando):
+    metakind = ndb.StringProperty(default='Location')
     name = ndb.StringProperty()
     info = ndb.StringProperty()
     xloc = ndb.StringProperty()
     yloc = ndb.StringProperty()
     zloc = ndb.StringProperty()
-    lattice = ndb.StringProperty()    
+    lattice = ndb.StringProperty()
+    exits = ndb.StringProperty(default='n,s,e,w')      
+    @ndb.ComputedProperty
+    def xyz(self):
+        if self.xloc:
+            return self.xloc+"."+self.yloc+"."+ self.zloc+":"+self.lattice
+        else:
+            return 'Limbo'
+    @ndb.ComputedProperty
+    def metaid(self):
+        try:
+            return self.key.id()
+        except AttributeError:
+            return 'None'
    
 class Item(ndb.Expando):
     name = ndb.StringProperty()
@@ -48,7 +62,20 @@ class Item(ndb.Expando):
     xloc = ndb.StringProperty()
     yloc = ndb.StringProperty()
     zloc = ndb.StringProperty()
-    lattice = ndb.StringProperty()
+    lattice = ndb.StringProperty(default=0)
+    databits = ndb.IntegerProperty(default=0)
+    suptype = ndb.StringProperty()
+    regtype = ndb.StringProperty()
+    subtype = ndb.StringProperty()
+    ispopup = ndb.BooleanProperty(default=False)
+    @ndb.ComputedProperty
+    def xyz(self):
+        if self.xloc:
+            return self.xloc+"."+self.yloc+"."+ self.zloc+":"+self.lattice
+        elif self.cowner:
+            return self.cowner
+        else:
+            return 'Limbo'
 
 class Meta(ndb.Expando):
     metakind = ndb.StringProperty(default='Meta')
@@ -60,6 +87,13 @@ class Meta(ndb.Expando):
     yloc = ndb.StringProperty(default='500')
     zloc = ndb.StringProperty(default='500')
     lattice = ndb.StringProperty(default='0')
+    databits = ndb.IntegerProperty(default=0)
+    @ndb.ComputedProperty
+    def xyz(self):
+        if self.xloc:
+            return self.xloc+"."+self.yloc+"."+ self.zloc+":"+self.lattice
+        else:
+            return 'Limbo'
     
 
 class Base(ndb.Expando):

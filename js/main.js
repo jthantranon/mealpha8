@@ -8,6 +8,254 @@ $(document).ready(function() {
 	// Small Functions & Helper Vars
 	////
 	
+
+	function LoadPopUpItems(){
+		$.getJSON('/edenop/fetchpuis', function(sobs) {
+			for (var i = 0; i < sobs.length; i++) {
+				GlassFactory(sobs[i]);				
+			}
+		});
+	}
+	
+	LoadPopUpItems();
+	
+	// Settings for jQ Dialog Boxes
+	//var MetaVisionPlace = { position: { at: 'right bottom' } };
+	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
+	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
+	var MetaLocPlace = { width: 275, title: 'MetaLocation', position: { at: 'left top' }, dialogClass:'transparent90'};
+	
+	///////
+	//// Glass Functions
+	////// sob - Selected Object //////
+	
+	function GlassLocation(cloc){
+		//$('#Glass'+sob.metakind+sob.metaid).remove();
+		$('body').append("<div id='GlassLocationSheet'></div>");
+		var GLS = $('#GlassLocationSheet'); 
+		GLS.empty();
+		GLS.dialog(MetaLocPlace);
+		SheetLocation(cloc);
+	}
+	
+	function GlassFactory(sob,title,glassopt){
+		var metakind = sob.metakind;
+		var metaid = sob.metaid;
+		var name = sob.name;
+		var Anchor;
+		//$('#Glass'+sob.metakind+sob.metaid).remove();
+		if (sob.iscloc){
+			$('body').append("<div id='GlassLocationSheet'></div>");
+			Anchor = $('#GlassLocationSheet');
+		} else {
+			$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
+			Anchor = $('#Glass'+sob.metakind+sob.metaid);
+		}
+		Anchor.empty();
+		if (title){
+			if(typeof glassopt === 'undefined'){
+				Anchor.dialog({title: title});
+				alert(title);
+			} else {
+				Anchor.dialog({title: title},glassopt);
+				
+			}
+		} else {
+			Anchor.dialog({title: name});
+		}
+		
+		if (metakind == 'Item'){
+			//GAG(sob,'This is definitely a '+metakind+'<br>');
+			SheetItem(Anchor,sob,'databits');
+		} else if (metakind =='Meta'){
+			//GAG(sob,'This is definitely a '+metakind+'<br>');
+			SheetMeta(Anchor,sob,'masterid');
+		} else if (metakind =='Location'){
+			//GAG(sob,'This is definitely a '+metakind+'<br>');
+			SheetLocation(Anchor,sob);
+		} else {
+			GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
+			SheetUniCon(Anchor,sob);
+		}
+	}
+	
+	/// Sheet Append Functions START///
+	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
+	function GAG(Anchor,sob,appendage){
+		Anchor.append(appendage+'<br>');
+	}
+	
+	function GAL(Anchor,sob,label,appendage){
+		Anchor.append(
+				"<label>"+label+": "+"</label><br>"+
+				"<span>" + appendage + "</span><br>"
+				);
+	}
+	
+	function GALO(Anchor,sob,label){
+		Anchor.append(
+				"<label>"+label+": "+"</label><br>"
+				);
+	}
+	
+	function GAA(Anchor,sob,action){
+		Anchor.append(
+				"<input type='button' id='btnaction"+sob.metakind+sob.metaid+action + "' class='action' value='" + action + 
+				"' data-name='"+sob.name+"' data-metakind='"+sob.metakind+"' data-metaid='"+sob.metaid+"'" + " data-action='"+action+"'" +
+				">"
+				);
+	}
+	
+	$('body').on('click','.action',function(){
+		var metakind = $(this).data('metakind');
+		var metaid = $(this).data('metaid');
+		var action = $(this).data('action');
+		var item = $(this).data('name');
+		MetaAction(action,item,metakind,metaid);
+		//LoadPopUpItems();
+	});
+	
+	function GAO(Anchor,sob,obj){
+		Anchor.append(
+				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj' value='" + obj.name + 
+				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+				">"
+				);
+	}
+	
+	$(document).on('click','.viewable',function(){
+		OpenObj($(this).data('metakind'),$(this).data('metaid'));
+	});
+	
+	$(document).on('click','.obj',function(){
+		ObjGlass($(this).data('metakind'),$(this).data('metaid'));
+	});
+	
+	/// Append Functions END ///
+	
+	/// Sheet Constructors LEVEL 1
+	function SheetUniCon(Anchor,sob){
+		GAL(Anchor,sob,'Name',sob.name);
+		GAL(Anchor,sob,'Info',sob.info);
+		GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
+		GAL(Anchor,sob,'Location',sob.xyz);
+	}
+	
+	/// Sheet Constructors LEVEL 2
+	function SheetMeta(Anchor,sob,params){
+		SheetUniCon(Anchor,sob);
+		GAL(Anchor,sob,'MasterID',sob.masterid);
+		GAL(Anchor,sob,'DataBits',sob.databits);
+		GALO(Anchor,sob,'Inventory');
+		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			$.each(inventory, function() {
+				GAO(Anchor,sob,this);
+			});
+		});
+	}
+	
+	function SheetItem(Anchor,sob,params){
+		SheetUniCon(Anchor,sob);
+		
+		if (sob.regtype == 'Mine'){
+			GAL(Anchor,sob,'DataBits',sob.databits);
+		}
+		
+		if (sob.actions){
+			GALO(Anchor,sob,'Actions');
+			for (var i = 0; i < sob.actions.length; i++) {
+				GAA(Anchor,sob,sob.actions[i]);				
+			}
+		}
+	}
+	
+	function SheetLocation(Anchor,sob){
+		SheetUniCon(Anchor,sob);
+		ShowExits(Anchor,sob);
+		UsersHere(Anchor,sob);
+		ItemsHere(Anchor,sob);
+	}
+	
+	/// Sheet Constructors LEVEL 3
+	
+	function UsersHere(Anchor,sob){
+		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
+			GALO(Anchor,sob,'MetaUsers Here');
+			$.each(localmetas, function() {
+				GAO(Anchor,sob,this);
+			});
+			GAG(Anchor,sob,'');
+		});
+		
+	}	function ItemsHere(Anchor,sob){
+		$.getJSON('/edenop/fetchlocalitems', function(localitems) {
+			GALO(Anchor,sob,'Items Here');
+			$.each(localitems, function() {
+				GAO(Anchor,sob,this);
+			});
+			GAG(Anchor,sob,'');
+		});
+	}
+	
+	function ShowExits(Anchor,sob){
+		Anchor.append(
+				"<label>Exits: </label><br />" +
+				"<center>" +
+				"<input class='move' id='nw' type='button' value='Northwest'>" +	
+				"<input class='move' id='n' type='button' value='North'>" +
+				"<input class='move' id='ne' type='button' value='Northeast'><br>" +
+				"<input class='move' id='w' type='button' value='West'>" +
+				"<input class='move' id='e' type='button' value='East'><br>" +
+				"<input class='move' id='sw' type='button' value='Southwest'>" +
+				"<input class='move' id='s' type='button' value='South'>" +
+				"<input class='move' id='se' type='button' value='Southeast'><br>" +
+				"<input class='move' id='u' type='button' value='Up'>" +
+				"<input class='move' id='d' type='button' value='Down'><br>" +
+				"</center>"
+		);
+		exits = sob.exits.split(',');
+		var dirs = ["n","s","w","e","ne","se","sw","nw","u","d"];
+
+		for (var i = 0; i < dirs.length; i++) {
+			if ($.inArray(dirs[i],exits) !== -1){
+			} else {$('#'+dirs[i]).hide();}
+		}
+	}
+	
+	$('body').on('click','.move',function() {
+		dir = $(this).attr('id');
+		$.ajax({
+			type: 'POST',
+			url: '/action/move/' + dir,
+			data: null,
+			success: function(data){
+				cLocGlass('MetaLocation',MetaLocPlace);
+			}
+		});
+	});
+	
+	/// INITIALIZE NEW
+	function ObjGlass(metakind,metaid,title,glassopt){
+		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
+			GlassFactory(sob,title,glassopt);
+		});
+	}
+	
+	function cLocGlass(cloc,title,glassopt){
+		$.getJSON('/edenop/location', function(cloc) {
+			cloc.isloc = true;
+			GlassFactory(cloc,title,glassopt);
+		});
+	}
+	
+	
+	
+	ObjGlass('Meta','85','MetaSheet',MetaSheetPlace);
+	cLocGlass('MetaLocation',MetaLocPlace);
+	
+	//////
+	//////
+	
 	function Amb(msg,time,fade){
 		$.ambiance({message: msg,
 					timeout: time,
@@ -23,9 +271,9 @@ $(document).ready(function() {
 		     cancel: false,
 	};
 	
-	var MetaVisionPlace = { position: { at: 'right bottom' } };
-	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
 	
+	
+	/// Handles NumPad/Numeric Movment Unbinding for typing in fields. 
 	$(document)
 	.on('focusin','input,textarea',function(){$(document).unbind('keypress');})
 	.on('focusout','input,textarea',function(){BindKPMove();});
@@ -56,22 +304,21 @@ $(document).ready(function() {
 						"<input type='button' id='btnnewpm"+sobj.metakind+sobj.metaid+"' class='newpm' value='send'><br>" +
 						"<input type='button' id='btncommit"+id+"' class='btncommit' value='Save Changes' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"' hidden>" +
 						"<input type='button' id='btncancel"+id+"' class='btncancel' value='Cancel' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"' hidden>" +
-						"<label>Actions: </label><br />" + sobj.actions[1] + 
+						"<label>Actions: </label><br />" + sobj.actions + 
 						"<br>" +
 					"</form>"
 					);
 			
-			for (var i = 0; i < sobj.actions.length; i++) {
-				$('#'+id).append(
-						"<input type='button' id='btnaction"+sobj.metakind+sobj.metaid+sobj.actions[i] + "' class='action' value='" + sobj.actions[i] + 
-						"' data-name='"+sobj.name+"' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"'" + "' data-action='"+sobj.actions[i]+"'" +
-						"'><br>"
-						);
+			if (sobj.actions){
+				for (var i = 0; i < sobj.actions.length; i++) {
+					$('#'+id).append(
+							"<input type='button' id='btnaction"+sobj.metakind+sobj.metaid+sobj.actions[i] + "' class='action' value='" + sobj.actions[i] + 
+							"' data-name='"+sobj.name+"' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"'" + " data-action='"+sobj.actions[i]+"'" +
+							"><br>"
+							);
+				}
 			}
-			
-			$('#'+id).append(
-					
-					);
+
 			$('#'+id+'name').data('value',sobj.name);
 			$('#'+id+'info').data('value',sobj.info);
 		});
@@ -99,14 +346,7 @@ $(document).ready(function() {
 		});
 	});
 	
-	$('body').on('click','.action',function(){
-		var metakind = $(this).parent().data('metakind');
-		var metaid = $(this).parent().data('metaid');
-		var action = $(this).parent().data('action');
-		$('#newpm'+metakind+metaid).val('');
-		$('#'+metakind+metaid).dialog('close');
-		Amb(action + 'heh');
-	});
+	
 
 	function SendNewPM(){
 		var regData = $("#msg"+jsonGET.metaid).serialize();
@@ -208,9 +448,7 @@ $(document).ready(function() {
 		OpenObj(metakind,metaid);
 	});
 	
-	$(document).on('click','.viewable',function(){
-		OpenObj($(this).data('metakind'),$(this).data('metaid'));
-	});
+	
 	
 	function BindKPMove(){
 		$(document).keypress(function(e){
@@ -257,7 +495,7 @@ $(document).ready(function() {
 	
 	function RefreshAll() {
 		$.getJSON('/resolution/hasmeta', function(cmeta) {
-			MetaSheet();
+			//MetaSheet();
 			LocationSheet();
 		});
 	}
@@ -269,16 +507,7 @@ $(document).ready(function() {
 	
 	
 	
-	function Broadcast(scale){
-		content = $("#mvprompt").val();
-		$("#mvprompt").val('').focus();
-		$.ajax({
-			type: 'POST',
-			url: '/edenop/chanrouter/'+scale,
-			data: {'content':content},
-			success: function(data){}
-		})
-	}
+	
 	////
 	//REGISTRATION CHECK
 	////
@@ -322,8 +551,8 @@ $(document).ready(function() {
 		Amb('Welcome to MetaEden! Enjoy your stay!',5);
 		OpenSesh();
 		$('#wholepage').show();
-		$('#MetaVision').dialog('open');
-		MetaSheet();
+		//$('#MetaVision').dialog('open');
+		//MetaSheet();
 		LocationSheet();
 		BindKPMove();
 	}
@@ -385,7 +614,28 @@ $(document).ready(function() {
 			}
 		});
 	}
-
+	
+	function MetaAction(action,sitem,metakind,metaid){
+		$.ajax({
+			type: 'POST',
+			url: '/action/router/' + action,
+			data: {'sitem':sitem,'metakind':metakind,'metaid':metaid},
+			success: function(data){
+			}
+		});
+	}
+	
+	function Broadcast(scale){
+		content = $("#mvprompt").val();
+		$("#mvprompt").val('').focus();
+		$.ajax({
+			type: 'POST',
+			url: '/edenop/chanrouter/'+scale,
+			data: {'content':content},
+			success: function(data){}
+		});
+	}
+	
 	function OpenSesh(){
 		var channel;
 		var handler;
@@ -440,13 +690,15 @@ $(document).ready(function() {
 	/////////////////////////////
 	function UpdateStatus(pack){
 		// Type Loop (For printing/formatting)
-		if (pack.type == 'msg') {
+		if  (pack.updater){
+			GlassFactory(pack);
+		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});
 			MetaSound('chirp');
 			PingSound = document.getElementById('PingSound');
 			PingSound.src = '/css/chirp.mp3';
 			PingSound.play();						
-			$('#MetaVision').append(pack.content + '<br>').scrollTop($(this).height()+99999);
+//			$('#MetaVision').append(pack.content + '<br>').scrollTop($(this).height()+99999);
 			if ($("#msg"+pack.masterid).length == 0){
 				CreateIM(pack, pack.content);
 			} else {
@@ -457,17 +709,22 @@ $(document).ready(function() {
 			//new message handler for fancy chat box
 			newChatBoxMsg(pack);
 			
-			$('#MetaVision').append("[" + pack.scopename + "] <b>" + pack.name + "</b> - " + pack.content + "<br>").scrollTop($(this).height()+99999);
+//			$('#MetaVision').append("[" + pack.scopename + "] <b>" + pack.name + "</b> - " + pack.content + "<br>").scrollTop($(this).height()+99999);
 		} else if (pack.type === 'announcement') {
-			$('#MetaVision').append("[System] <b>" + pack.content + '<br>').scrollTop($(this).height()+99999);
+//			$('#MetaVision').append("[System] <b>" + pack.content + '<br>').scrollTop($(this).height()+99999);
+			newChatBoxMsg(pack);
 		} else if (pack.type === 'refresh') {
 			if (pack.scope === 'location') {
 				LocationSheet();
 			} else if (pack.scope === 'meta') {
-				MetaSheet();
+				//MetaSheet();
 			}
 		} else if (pack.type === 'move') {
-			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
+//			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
+			newChatBoxMsg(pack);
+		} else if (pack.type === 'action') {
+//			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
+			newChatBoxMsg(pack);
 		} else if (pack.type === 'pm') {
 			Amb('New PM Recieved!');
 			Amb(pack.metakind+pack.masterid);
@@ -498,6 +755,22 @@ $(document).ready(function() {
 
 	}
     
+	/////////////////////////////////
+	// NEW FANCY CHATBOX MSG RECIEVER
+	/////////////////////////////////
+	newChatBoxMsg = function(pack) {
+		//do shit
+		context = $(".messages");
+		if (pack.type == 'action'){
+			outmsg = '<p>' + pack.formatted + '</p>';
+		} else {
+			outmsg = '<p><span class="channelLoopback">['+ pack.scope.charAt(0).toUpperCase() + pack.scope.slice(1) +']</span><b> ' + pack.name + ':</b> ' + pack.content + '</p>';
+		}
+		$(context).append(outmsg);
+		$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+		$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+	};
+	
 	/////////////////////////////
 	/// UI PANELS - METASHEET
 	/////////////////////////////
@@ -584,13 +857,7 @@ $(document).ready(function() {
 				"</center>"
 		);
 
-		exits = locdata.exits.split(',');
-		var dirs = ["n","s","w","e","ne","se","sw","nw","u","d"];
-
-		for (var i = 0; i < dirs.length; i++) {
-			if ($.inArray(dirs[i],exits) !== -1){
-			} else {$('#'+dirs[i]).hide();}
-		}
+		
 	}
 	
 	
@@ -619,42 +886,32 @@ $(document).ready(function() {
 		});
 	}
 	
-	$('#LocationSheet').on('click','.move',function() {
-		dir = $(this).attr('id');
-		$.ajax({
-			type: 'POST',
-			url: '/edenop/move/' + dir,
-			data: null,
-			success: function(data){
-				LocationSheet();
-			}
-		});
-	});
+
 	
 	/////////////////////////////
 	/// METAVISION & MESSAGING
 	/////////////////////////////  
 	
-	$('#MetaVision')
-		.dialog({ autoOpen: false, title: 'MetaVision', height: 250, width: 550, overflow: scroll, dialogClass:'transparent90' }, MetaVisionPlace);
-	
-	$('#MetaVision')
-		.after(
-			"<label>Broadcast Message: </label><br />" +
-			"<textarea type='text' id='mvprompt' class='typingfield' name='content' rows='1' cols='80' style='vertical-align:text-top'></textarea>" +
-			"<input type='button' id='btnmsgglobal' class='bsendmsg' value='Global'>" +
-			"<input type='button' id='btnmsglocal' class='bsendmsg' value='Local'>")
-		.dialog();
-			
-	$('#btnmsglocal').parent().on('click','#btnmsglocal',function (){
-		Broadcast('local');
-	});
-	$('#btnmsgglobal').parent().on('click','#btnmsgglobal',function (){
-		Broadcast('global');
-	});
-	$('#mvprompt').parent().on('keypress','#mvprompt',function(e) {
-	    if(e.which == 13) {Broadcast('local');}
-	});
+//	$('#MetaVision')
+//		.dialog({ autoOpen: false, title: 'MetaVision', height: 250, width: 550, overflow: scroll, dialogClass:'transparent90' }, MetaVisionPlace);
+//	
+//	$('#MetaVision')
+//		.after(
+//			"<label>Broadcast Message: </label><br />" +
+//			"<textarea type='text' id='mvprompt' class='typingfield' name='content' rows='1' cols='80' style='vertical-align:text-top'></textarea>" +
+//			"<input type='button' id='btnmsgglobal' class='bsendmsg' value='Global'>" +
+//			"<input type='button' id='btnmsglocal' class='bsendmsg' value='Local'>")
+//		.dialog();
+//			
+//	$('#btnmsglocal').parent().on('click','#btnmsglocal',function (){
+//		Broadcast('local');
+//	});
+//	$('#btnmsgglobal').parent().on('click','#btnmsgglobal',function (){
+//		Broadcast('global');
+//	});
+//	$('#mvprompt').parent().on('keypress','#mvprompt',function(e) {
+//	    if(e.which == 13) {Broadcast('local');}
+//	});
 	
 	
 	
@@ -703,17 +960,7 @@ $(document).ready(function() {
 	});
 	
 	
-	/////////////////////////////////
-	// NEW FANCY CHATBOX MSG RECIEVER
-	/////////////////////////////////
-	newChatBoxMsg = function(pack) {
-		//do shit
-		context = $(".messages");
-		outmsg = '<p><span class="channelLoopback">['+ pack.scope +']</span><b> ' + pack.name + ':</b> ' + pack.content + '</p>';
-		$(context).append(outmsg);
-		$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
-		$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
-	};
+	
 	
 
 	/////////////////////////////

@@ -11,10 +11,21 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import channel
 
-def CreateTI():
+class Spawn():
+        def Location(self):
+            nloc = Location()
+            nloc.name = 'Unnamed Location'
+            nloc.info = 'A new location.'
+            nloc.xloc = '500'
+            nloc.yloc = '500'
+            nloc.zloc = '500'
+            nloc.lattice = '0'
+            nloc.put()
+
+def CreateDataMine():
         cmeta = ops.loadmeta()
         spec = Item();
-        spec.name = 'Test Item'
+        spec.name = 'Data Mine 3'
         spec.info = 'This is a test item.'
         spec.itype = 'Test'
         spec.primertype = 'Generic'
@@ -24,6 +35,34 @@ def CreateTI():
         spec.lattice = '0'
         spec.metakind = 'Item'
         spec.actions = ['Mine Node','Kick']
+        spec.supertype = 'Landmark'
+        spec.regtype = 'Mine'
+        spec.databit = 0
+        spec.ispopup = True
+        spec.xloc = '500'
+        spec.yloc = '500'
+        spec.zloc = '500'
+        
+        spec.put()
+        spec.metaid = spec.key.id()
+        spec.put()
+
+def CreateDigiFort():
+        cmeta = ops.loadmeta()
+        spec = Item();
+        spec.name = 'Digital Fortress of ' + cmeta.name
+        spec.info = 'This is a test item.'
+        spec.itype = 'Test'
+        spec.primertype = 'Generic'
+        spec.shardtype = 'Generic'
+        spec.fragtype = 'Generic'
+        spec.cowner = 'Meta.'+str(cmeta.metaid)
+        spec.lattice = '0'
+        spec.metakind = 'Item'
+        spec.actions = ['Enter']
+        spec.supertype = 'Landmark'
+        spec.regtype = 'Mine'
+        spec.databit = 0
         
         spec.put()
         spec.metaid = spec.key.id()

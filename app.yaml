@@ -12,6 +12,9 @@ handlers:
 
 - url: /resolution/.*
   script: resolution.app
+  
+- url: /chrono/.*
+  script: chrono.app
 
 - url: /main
   static_files: main.html
@@ -24,6 +27,9 @@ handlers:
 - url: /test
   static_files: test1.html
   upload: test1.html
+
+- url: /action.*
+  script: actionop.app
 
 - url: /edenop.*
   script: edenop.app

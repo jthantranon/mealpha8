@@ -1,0 +1,4 @@
+cron:
+- description: Chrono Cron List (Mines)
+  url: /chrono/60
+  schedule: every 1 mins

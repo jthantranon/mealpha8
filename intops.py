@@ -4,6 +4,7 @@ from google.appengine.api import users
 #import datetime
 #import time
 import json
+import random
 
 from google.appengine.api import channel
 from google.appengine.ext import ndb
@@ -11,6 +12,10 @@ from google.appengine.ext import ndb
 ##########################################################
 # Load = Specific, Fetch = MultiLoad, is = check, , 
 ##########################################################
+
+def d10(dice):
+    result = random.randint(1,10) * dice
+    return result
 
 def loadmeta():
     user = users.get_current_user()
@@ -79,6 +84,18 @@ def fetchLocalItems(metakind, metaid):
         q.append(item.to_dict())
     localitems = q
     return localitems
+
+def fetchPopUpItems(metakind, metaid):
+    cmeta = ndb.Key(metakind, int(metaid)).get()
+    q = []
+    items = Item.query( Item.ispopup == True,
+                        Item.xloc == str(cmeta.xloc),
+                        Item.yloc == str(cmeta.yloc),
+                        Item.zloc == str(cmeta.zloc),
+                        Item.lattice == str(cmeta.lattice)).fetch(50)
+    for item in items:
+        q.append(item.to_dict())
+    return q
 
 def loadcloc():
     user = users.get_current_user()

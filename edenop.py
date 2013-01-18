@@ -54,78 +54,118 @@ def MetaEcho(content):
         pack.metakind = cmeta.metakind
         pack.metaid = cmeta.metaid
         channel.send_message(str(localmeta), ops.jsonify(pack))
+
+def SelfEcho(content):
+    cmeta = ops.loadmeta()
+    pack = Packet()
+    sloc = ops.loadcloc()
+    
+    pack.scopename = sloc.name
+    pack.type = 'action'
+    pack.scope = 'local'
+    pack.formatted = content
+    pack.content = content + " hohum"
+    pack.masterid = str(cmeta.masterid)
+    pack.name = cmeta.name
+    pack.metakind = cmeta.metakind
+    pack.metaid = cmeta.metaid
+    channel.send_message(str(cmeta.metaid), ops.jsonify(pack))
         
 def cProc(command):
-    unicon.CreateTI()
+    if command == '/datamine':
+        unicon.CreateDataMine()
+        SelfEcho('DataMine Created.')
+    if command == '/digifort':
+        unicon.CreateDigiFort()
+        SelfEcho('DigitalFortress Created.')
+    if command == '/spawnloc':
+        unicon.Spawn().Location()
+        SelfEcho('Location Created.')
+    else:
+        content = 'Invalid Command: ' + command
+        SelfEcho(content)
+
+def PackPacket(packtype,scopename,scope,formatted,content):
+    cmeta = ops.loadmeta()
+    pack = Packet()
+    
+    if scope == 'local':
+        targetmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
+    elif scope == 'global' or scope == 'system':
+        targetmetas = ops.fetchAllMetaMetaIDs()
+    
+    for targetmeta in targetmetas:
+                pack.scopename = scopename
+                pack.type = packtype
+                pack.scope = scope
+                pack.formatted = formatted
+                pack.content = content
+                pack.masterid = str(cmeta.masterid)
+                pack.name = cmeta.name
+                pack.metakind = cmeta.metakind
+                pack.metaid = cmeta.metaid
+                channel.send_message(str(targetmeta), ops.jsonify(pack))
 
 class ChanRouter(webapp2.RequestHandler):
     def post(self,dest):
         cmeta = ops.loadmeta()
-        content = "<b> " + cmeta.name + "</b>: " + self.request.get('content')
+        sloc = ops.loadcloc()
+        #content = "<b> " + cmeta.name + "</b>: " + self.request.get('content')
+        content = self.request.get('content')
         pack = Packet()
         
         if dest == 'command':
-            MetaEcho(self.request.get('content'))
+            #SelfEcho(self.request.get('content'))
             cProc(self.request.get('content'))
-            localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
-            sloc = ops.loadcloc()
+
             formatted = "["+sloc.name+"]<b> " + cmeta.name + "</b>: " + self.request.get('content')
-            for localmeta in localmetas:
-                pack.scopename = sloc.name
-                pack.type = 'broadcast'
-                pack.scope = 'local'
-                pack.formatted = formatted
-                pack.content = self.request.get('content')
-                pack.masterid = str(cmeta.masterid)
-                pack.name = cmeta.name
-                pack.metakind = cmeta.metakind
-                pack.metaid = cmeta.metaid
-                channel.send_message(str(localmeta), ops.jsonify(pack))
+            packtype = 'broadcast'
+            scopename = sloc.name
+            scope = 'local'
+            #PackPacket(packtype,scopename,scope,formatted,content)
+#            for localmeta in localmetas:
+#                pack.scopename = sloc.name
+#                pack.type = 'broadcast'
+#                pack.scope = 'local'
+#                pack.formatted = formatted
+#                pack.content = self.request.get('content')
+#                pack.masterid = str(cmeta.masterid)
+#                pack.name = cmeta.name
+#                pack.metakind = cmeta.metakind
+#                pack.metaid = cmeta.metaid
+#                channel.send_message(str(localmeta), ops.jsonify(pack))
         if dest == 'local':
-            localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
-            sloc = ops.loadcloc()
+            
+            packtype = 'broadcast'
+            scopename = sloc.name
+            scope = 'local'
             formatted = "["+sloc.name+"]<b> " + cmeta.name + "</b>: " + self.request.get('content')
-            for localmeta in localmetas:
-                pack.scopename = sloc.name
-                pack.type = 'broadcast'
-                pack.scope = 'local'
-                pack.formatted = formatted
-                pack.content = self.request.get('content')
-                pack.masterid = str(cmeta.masterid)
-                pack.name = cmeta.name
-                pack.metakind = cmeta.metakind
-                pack.metaid = cmeta.metaid
-                channel.send_message(str(localmeta), ops.jsonify(pack))
+
+            PackPacket(packtype,scopename,scope,formatted,content)
+            
         if dest == 'global':
-            allmetas = ops.fetchAllMetaMetaIDs()
-            if self.request.get('content')[0] == '@':
-                formatted = self.request.get('content')[1:]
-            else:
-                formatted = "[Global]<b> " + cmeta.name + "</b>: " + self.request.get('content')
-            for allmeta in allmetas:
-                pack.scopename = 'Global'
-                pack.type = 'broadcast'
-                pack.scope = 'global'
-                pack.formatted = formatted
-                pack.content = self.request.get('content')
-                pack.masterid = str(cmeta.masterid)
-                pack.name = cmeta.name
-                pack.metakind = cmeta.metakind
-                pack.metaid = cmeta.metaid
-                channel.send_message(str(allmeta), ops.jsonify(pack))
+#            if self.request.get('content')[0] == '@':
+#                formatted = self.request.get('content')[1:]
+#            else:
+#                formatted = "[Global]<b> " + cmeta.name + "</b>: " + self.request.get('content')
+
+            packtype = 'broadcast'
+            scopename = 'Global'
+            scope = 'global'
+            formatted = "[Global]<b> " + cmeta.name + "</b>: " + self.request.get('content')
+
+            PackPacket(packtype,scopename,scope,formatted,content)
+
         elif dest == 'login':
-            allmetas = ops.fetchAllMetaMetaIDs()
-            formatted = "[Global]<b> " + cmeta.name + "</b> has logged into MetaEden."
-            pack.type = 'announcement'
-            pack.scope = 'system'
-            pack.formatted = formatted
-            pack.content = cmeta.name + "</b> has logged into MetaEden."
-            pack.masterid = str(cmeta.masterid)
-            pack.name = cmeta.name
-            pack.metakind = cmeta.metakind
-            pack.metaid = str(cmeta.metaid)
-            for allmeta in allmetas:
-                channel.send_message(str(allmeta), ops.jsonify(pack))
+          
+            packtype = 'announcement'
+            scopename = 'System'
+            scope = 'system'
+            content = cmeta.name + "</b> has logged into MetaEden."
+            formatted = "[System]<b> " + cmeta.name + "</b> has logged into MetaEden."
+            
+            PackPacket(packtype,scopename,scope,formatted,content)
+            
         elif dest == 'pm':
             metakind = self.request.get('metakind')
             metaid = self.request.get('metaid')
@@ -171,7 +211,7 @@ class LoadLocation(webapp2.RequestHandler):
         except AttributeError:
             q = Location()
             q.exits = 'n,e,s,w,nw,ne,se,sw,u,d'
-            q.metaid = '0'
+            q.metakind = 'Location'
             q.xloc =  cmeta.xloc
             q.yloc =  cmeta.yloc
             q.zloc =  cmeta.zloc
@@ -193,6 +233,12 @@ class FetchLocalItems(webapp2.RequestHandler):
         cmeta = ops.loadmeta()
         localitems = ops.fetchLocalItems('Meta',cmeta.metaid)
         self.response.out.write(ops.sonify(localitems))
+
+class FetchPopUpItems(webapp2.RequestHandler):
+    def get(self):
+        cmeta = ops.loadmeta()
+        puis = ops.fetchPopUpItems('Meta',cmeta.metaid)
+        self.response.out.write(ops.sonify(puis))
 
 class FetchInventory(webapp2.RequestHandler):
     def get(self):
@@ -337,6 +383,7 @@ app = webapp2.WSGIApplication([('/edenop/test', Test),
                                ('/edenop/loadcmeta', LoadCMeta),
                                ('/edenop/openchannel', OpenChannel),
                                ('/edenop/location', LoadLocation),
+                               ('/edenop/fetchpuis', FetchPopUpItems),
                                ('/edenop/fetchlocalmetas', FetchLocalMetas),
                                ('/edenop/fetchlocalitems', FetchLocalItems),
                                ('/edenop/fetchinventory', FetchInventory),
