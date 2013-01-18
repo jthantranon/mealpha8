@@ -2,8 +2,8 @@ $(document).ready(function() {
 	NewGlassMetaSheet();
 	function NewGlassMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			NewGlass = new MEGlass();
-			NewGlass.create({id:cmeta.kid})
+			//NewGlass = new MEGlass();
+			//NewGlass.create({id:cmeta.kid})
 		});
 	}
 	
@@ -11,9 +11,9 @@ $(document).ready(function() {
 	
 	var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
 	myglass.create(glassargs);
-	myglass.title(9430,'New Title');
-	myglass.append(9430,'test');
-	myglass.clear(9430);
+	//myglass.title(9430,'New Title');
+	//myglass.append(9430,'test');
+
 	//myglass.remove(id,selector)
 	
 	// Settings for jQ Dialog Boxes

@@ -52,8 +52,8 @@ function World3D() {
 	self.scene.add(self.light);
 	
 	// controls
-	self.controls = new THREE.TrackballControls(self.camera);
-	self.controls.enabled = false;
+	//self.controls = new THREE.TrackballControls(self.camera);
+	//self.controls.enabled = false;
 	
 	// drag plane
 	var dragPlaneMat = new THREE.MeshNormalMaterial();
@@ -147,7 +147,7 @@ function World3D() {
 		
 
         self.renderer.render(self.scene, self.camera);
-        self.controls.update(self.clock.getDelta());
+        //self.controls.update(self.clock.getDelta());
 		
 	};
 		
