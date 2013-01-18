@@ -53,6 +53,8 @@ def PackPacket(packtype,scopename,scope,formatted,content):
 
 def PackObj(sitem):
     cmeta = ops.loadmeta()
+    if sitem.kid == cmeta.kid:
+        sitem.metasheetupdater = True
     sitem.updater = True
     localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
     for localmeta in localmetas:

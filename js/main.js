@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    
+
 	// Settings for jQ Dialog Boxes
 	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
 	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
@@ -55,9 +55,9 @@ $(document).ready(function() {
 	function GlassLocSheet(){
 		$('body').append("<div id='GlassLocSheet'></div>");
 		var Anchor = $('#GlassLocSheet');
-		Anchor.empty();
 		Anchor.dialog(LocSheetPlace);
 		$.getJSON('/edenop/location', function(cloc) {
+			Anchor.empty();
 			SheetLocation(Anchor,cloc);
 			Anchor.droppable({
 				drop: function (event, ui) {
@@ -70,9 +70,9 @@ $(document).ready(function() {
 	function GlassMetaSheet(){
 		$('body').append("<div id='GlassMetaSheet'></div>");
 		var Anchor = $('#GlassMetaSheet');
-		Anchor.empty();
 		Anchor.dialog(MetaSheetPlace);
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+			Anchor.empty();
 			SheetMeta(Anchor,cmeta);
 			Anchor.droppable({
 				drop: function (event, ui) {
@@ -211,11 +211,11 @@ $(document).ready(function() {
 	
 	/// Sheet Constructors LEVEL 2
 	function SheetMeta(Anchor,sob,params){
-		SheetUniCon(Anchor,sob);
-		GAL(Anchor,sob,'MasterID',sob.masterid);
-		GAL(Anchor,sob,'DataBits',sob.databits);
-		GAP(Anchor,sob,30);
 		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			SheetUniCon(Anchor,sob);
+			GAL(Anchor,sob,'MasterID',sob.masterid);
+			GAL(Anchor,sob,'DataBits',sob.databits);
+			GAP(Anchor,sob,30);
 			GALO(Anchor,sob,'Inventory');
 			$.each(inventory, function() {
 				GAO(Anchor,sob,this);
@@ -225,8 +225,6 @@ $(document).ready(function() {
 	
 	function SheetItem(Anchor,sob,params){
 		SheetUniCon(Anchor,sob);
-		
-		
 		if (sob.regtype == 'Mine'){
 			GAL(Anchor,sob,'DataBits',sob.databits);
 		}
@@ -240,8 +238,9 @@ $(document).ready(function() {
 	}
 	
 	function SheetLocation(Anchor,sob){
-		SheetUniCon(Anchor,sob);
 		ShowExits(Anchor,sob);
+		SheetUniCon(Anchor,sob);
+		
 		UsersHere(Anchor,sob);
 		ItemsHere(Anchor,sob);
 	}
@@ -293,7 +292,7 @@ $(document).ready(function() {
 	}
 	
 	$('body').on('click','.move',function() {
-		dir = $(this).attr('id');
+		dir = this.id;
 		$.ajax({
 			type: 'POST',
 			url: '/action/move/' + dir,
@@ -705,7 +704,11 @@ $(document).ready(function() {
 	function UpdateStatus(pack){
 		// Type Loop (For printing/formatting)
 		if  (pack.updater){
-			GlassFactory(pack);
+			if (pack.metasheetupdater){
+				GlassMetaSheet();
+			} else {
+				GlassFactory(pack);
+			}
 		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});
 			MetaSound('chirp');
@@ -731,7 +734,7 @@ $(document).ready(function() {
 			if (pack.scope === 'location') {
 				GlassLocSheet();
 			} else if (pack.scope === 'meta') {
-				//MetaSheet();
+				GlassMetaSheet();
 			}
 		} else if (pack.type === 'move') {
 //			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
