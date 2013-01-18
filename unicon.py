@@ -25,7 +25,7 @@ class Spawn():
 def CreateDataMine():
         cmeta = ops.loadmeta()
         spec = Item();
-        spec.name = 'Data Mine 3'
+        spec.name = 'Data Mine 4'
         spec.info = 'This is a test item.'
         spec.itype = 'Test'
         spec.primertype = 'Generic'

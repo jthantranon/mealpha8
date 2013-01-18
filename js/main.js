@@ -1,41 +1,110 @@
 $(document).ready(function() {
     
+	// Settings for jQ Dialog Boxes
+	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
+	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
+	var LocSheetPlace = { width: 275, title: 'MetaLocation', position: { at: 'left top' }, dialogClass:'transparent90'};
+	var draggableArguments={
+		     revert: false,
+		     helper: 'clone',
+		     appendTo: '#wholepage',
+		     containment: 'DOM',
+		     zIndex: 1500,
+		     cancel: false,
+	};
+	
 	//////////////
 	/// INITIALIZE SIMPLE UI ELEMENTS
 	/////////////
-	
-	////
-	// Small Functions & Helper Vars
-	////
-	
-
-	function LoadPopUpItems(){
-		$.getJSON('/edenop/fetchpuis', function(sobs) {
-			for (var i = 0; i < sobs.length; i++) {
-				GlassFactory(sobs[i]);				
+	$('#wholepage').hide();
+	SessionHandler();
+	function SessionHandler() {
+		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+			if (cmeta == 'nometa'){
+				Amb('No MetaUser, please register.',8);
+				$('.ui-dialog, #wholepage').hide();
+				$('#Register').dialog('open');
+			}
+			else {
+				InitializeMetaEden(cmeta);
 			}
 		});
 	}
 	
-	LoadPopUpItems();
+	function InitializeMetaEden(cmeta) {
+		Amb('Welcome to MetaEden! Enjoy your stay!',5);
+		$('#wholepage').show();
+		OpenSesh(); 			// Init Channel API
+		GlassLocSheet(); 		// Load Static UX
+		GlassMetaSheet();
+		BindKPMove();			// Misc
+	}
 	
-	// Settings for jQ Dialog Boxes
-	//var MetaVisionPlace = { position: { at: 'right bottom' } };
-	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
-	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
-	var MetaLocPlace = { width: 275, title: 'MetaLocation', position: { at: 'left top' }, dialogClass:'transparent90'};
+	// Disabled for now. Potential feature.
+	function LoadPopUpItems(){
+		$.getJSON('/edenop/fetchpuis', function(sobs) {
+			for (var i = 0; i < sobs.length; i++) {
+				GlassFactory(sobs[i]);
+			}
+		});
+	}
 	
 	///////
-	//// Glass Functions
-	////// sob - Selected Object //////
+	//// Static Glass
+	//////
+	function GlassLocSheet(){
+		$('body').append("<div id='GlassLocSheet'></div>");
+		var Anchor = $('#GlassLocSheet');
+		Anchor.empty();
+		Anchor.dialog(LocSheetPlace);
+		$.getJSON('/edenop/location', function(cloc) {
+			SheetLocation(Anchor,cloc);
+			Anchor.droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
+				}
+			});
+		});
+	}
 	
-	function GlassLocation(cloc){
-		//$('#Glass'+sob.metakind+sob.metaid).remove();
-		$('body').append("<div id='GlassLocationSheet'></div>");
-		var GLS = $('#GlassLocationSheet'); 
-		GLS.empty();
-		GLS.dialog(MetaLocPlace);
-		SheetLocation(cloc);
+	function GlassMetaSheet(){
+		$('body').append("<div id='GlassMetaSheet'></div>");
+		var Anchor = $('#GlassMetaSheet');
+		Anchor.empty();
+		Anchor.dialog(MetaSheetPlace);
+		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+			SheetMeta(Anchor,cmeta);
+			Anchor.droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+			});
+		});
+	}
+	
+	function Drop(metakind,metaid,dkind,did){
+		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
+		} else {
+			$.ajax({
+				type: 'POST',
+				url: '/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did,
+				data: null,
+				success: function(data){
+					//GlassLocSheet(); 		// Load Static UX
+					//GlassMetaSheet();
+				}
+			});
+		}
+	}
+	
+	///////
+	//// Dynamic Glass
+	//////
+	
+	//// Fetches selectedObject (sob) for GlassFactory() from Kind/ID (KID)
+	function GlassBlueprint(metakind,metaid,title,glassopt){
+		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
+			GlassFactory(sob,title,glassopt);
+		});
 	}
 	
 	function GlassFactory(sob,title,glassopt){
@@ -43,22 +112,15 @@ $(document).ready(function() {
 		var metaid = sob.metaid;
 		var name = sob.name;
 		var Anchor;
-		//$('#Glass'+sob.metakind+sob.metaid).remove();
-		if (sob.iscloc){
-			$('body').append("<div id='GlassLocationSheet'></div>");
-			Anchor = $('#GlassLocationSheet');
-		} else {
-			$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
-			Anchor = $('#Glass'+sob.metakind+sob.metaid);
-		}
+
+		$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
+		Anchor = $('#Glass'+sob.metakind+sob.metaid);
 		Anchor.empty();
 		if (title){
 			if(typeof glassopt === 'undefined'){
 				Anchor.dialog({title: title});
-				alert(title);
 			} else {
 				Anchor.dialog({title: title},glassopt);
-				
 			}
 		} else {
 			Anchor.dialog({title: name});
@@ -79,7 +141,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	/// Sheet Append Functions START///
+	///  Glass Append Functions START///
 	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
 	function GAG(Anchor,sob,appendage){
 		Anchor.append(appendage+'<br>');
@@ -112,24 +174,29 @@ $(document).ready(function() {
 		var action = $(this).data('action');
 		var item = $(this).data('name');
 		MetaAction(action,item,metakind,metaid);
-		//LoadPopUpItems();
 	});
 	
 	function GAO(Anchor,sob,obj){
 		Anchor.append(
-				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj' value='" + obj.name + 
+				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
 				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
 				">"
 				);
+		$('.dragit').draggable(draggableArguments);
 	}
 	
-	$(document).on('click','.viewable',function(){
-		OpenObj($(this).data('metakind'),$(this).data('metaid'));
+	$(document).on('click','.obj',function(){
+		GlassBlueprint($(this).data('metakind'),$(this).data('metaid'));
 	});
 	
-	$(document).on('click','.obj',function(){
-		ObjGlass($(this).data('metakind'),$(this).data('metaid'));
-	});
+	function GAP(Anchor,sob,percent){
+		Anchor.append(
+			"<div class='meter orange nostripes'>" +
+			"<span style='width:"+percent+"%'></span>" +
+			"</div>"
+		);
+		
+	}
 	
 	/// Append Functions END ///
 	
@@ -137,7 +204,8 @@ $(document).ready(function() {
 	function SheetUniCon(Anchor,sob){
 		GAL(Anchor,sob,'Name',sob.name);
 		GAL(Anchor,sob,'Info',sob.info);
-		GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
+		GAL(Anchor,sob,'MetaKID',sob.kid);
+		//GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
 		GAL(Anchor,sob,'Location',sob.xyz);
 	}
 	
@@ -146,8 +214,9 @@ $(document).ready(function() {
 		SheetUniCon(Anchor,sob);
 		GAL(Anchor,sob,'MasterID',sob.masterid);
 		GAL(Anchor,sob,'DataBits',sob.databits);
-		GALO(Anchor,sob,'Inventory');
+		GAP(Anchor,sob,30);
 		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			GALO(Anchor,sob,'Inventory');
 			$.each(inventory, function() {
 				GAO(Anchor,sob,this);
 			});
@@ -156,6 +225,7 @@ $(document).ready(function() {
 	
 	function SheetItem(Anchor,sob,params){
 		SheetUniCon(Anchor,sob);
+		
 		
 		if (sob.regtype == 'Mine'){
 			GAL(Anchor,sob,'DataBits',sob.databits);
@@ -229,29 +299,12 @@ $(document).ready(function() {
 			url: '/action/move/' + dir,
 			data: null,
 			success: function(data){
-				cLocGlass('MetaLocation',MetaLocPlace);
+				GlassLocSheet();
 			}
 		});
 	});
 	
-	/// INITIALIZE NEW
-	function ObjGlass(metakind,metaid,title,glassopt){
-		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
-			GlassFactory(sob,title,glassopt);
-		});
-	}
 	
-	function cLocGlass(cloc,title,glassopt){
-		$.getJSON('/edenop/location', function(cloc) {
-			cloc.isloc = true;
-			GlassFactory(cloc,title,glassopt);
-		});
-	}
-	
-	
-	
-	ObjGlass('Meta','85','MetaSheet',MetaSheetPlace);
-	cLocGlass('MetaLocation',MetaLocPlace);
 	
 	//////
 	//////
@@ -262,14 +315,7 @@ $(document).ready(function() {
 					fade: fade});
 	}
 	
-	var draggableArguments={
-		     revert: false,
-		     helper: 'clone',
-		     appendTo: '#wholepage',
-		     containment: 'DOM',
-		     zIndex: 1500,
-		     cancel: false,
-	};
+	
 	
 	
 	
@@ -472,31 +518,19 @@ $(document).ready(function() {
 					url: '/edenop/move/' + dir,
 					data: null,
 					success: function(data){
-						LocationSheet();
+						GlassLocSheet();
 					}
 				});
 			}
 		});
 	}
 
-	function Drop(metakind,metaid,dkind, did){
-		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
-		} else {
-			$.ajax({
-				type: 'POST',
-				url: '/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did,
-				data: null,
-				success: function(data){
-					MetaInventory();
-				}
-			});
-		}
-	}
+	
 	
 	function RefreshAll() {
 		$.getJSON('/resolution/hasmeta', function(cmeta) {
 			//MetaSheet();
-			LocationSheet();
+			GlassLocSheet();
 		});
 	}
 	
@@ -517,19 +551,7 @@ $(document).ready(function() {
 	$('#Register')
 	.dialog({ autoOpen: false, modal: true, title: 'Create MetaUser!', position: { my: 'middle middle', at: 'middle middle', of: document }, dialogClass:'transparent90', width: 250});
 	
-	SessionHandler();
-	function SessionHandler() {
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			if (cmeta == 'nometa'){
-				Amb('No MetaUser, please register.',8);
-				$('.ui-dialog, #wholepage').hide();
-				$('#Register').dialog('open');
-			}
-			else {
-				InitializeMetaEden()
-			}
-		});
-	}
+	
 	
 	$('#regsubmit').click(function() {
 		var regData = $('#regform').serialize();
@@ -547,15 +569,7 @@ $(document).ready(function() {
 	////
 	//Initialize/Bind Buttons
 	////
-	function InitializeMetaEden() {
-		Amb('Welcome to MetaEden! Enjoy your stay!',5);
-		OpenSesh();
-		$('#wholepage').show();
-		//$('#MetaVision').dialog('open');
-		//MetaSheet();
-		LocationSheet();
-		BindKPMove();
-	}
+	
 	
 	$('#BtnToggleUC').toggle(
 		function(){$('#UniCon').dialog('open');},
@@ -715,7 +729,7 @@ $(document).ready(function() {
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'refresh') {
 			if (pack.scope === 'location') {
-				LocationSheet();
+				GlassLocSheet();
 			} else if (pack.scope === 'meta') {
 				//MetaSheet();
 			}

@@ -50,6 +50,12 @@ class Location(ndb.Expando):
             return self.key.id()
         except AttributeError:
             return 'None'
+    @ndb.ComputedProperty
+    def kid(self):
+        if self.metakind:
+            return self.metakind+str(self.metaid)
+        else:
+            return 'No kid(ding).'
    
 class Item(ndb.Expando):
     name = ndb.StringProperty()
@@ -76,6 +82,12 @@ class Item(ndb.Expando):
             return self.cowner
         else:
             return 'Limbo'
+    @ndb.ComputedProperty
+    def kid(self):
+        if self.metakind:
+            return self.metakind+str(self.metaid)
+        else:
+            return 'No kid(ding).'
 
 class Meta(ndb.Expando):
     metakind = ndb.StringProperty(default='Meta')
@@ -94,6 +106,12 @@ class Meta(ndb.Expando):
             return self.xloc+"."+self.yloc+"."+ self.zloc+":"+self.lattice
         else:
             return 'Limbo'
+    @ndb.ComputedProperty
+    def kid(self):
+        if self.metakind:
+            return self.metakind+str(self.metaid)
+        else:
+            return 'No kid(ding).'
     
 
 class Base(ndb.Expando):
