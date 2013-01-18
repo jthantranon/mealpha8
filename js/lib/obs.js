@@ -95,21 +95,36 @@ function World3D() {
 	});
 	
 		
-	$(document).on("mousedown", function(e){
-		ISMOUSEDOWN = true;
-		if(INTERSECTEDITEM) {
-			DRAGEVENT = true;
-			DRAGITEM = INTERSECTEDITEM;
+	$("#threedee").on("mousedown", function(e){
+		if(e.which == 3) {
+			console.log("right button pressed");
+			
+		} else {
+			ISMOUSEDOWN = true;
+			if(INTERSECTEDITEM) {
+				DRAGEVENT = true;
+				DRAGITEM = INTERSECTEDITEM;
+			}
 		}
 		
 	});
 	
 	
-	$(document).on("mouseup", function(e){
-		ISMOUSEDOWN = false;
-		//self.controls.enabled = true;
-		DRAGEVENT = false;
-		DRAGITEM = null;
+	$("#threedee").on("mouseup", function(e){
+		if(e.which == 3) {
+			console.log("right button pressed");
+			
+			if(INTERSECTEDITEM) {
+				//itemMenu(INTERSECTEDITEM);
+				console.log("context menu triggered");
+			}
+		} else {
+			ISMOUSEDOWN = false;
+			//self.controls.enabled = true;
+			DRAGEVENT = false;
+			DRAGITEM = null;
+		}
+				
 	});
 			
 		
@@ -356,7 +371,7 @@ function World3D() {
 			console.log("drag conditions occured");
 			//INTERSECTEDITEM.material.color.setHSV(Math.random(), 1,0.5);
 			
-			self.controls.enabled = false;
+			//self.controls.enabled = false;
 			
 			// match up location with mouseovered place
 			if (INTERSECTEDPLACE) {
