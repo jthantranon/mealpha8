@@ -1,5 +1,4 @@
 $(document).ready(function() {
-	NewGlassMetaSheet();
 	function NewGlassMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
 			Glass = new MEGlass();
@@ -61,6 +60,7 @@ $(document).ready(function() {
 		GlassLocSheet(); 		// Load Static UX
 		//GlassMetaSheet();
 		BindKPMove();			// Misc
+		NewGlassMetaSheet();
 	}
 	
 	// Disabled for now. Potential feature.

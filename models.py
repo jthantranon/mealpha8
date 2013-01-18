@@ -84,9 +84,9 @@ class Item(ndb.Expando):
             return 'Limbo'
     @ndb.ComputedProperty
     def kid(self):
-        if self.metakind:
+        try:
             return self.metakind+str(self.metaid)
-        else:
+        except AttributeError:
             return 'No kid(ding).'
 
 class Meta(ndb.Expando):
