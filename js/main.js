@@ -28,6 +28,9 @@ $(document).ready(function() {
 		});
 	}
 	
+	function dMedoGlass(){
+		
+	}
 	//myglass = new MEGlass();
 	
 	//var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
