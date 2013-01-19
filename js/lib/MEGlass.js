@@ -118,6 +118,12 @@ MEGlass.prototype.remove = function(id,context) {
 	$('#'+id).children(context).empty();
 }
 
+MEGlass.prototype.replace = function(id,context,content) {
+	$('#'+id).children(context).empty();
+	$('#'+id).children(context).append(content);	
+}
+
+
 /////////////////////////////////////////
 // testing and examples
 /////////////////////////////////////////
