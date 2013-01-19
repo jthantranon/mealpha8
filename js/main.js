@@ -2,47 +2,31 @@ $(document).ready(function() {
 	// Initialize Glass
 	Glass = new MEGlass();
 	
-	var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
-	Glass.create(glassargs);
+	
 	
 	function cMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			
-			//EngraveMetaGlass(cmeta);
+			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
+			Glass.create(glassargs);
+			EngraveMetaGlass(cmeta);
 			$('#MetaSheet').droppable({
 				drop: function (event, ui) {
 					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
 			});
 		});
-		
 	}
 	
-//	function NewGlassLocaSheet(){
-//		$.getJSON('/edenop/location', function(cloc) {
-//			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:cloc.kid,id:cmeta.kid};
-//			Glass.create(glassargs);
-//			EngraveMetaGlass(cmeta);
-//			Anchor.empty();
-//			SheetLocation(Anchor,cloc);
-//			Anchor.droppable({
-//				drop: function (event, ui) {
-//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
-//				}
-//			});
-//		});
-//		
-//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-//			Glass = new MEGlass();
-//			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:cmeta.kid,id:cmeta.kid};
-//			Glass.create(glassargs);
-//			EngraveMetaGlass(cmeta);
-//			$('#'+cmeta.kid).droppable({
-//				drop: function (event, ui) {
-//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
-//			});
-//		});
-//		
-//	}
+	function cLocaSheet(){
+		$.getJSON('/edenop/location', function(cloc) {
+			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
+			Glass.create(glassargs);
+			EngraveLocaGlass(cloc);
+			$('#LocationSheet').droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
+			});
+		});
+	}
 	
 	//myglass = new MEGlass();
 	
@@ -91,7 +75,8 @@ $(document).ready(function() {
 		//GlassLocSheet(); 		// Load Static UX
 		//GlassMetaSheet();
 		BindKPMove();			// Misc
-		//cMetaSheet();
+		cMetaSheet();
+		cLocaSheet();
 	}
 	
 	// Disabled for now. Potential feature.
@@ -197,6 +182,11 @@ $(document).ready(function() {
 	
 	///  Glass Append Functions START///
 	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
+	
+	function NGAG(tGlass,appendage){
+		Glass.append(tGlass,appendage+'<br>');
+	}
+	
 	function GAG(Anchor,sob,appendage){
 		Anchor.append(appendage+'<br>');
 	}
@@ -315,6 +305,33 @@ $(document).ready(function() {
 			$.each(inventory, function() {
 				NGAO('MetaSheet',this);
 			});
+		});
+	}
+	
+	function EngraveLocaGlass(cloca){
+		var args = {
+					Name:cloca.name,
+					Info:cloca.info,
+					KID:cloca.kid,
+					Location:cloca.xyz,
+		};
+		
+		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
+			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
+				NGALO('LocaSheet','MetaUsers Here');
+				$.each(localmetas, function() {
+					NGAO('LocaSheet',this);
+				});
+				NGAG('LocaSheet','');
+				NGALO('LocaSheet','Items Here');
+				$.each(localitems, function() {
+					NGAO('LocaSheet',this);
+				});
+				NGAG('LocaSheet','');
+			});
+		});
+		$.each(args, function(k,v){
+			NGAL('LocaSheet',k,v);
 		});
 	}
 	
