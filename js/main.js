@@ -957,7 +957,7 @@ $(document).ready(function() {
 			if (pack.type == 'action'){
 				outmsg = '<p>' + pack.formatted + '</p>';
 			} else {
-				outmsg = '<p><span class="channelAnnounce"><img src="img/icons/connect1.png" width="20" height="20" />' + pack.content + '</span></p>';
+				outmsg = '<p><span class="channelAnnounce">' + pack.name +' <img class="iconTranslator" src="img/icons/connect1.png" data-icontype="userlogin" width="20" height="20" />MetaEden</span></p>';
 			}
 			$(context).append(outmsg);
 			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
@@ -969,7 +969,10 @@ $(document).ready(function() {
 			if (pack.type == 'action'){
 				outmsg = '<p>' + pack.formatted + '</p>';
 			} else {
-				outmsg = '<p><span class="channelMove"><img src="img/icons/moving1.png" width="20" height="20" />' + pack.content + '</span></p>';
+				var content = pack.content.replace('You move ','');
+				content = content.replace('.','');
+				content = content.charAt(0).toUpperCase() + content.slice(1);
+				outmsg = '<p><span class="channelMove"><img class="iconTranslator" src="img/icons/moving1.png" width="20" height="20" data-icontype="usermove" />' + content + '</span></p>';
 			}
 			$(context).append(outmsg);
 			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
@@ -982,7 +985,8 @@ $(document).ready(function() {
 			if (pack.type == 'action'){
 				outmsg = '<p>' + pack.formatted + '</p>';
 			} else {
-				outmsg = '<p><span class="channelUserArrive"><img src="img/icons/arriving.png" width="20" height="20" />' + pack.content + '</span></p>';
+				var destination = pack.destination.charAt(0).toUpperCase() + pack.destination.slice(1);
+				outmsg = '<p><span class="channelUserArrive">'+pack.name+'<img class="iconTranslator" src="img/icons/arriving.png" width="20" height="20" data-icontype="userenter" />' + destination + '</span></p>';
 			}
 			$(context).append(outmsg);
 			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
@@ -995,21 +999,14 @@ $(document).ready(function() {
 			if (pack.type == 'action'){
 				outmsg = '<p>' + pack.formatted + '</p>';
 			} else {
-				outmsg = '<p><span class="channelUserLeave"><img src="img/icons/leaving.png" width="20" height="20" />' + pack.content + '</span></p>';
+				var destination = pack.destination.charAt(0).toUpperCase() + pack.destination.slice(1);
+				outmsg = '<p><span class="channelUserLeave">'+pack.name+'<img class="iconTranslator" src="img/icons/leaving.png" width="20" height="20" data-icontype="userleave" />' + destination + '</span></p>';
 			}
 			$(context).append(outmsg);
 			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
 			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
 			break;
 		
-			
-		
-			
-//		} else if (pack.type === 'usermove') {
-//			newChatBoxMsg(pack);
-//		} else if (pack.type === 'userenter') {
-//			newChatBoxMsg(pack);
-//		} else if (pack.type === 'userleave') {
 			
 		default:
 			// don't do shit...
@@ -1020,6 +1017,37 @@ $(document).ready(function() {
 		
 		
 	};
+	
+	// chatbox icon translator
+	$('.iconTranslator').livequery('click', function(){
+		var iconType = $(this).attr("data-iconType");
+		switch(iconType) {
+		
+		case "userlogin":
+			$(this).after(" has logged into ");
+			$(this).remove();
+			break;
+			
+		case "usermove":
+			$(this).after("You move ");
+			$(this).remove();
+			break;
+			
+		case "userenter":
+			$(this).after(" has arrived from the ");
+			$(this).remove();
+			break;
+		
+		case "userleave":
+			$(this).after(" has moved ");
+			$(this).remove();
+			break;
+								
+		default:
+			// don't do shit...
+		}
+				
+	});
 	
 	/////////////////////////////
 	/// UI PANELS - METASHEET

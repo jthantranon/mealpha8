@@ -113,6 +113,8 @@ class Move(webapp2.RequestHandler):
             else:
                 pack.content = cmeta.name + " has moved " + ops.dirFull(direction)
                 pack.type = 'userleave'
+                pack.name = cmeta.name
+                pack.destination = ops.dirFull(direction)
                 channel.send_message(str(localmeta), ops.jsonify(pack))
         
         if direction == 'n':
@@ -148,6 +150,8 @@ class Move(webapp2.RequestHandler):
             else:
                 pack.content = cmeta.name + " has arrived from the " + ops.dirOpp(direction)
                 pack.type = 'userenter'
+                pack.name = cmeta.name
+                pack.destination = ops.dirFull(direction)
                 channel.send_message(str(newlocalmeta), ops.jsonify(pack))
         
         self.response.out.write(cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)
