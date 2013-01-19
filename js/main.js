@@ -1,17 +1,48 @@
 $(document).ready(function() {
-	function NewGlassMetaSheet(){
+	// Initialize Glass
+	Glass = new MEGlass();
+	
+	var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
+	Glass.create(glassargs);
+	
+	function cMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			Glass = new MEGlass();
-			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:cmeta.kid,id:cmeta.kid};
-			Glass.create(glassargs);
-			EngraveMetaGlass(cmeta);
-			$('#'+cmeta.kid).droppable({
+			
+			//EngraveMetaGlass(cmeta);
+			$('#MetaSheet').droppable({
 				drop: function (event, ui) {
 					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
 			});
 		});
 		
 	}
+	
+//	function NewGlassLocaSheet(){
+//		$.getJSON('/edenop/location', function(cloc) {
+//			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:cloc.kid,id:cmeta.kid};
+//			Glass.create(glassargs);
+//			EngraveMetaGlass(cmeta);
+//			Anchor.empty();
+//			SheetLocation(Anchor,cloc);
+//			Anchor.droppable({
+//				drop: function (event, ui) {
+//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
+//				}
+//			});
+//		});
+//		
+//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+//			Glass = new MEGlass();
+//			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:cmeta.kid,id:cmeta.kid};
+//			Glass.create(glassargs);
+//			EngraveMetaGlass(cmeta);
+//			$('#'+cmeta.kid).droppable({
+//				drop: function (event, ui) {
+//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+//			});
+//		});
+//		
+//	}
 	
 	//myglass = new MEGlass();
 	
@@ -57,10 +88,10 @@ $(document).ready(function() {
 		Amb('Welcome to MetaEden! Enjoy your stay!',5);
 		$('#wholepage').show();
 		OpenSesh(); 			// Init Channel API
-		GlassLocSheet(); 		// Load Static UX
+		//GlassLocSheet(); 		// Load Static UX
 		//GlassMetaSheet();
 		BindKPMove();			// Misc
-		NewGlassMetaSheet();
+		//cMetaSheet();
 	}
 	
 	// Disabled for now. Potential feature.
@@ -177,8 +208,8 @@ $(document).ready(function() {
 				);
 	}
 	
-	function NGAL(cmeta,label,appendage){
-		Glass.append(cmeta.kid, "<label>"+label+"</label><br>"+
+	function NGAL(tGlass,label,appendage){
+		Glass.append(tGlass, "<label>"+label+"</label><br>"+
 			"<span>" + appendage + "</span><br>");
 	}
 	
@@ -188,8 +219,8 @@ $(document).ready(function() {
 				);
 	}
 	
-	function NGALO(cmeta,label){
-		Glass.append(cmeta.kid,
+	function NGALO(tGlass,label){
+		Glass.append(tGlass,
 				"<label>"+label+"</label><br>"
 				);
 	}
@@ -219,8 +250,8 @@ $(document).ready(function() {
 		$('.dragit').draggable(draggableArguments);
 	}
 	
-	function NGAO(cmeta,obj){
-		Glass.append(cmeta.kid,
+	function NGAO(tGlass,obj){
+		Glass.append(tGlass,
 				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
 				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
 				">"
@@ -278,11 +309,11 @@ $(document).ready(function() {
 		
 		$.getJSON('/edenop/fetchinventory', function(inventory) {
 			$.each(args, function(k,v){
-				NGAL(cmeta,k,v);
+				NGAL('MetaSheet',k,v);
 			});
-			NGALO(cmeta,'Inventory');
+			NGALO('MetaSheet','Inventory');
 			$.each(inventory, function() {
-				NGAO(cmeta,this);
+				NGAO('MetaSheet',this);
 			});
 		});
 	}
@@ -856,18 +887,18 @@ $(document).ready(function() {
 	/// UI PANELS - METASHEET
 	/////////////////////////////
 	
-	function MetaSheet(){
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			$('#MetaSheet')
-			.dialog({ width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'})
-			.droppable({
-				drop: function (event, ui) {
-				Drop(ui.draggable.attr('metakind'),ui.draggable.attr('name'),'Meta',cmeta.metaid);}
-			});
-		MetaInfo(cmeta);
-		MetaInventory();
-		});
-	}
+//	function MetaSheet(){
+//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+//			$('#MetaSheet')
+//			.dialog({ width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'})
+//			.droppable({
+//				drop: function (event, ui) {
+//				Drop(ui.draggable.attr('metakind'),ui.draggable.attr('name'),'Meta',cmeta.metaid);}
+//			});
+//		MetaInfo(cmeta);
+//		MetaInventory();
+//		});
+//	}
 	
 	function MetaInfo(cmeta){
 		$('#MetaInfo')
