@@ -1,14 +1,28 @@
 $(document).ready(function() {
+	
+	function Amb(msg,time,fade){
+		$.ambiance({message: msg,
+					timeout: time,
+					fade: fade});
+	}
+	
+	var draggableArguments={
+		     revert: false,
+		     helper: 'clone',
+		     appendTo: '#wholepage',
+		     containment: 'DOM',
+		     zIndex: 1500,
+		     cancel: false,
+	};
+	
 	// Initialize Glass
 	Glass = new MEGlass();
-	
-	
 	
 	function cMetaSheet(){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
 			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
 			Glass.create(glassargs);
-			EngraveMetaGlass(cmeta);
+			EngraveMetaSheet(cmeta);
 			$('#MetaSheet').droppable({
 				drop: function (event, ui) {
 					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
@@ -20,7 +34,7 @@ $(document).ready(function() {
 		$.getJSON('/edenop/location', function(cloc) {
 			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
 			Glass.create(glassargs);
-			EngraveLocaGlass(cloc);
+			EngraveLocaSheet(cloc);
 			$('#LocaSheet').droppable({
 				drop: function (event, ui) {
 					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
@@ -28,9 +42,192 @@ $(document).ready(function() {
 		});
 	}
 	
-	function dMedoGlass(){
+	function dMedoGlass(metakind,metaid,glassargs){
+		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
+			GlassFactory(medo,glassargs);
+		});
+	}
+	
+	dMedoGlass('Item',105);
+	
+	$(document).on('click','.obj',function(){
+		dMedoGlass($(this).data('metakind'),$(this).data('metaid'));
+	});
+	
+	function GlassFactory(medo,glassargs){
+		var metakind = medo.metakind;
+		var metaid = medo.metaid;
+		var name = medo.name;
+		var Anchor;
+		
+		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:medo.name,name:medo.kid,id:medo.kid};
+
+		
+		Glass.create(glassargs);
+		//Glass.empty(medo.kid);
+		
+		if (metakind == 'Item'){
+			//NGAG(sob,'This is definitely a '+metakind+'<br>');
+			EngraveItemGlass(medo);
+			Amb(metakind);
+		} else if (metakind =='Meta'){
+			//GAG(sob,'This is definitely a '+metakind+'<br>');
+			EngraveMetaGlass(medo);
+		} else if (metakind =='Location'){
+			//GAG(sob,'This is definitely a '+metakind+'<br>');
+			//SheetLocation(Anchor,sob);
+		} else {
+			//GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
+			//SheetUniCon(Anchor,sob);
+		}
+	}
+	
+	function EngraveMedoGlass(medo){
+		NGAL(medo.kid,'Name',medo.name);
+		NGAL(medo.kid,'Info',medo.info);
+		NGAL(medo.kid,'MetaKID',medo.kid);
+		NGAL(medo.kid,'Location',medo.xyz);
+	}
+	
+	function EngraveMetaGlass(medo){
+		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			EngraveMedoGlass(medo);
+			NGAL(medo.kid,'MasterID',medo.masterid);
+			NGAL(medo.kid,'DataBits',medo.databits);
+			GAP(medo,30);
+			NGALO(medo.kid,'Inventory');
+			$.each(inventory, function() {
+				NGAO(medo.kid,this);
+			});
+		});
+	}
+	
+	function EngraveItemGlass(medo){
+		EngraveMedoGlass(medo);
+		if (medo.regtype == 'Mine'){
+			NGAL(medo.kid,'DataBits',medo.databits);
+		}
+		
+		if (medo.actions){
+			NGALO(medo.kid,'Actions');
+			for (var i = 0; i < medo.actions.length; i++) {
+				NGAA(medo,medo.actions[i]);				
+			}
+		}
+	}
+	
+	function NGAA(medo,action){
+		Glass.append(medo.kid,
+				"<input type='button' id='btnaction"+medo.metakind+medo.metaid+action + "' class='action' value='" + action + 
+				"' data-name='"+medo.name+"' data-metakind='"+medo.metakind+"' data-metaid='"+medo.metaid+"'" + " data-action='"+action+"'" +
+				">"
+				);
+	}
+	
+	$('body').on('click','.action',function(){
+		var metakind = $(this).data('metakind');
+		var metaid = $(this).data('metaid');
+		var action = $(this).data('action');
+		var item = $(this).data('name');
+		MetaAction(action,item,metakind,metaid);
+	});
+	
+	function NGALO(tGlass,label){
+		Glass.append(tGlass,
+				"<label>"+label+"</label><br>"
+				);
+	}
+	
+	function NGAO(tGlass,obj){
+		Glass.append(tGlass,
+				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
+				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+				">"
+				);
+		$('.dragit').draggable(draggableArguments);
+	}
+	
+	function NGAG(tGlass,appendage){
+		Glass.append(tGlass,appendage+'<br>');
+	}
+	
+	function NGAL(tGlass,label,appendage){
+		Glass.append(tGlass, "<label>"+label+"</label><br>"+
+			"<span>" + appendage + "</span><br>");
+	}
+	
+	function GAP(medo,percent){
+		medo.kid.append(
+			"<div class='meter orange nostripes'>" +
+			"<span style='width:"+percent+"%'></span>" +
+			"</div>"
+		);
 		
 	}
+	
+	///  Glass Append Functions START///
+	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
+	
+	
+	
+//	function GAG(Anchor,sob,appendage){
+//		Anchor.append(appendage+'<br>');
+//	}
+//	
+//	function GAL(Anchor,sob,label,appendage){
+//		Anchor.append(
+//				"<span id='whatever'>" +
+//				"<h1>"+label+": "+"</h1>"+
+//				"<p>" + appendage + "</span><br>"
+//				);
+//	}
+//	
+//	
+//	
+//	function GALO(Anchor,sob,label){
+//		Anchor.append(
+//				"<label>"+label+": "+"</label><br>"
+//				);
+//	}
+//	
+//	
+//	
+//	function GAA(Anchor,sob,action){
+//		Anchor.append(
+//				"<input type='button' id='btnaction"+sob.metakind+sob.metaid+action + "' class='action' value='" + action + 
+//				"' data-name='"+sob.name+"' data-metakind='"+sob.metakind+"' data-metaid='"+sob.metaid+"'" + " data-action='"+action+"'" +
+//				">"
+//				);
+//	}
+//	
+	
+	
+	
+//	
+//	function GAO(Anchor,sob,obj){
+//		Anchor.append(
+//				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
+//				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+//				">"
+//				);
+//		$('.dragit').draggable(draggableArguments);
+//	}
+//	
+//	
+//	
+//	
+//	
+//	function GAP(Anchor,sob,percent){
+//		Anchor.append(
+//			"<div class='meter orange nostripes'>" +
+//			"<span style='width:"+percent+"%'></span>" +
+//			"</div>"
+//		);
+//		
+//	}
+	
+	/// Append Functions END ///
+	
 	//myglass = new MEGlass();
 	
 	//var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
@@ -44,14 +241,7 @@ $(document).ready(function() {
 	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
 	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
 	var LocSheetPlace = { width: 275, title: 'MetaLocation', position: { at: 'left top' }, dialogClass:'transparent90'};
-	var draggableArguments={
-		     revert: false,
-		     helper: 'clone',
-		     appendTo: '#wholepage',
-		     containment: 'DOM',
-		     zIndex: 1500,
-		     cancel: false,
-	};
+	
 	
 	//////////////
 	/// INITIALIZE SIMPLE UI ELEMENTS
@@ -94,34 +284,34 @@ $(document).ready(function() {
 	///////
 	//// Static Glass
 	//////
-	function GlassLocSheet(){
-		$('body').append("<div id='GlassLocSheet'></div>");
-		var Anchor = $('#GlassLocSheet');
-		Anchor.dialog(LocSheetPlace);
-		$.getJSON('/edenop/location', function(cloc) {
-			Anchor.empty();
-			SheetLocation(Anchor,cloc);
-			Anchor.droppable({
-				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
-				}
-			});
-		});
-	}
-	
-	function GlassMetaSheet(){
-		$('body').append("<div id='GlassMetaSheet'></div>");
-		var Anchor = $('#GlassMetaSheet');
-		Anchor.dialog(MetaSheetPlace);
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			Anchor.empty();
-			SheetMeta(Anchor,cmeta);
-			Anchor.droppable({
-				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
-			});
-		});
-	}
+//	function GlassLocSheet(){
+//		$('body').append("<div id='GlassLocSheet'></div>");
+//		var Anchor = $('#GlassLocSheet');
+//		Anchor.dialog(LocSheetPlace);
+//		$.getJSON('/edenop/location', function(cloc) {
+//			Anchor.empty();
+//			SheetLocation(Anchor,cloc);
+//			Anchor.droppable({
+//				drop: function (event, ui) {
+//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
+//				}
+//			});
+//		});
+//	}
+//	
+//	function GlassMetaSheet(){
+//		$('body').append("<div id='GlassMetaSheet'></div>");
+//		var Anchor = $('#GlassMetaSheet');
+//		Anchor.dialog(MetaSheetPlace);
+//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+//			Anchor.empty();
+//			SheetMeta(Anchor,cmeta);
+//			Anchor.droppable({
+//				drop: function (event, ui) {
+//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+//			});
+//		});
+//	}
 	
 	function Drop(metakind,metaid,dkind,did){
 		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
@@ -143,154 +333,72 @@ $(document).ready(function() {
 	//////
 	
 	//// Fetches selectedObject (sob) for GlassFactory() from Kind/ID (KID)
-	function GlassBlueprint(metakind,metaid,title,glassopt){
-		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
-			GlassFactory(sob,title,glassopt);
-		});
-	}
+//	function GlassBlueprint(metakind,metaid,title,glassopt){
+//		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
+//			GlassFactory(sob,title,glassopt);
+//		});
+//	}
+//	
+//	function GlassFactory(sob,title,glassopt){
+//		var metakind = sob.metakind;
+//		var metaid = sob.metaid;
+//		var name = sob.name;
+//		var Anchor;
+//
+//		$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
+//		Anchor = $('#Glass'+sob.metakind+sob.metaid);
+//		Anchor.empty();
+//		if (title){
+//			if(typeof glassopt === 'undefined'){
+//				Anchor.dialog({title: title});
+//			} else {
+//				Anchor.dialog({title: title},glassopt);
+//			}
+//		} else {
+//			Anchor.dialog({title: name});
+//		}
+//		
+//		if (metakind == 'Item'){
+//			//GAG(sob,'This is definitely a '+metakind+'<br>');
+//			SheetItem(Anchor,sob,'databits');
+//		} else if (metakind =='Meta'){
+//			//GAG(sob,'This is definitely a '+metakind+'<br>');
+//			SheetMeta(Anchor,sob,'masterid');
+//		} else if (metakind =='Location'){
+//			//GAG(sob,'This is definitely a '+metakind+'<br>');
+//			SheetLocation(Anchor,sob);
+//		} else {
+//			GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
+//			SheetUniCon(Anchor,sob);
+//		}
+//	}
+//	
+//	
+//	
+//	/// Sheet Constructors LEVEL 1
+//	function SheetUniCon(Anchor,sob){
+//		GAL(Anchor,sob,'Name',sob.name);
+//		GAL(Anchor,sob,'Info',sob.info);
+//		GAL(Anchor,sob,'MetaKID',sob.kid);
+//		//GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
+//		GAL(Anchor,sob,'Location',sob.xyz);
+//	}
+//	
+//	/// Sheet Constructors LEVEL 2
+//	function SheetMeta(Anchor,sob,params){
+//		$.getJSON('/edenop/fetchinventory', function(inventory) {
+//			SheetUniCon(Anchor,sob);
+//			GAL(Anchor,sob,'MasterID',sob.masterid);
+//			GAL(Anchor,sob,'DataBits',sob.databits);
+//			GAP(Anchor,sob,30);
+//			GALO(Anchor,sob,'Inventory');
+//			$.each(inventory, function() {
+//				GAO(Anchor,sob,this);
+//			});
+//		});
+//	}
 	
-	function GlassFactory(sob,title,glassopt){
-		var metakind = sob.metakind;
-		var metaid = sob.metaid;
-		var name = sob.name;
-		var Anchor;
-
-		$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
-		Anchor = $('#Glass'+sob.metakind+sob.metaid);
-		Anchor.empty();
-		if (title){
-			if(typeof glassopt === 'undefined'){
-				Anchor.dialog({title: title});
-			} else {
-				Anchor.dialog({title: title},glassopt);
-			}
-		} else {
-			Anchor.dialog({title: name});
-		}
-		
-		if (metakind == 'Item'){
-			//GAG(sob,'This is definitely a '+metakind+'<br>');
-			SheetItem(Anchor,sob,'databits');
-		} else if (metakind =='Meta'){
-			//GAG(sob,'This is definitely a '+metakind+'<br>');
-			SheetMeta(Anchor,sob,'masterid');
-		} else if (metakind =='Location'){
-			//GAG(sob,'This is definitely a '+metakind+'<br>');
-			SheetLocation(Anchor,sob);
-		} else {
-			GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
-			SheetUniCon(Anchor,sob);
-		}
-	}
-	
-	///  Glass Append Functions START///
-	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
-	
-	function NGAG(tGlass,appendage){
-		Glass.append(tGlass,appendage+'<br>');
-	}
-	
-	function GAG(Anchor,sob,appendage){
-		Anchor.append(appendage+'<br>');
-	}
-	
-	function GAL(Anchor,sob,label,appendage){
-		Anchor.append(
-				"<label>"+label+": "+"</label><br>"+
-				"<span>" + appendage + "</span><br>"
-				);
-	}
-	
-	function NGAL(tGlass,label,appendage){
-		Glass.append(tGlass, "<label>"+label+"</label><br>"+
-			"<span>" + appendage + "</span><br>");
-	}
-	
-	function GALO(Anchor,sob,label){
-		Anchor.append(
-				"<label>"+label+": "+"</label><br>"
-				);
-	}
-	
-	function NGALO(tGlass,label){
-		Glass.append(tGlass,
-				"<label>"+label+"</label><br>"
-				);
-	}
-	
-	function GAA(Anchor,sob,action){
-		Anchor.append(
-				"<input type='button' id='btnaction"+sob.metakind+sob.metaid+action + "' class='action' value='" + action + 
-				"' data-name='"+sob.name+"' data-metakind='"+sob.metakind+"' data-metaid='"+sob.metaid+"'" + " data-action='"+action+"'" +
-				">"
-				);
-	}
-	
-	$('body').on('click','.action',function(){
-		var metakind = $(this).data('metakind');
-		var metaid = $(this).data('metaid');
-		var action = $(this).data('action');
-		var item = $(this).data('name');
-		MetaAction(action,item,metakind,metaid);
-	});
-	
-	function GAO(Anchor,sob,obj){
-		Anchor.append(
-				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-				">"
-				);
-		$('.dragit').draggable(draggableArguments);
-	}
-	
-	function NGAO(tGlass,obj){
-		Glass.append(tGlass,
-				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-				">"
-				);
-		$('.dragit').draggable(draggableArguments);
-	}
-	
-	$(document).on('click','.obj',function(){
-		GlassBlueprint($(this).data('metakind'),$(this).data('metaid'));
-	});
-	
-	function GAP(Anchor,sob,percent){
-		Anchor.append(
-			"<div class='meter orange nostripes'>" +
-			"<span style='width:"+percent+"%'></span>" +
-			"</div>"
-		);
-		
-	}
-	
-	/// Append Functions END ///
-	
-	/// Sheet Constructors LEVEL 1
-	function SheetUniCon(Anchor,sob){
-		GAL(Anchor,sob,'Name',sob.name);
-		GAL(Anchor,sob,'Info',sob.info);
-		GAL(Anchor,sob,'MetaKID',sob.kid);
-		//GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
-		GAL(Anchor,sob,'Location',sob.xyz);
-	}
-	
-	/// Sheet Constructors LEVEL 2
-	function SheetMeta(Anchor,sob,params){
-		$.getJSON('/edenop/fetchinventory', function(inventory) {
-			SheetUniCon(Anchor,sob);
-			GAL(Anchor,sob,'MasterID',sob.masterid);
-			GAL(Anchor,sob,'DataBits',sob.databits);
-			GAP(Anchor,sob,30);
-			GALO(Anchor,sob,'Inventory');
-			$.each(inventory, function() {
-				GAO(Anchor,sob,this);
-			});
-		});
-	}
-	
-	function EngraveMetaGlass(cmeta){
+	function EngraveMetaSheet(cmeta){
 		var args = {
 					Name:cmeta.name,
 					Info:cmeta.info,
@@ -311,7 +419,7 @@ $(document).ready(function() {
 		});
 	}
 	
-	function EngraveLocaGlass(cloca){
+	function EngraveLocaSheet(cloca){
 		var args = {
 					Name:cloca.name,
 					Info:cloca.info,
@@ -340,48 +448,48 @@ $(document).ready(function() {
 		
 	}
 	
-	function SheetItem(Anchor,sob,params){
-		SheetUniCon(Anchor,sob);
-		if (sob.regtype == 'Mine'){
-			GAL(Anchor,sob,'DataBits',sob.databits);
-		}
-		
-		if (sob.actions){
-			GALO(Anchor,sob,'Actions');
-			for (var i = 0; i < sob.actions.length; i++) {
-				GAA(Anchor,sob,sob.actions[i]);				
-			}
-		}
-	}
-	
-	function SheetLocation(Anchor,sob){
-		ShowExits(Anchor,sob);
-		SheetUniCon(Anchor,sob);
-		
-		UsersHere(Anchor,sob);
-		ItemsHere(Anchor,sob);
-	}
+//	function SheetItem(Anchor,sob,params){
+//		SheetUniCon(Anchor,sob);
+//		if (sob.regtype == 'Mine'){
+//			GAL(Anchor,sob,'DataBits',sob.databits);
+//		}
+//		
+//		if (sob.actions){
+//			GALO(Anchor,sob,'Actions');
+//			for (var i = 0; i < sob.actions.length; i++) {
+//				GAA(Anchor,sob,sob.actions[i]);				
+//			}
+//		}
+//	}
+//	
+//	function SheetLocation(Anchor,sob){
+//		ShowExits(Anchor,sob);
+//		SheetUniCon(Anchor,sob);
+//		
+//		UsersHere(Anchor,sob);
+//		ItemsHere(Anchor,sob);
+//	}
 	
 	/// Sheet Constructors LEVEL 3
 	
-	function UsersHere(Anchor,sob){
-		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
-			GALO(Anchor,sob,'MetaUsers Here');
-			$.each(localmetas, function() {
-				GAO(Anchor,sob,this);
-			});
-			GAG(Anchor,sob,'');
-		});
-		
-	}	function ItemsHere(Anchor,sob){
-		$.getJSON('/edenop/fetchlocalitems', function(localitems) {
-			GALO(Anchor,sob,'Items Here');
-			$.each(localitems, function() {
-				GAO(Anchor,sob,this);
-			});
-			GAG(Anchor,sob,'');
-		});
-	}
+//	function UsersHere(Anchor,sob){
+//		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
+//			GALO(Anchor,sob,'MetaUsers Here');
+//			$.each(localmetas, function() {
+//				GAO(Anchor,sob,this);
+//			});
+//			GAG(Anchor,sob,'');
+//		});
+//		
+//	}	function ItemsHere(Anchor,sob){
+//		$.getJSON('/edenop/fetchlocalitems', function(localitems) {
+//			GALO(Anchor,sob,'Items Here');
+//			$.each(localitems, function() {
+//				GAO(Anchor,sob,this);
+//			});
+//			GAG(Anchor,sob,'');
+//		});
+//	}
 	
 	function ShowExits(tGlass,loca){
 		Glass.append(tGlass,
@@ -425,11 +533,7 @@ $(document).ready(function() {
 	//////
 	//////
 	
-	function Amb(msg,time,fade){
-		$.ambiance({message: msg,
-					timeout: time,
-					fade: fade});
-	}
+	
 	
 	
 	
