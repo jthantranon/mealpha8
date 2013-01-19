@@ -108,9 +108,11 @@ class Move(webapp2.RequestHandler):
         for localmeta in localmetas:
             if localmeta == cmeta.metaid:
                 pack.content = "You move " + ops.dirFull(direction) + "."
+                pack.type = 'usermove'
                 channel.send_message(str(localmeta), ops.jsonify(pack))
             else:
                 pack.content = cmeta.name + " has moved " + ops.dirFull(direction)
+                pack.type = 'userleave'
                 channel.send_message(str(localmeta), ops.jsonify(pack))
         
         if direction == 'n':
@@ -145,6 +147,7 @@ class Move(webapp2.RequestHandler):
                 pass
             else:
                 pack.content = cmeta.name + " has arrived from the " + ops.dirOpp(direction)
+                pack.type = 'userenter'
                 channel.send_message(str(newlocalmeta), ops.jsonify(pack))
         
         self.response.out.write(cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)

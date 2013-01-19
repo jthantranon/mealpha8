@@ -864,7 +864,15 @@ $(document).ready(function() {
 			} else {
 				$("#pmwin"+pack.metakind+pack.metaid).dialog({height: 220}).append(pack.formatted+'<br>').scrollTop($(this).height()+99999);
 			}
-			
+		} else if (pack.type === 'userlogin') {
+			newChatBoxMsg(pack);
+		} else if (pack.type === 'usermove') {
+			newChatBoxMsg(pack);
+		} else if (pack.type === 'userenter') {
+			newChatBoxMsg(pack);
+		} else if (pack.type === 'userleave') {
+			newChatBoxMsg(pack);
+		
 		} else {
 			Amb('No Type');
 		}
@@ -890,16 +898,124 @@ $(document).ready(function() {
 	// NEW FANCY CHATBOX MSG RECIEVER
 	/////////////////////////////////
 	newChatBoxMsg = function(pack) {
-		//do shit
-		context = $(".messages");
-		if (pack.type == 'action'){
-			outmsg = '<p>' + pack.formatted + '</p>';
-		} else {
-			outmsg = '<p><span class="channelLoopback">['+ pack.scope.charAt(0).toUpperCase() + pack.scope.slice(1) +']</span><b> ' + pack.name + ':</b> ' + pack.content + '</p>';
+		switch(pack.type)
+		{
+		case "broadcast":
+			//do shit
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelLoopback">['+ pack.scope.charAt(0).toUpperCase() + pack.scope.slice(1) +']</span><b> ' + pack.name + ':</b> ' + pack.content + '</p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+			
+		case "move":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelMove"><img src="img/icons/moving1.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+			
+		case "action":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelMove"><img src="img/icons/moving1.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+			
+		case "announcement":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelAnnounce"><img src="img/icons/connect1.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+			
+		case "userlogin":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelAnnounce"><img src="img/icons/connect1.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+		
+		case "usermove":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelMove"><img src="img/icons/moving1.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+		
+		
+		case "userenter":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelUserArrive"><img src="img/icons/arriving.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+		
+			
+		case "userleave":
+			context = $(".messages");
+			if (pack.type == 'action'){
+				outmsg = '<p>' + pack.formatted + '</p>';
+			} else {
+				outmsg = '<p><span class="channelUserLeave"><img src="img/icons/leaving.png" width="20" height="20" />' + pack.content + '</span></p>';
+			}
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+			break;
+		
+			
+		
+			
+//		} else if (pack.type === 'usermove') {
+//			newChatBoxMsg(pack);
+//		} else if (pack.type === 'userenter') {
+//			newChatBoxMsg(pack);
+//		} else if (pack.type === 'userleave') {
+			
+		default:
+			// don't do shit...
 		}
-		$(context).append(outmsg);
-		$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
-		$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+		
+		
+		
+		
+		
 	};
 	
 	/////////////////////////////
