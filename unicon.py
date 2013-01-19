@@ -80,7 +80,7 @@ class SpawnMeta(webapp2.RequestHandler):
         meta.metaid = meta.key.id()
         meta.put()
 
-class CreateSpec(webapp2.RequestHandler):
+class CreateYTItem(webapp2.RequestHandler):
     def post(self):
         cmeta = ops.loadmeta()
         spec = Item();
@@ -94,6 +94,7 @@ class CreateSpec(webapp2.RequestHandler):
         spec.lattice = '0'
         spec.metakind = 'Item'
         spec.ytlink = self.request.get('ytlink')
+        spec.actions = ['Kick','Watch']
         
         spec.put()
         spec.metaid = spec.key.id()
@@ -119,6 +120,6 @@ app = webapp2.WSGIApplication([('/unicon/test', Test),
                                
                                (r'/unicon/modify/(.*)/(.*)', Modify),
                                ('/unicon/spawn/meta', SpawnMeta),
-                               ('/unicon/create/ytitem', CreateSpec),
+                               ('/unicon/create/ytitem', CreateYTItem),
 
                                ],debug=True)

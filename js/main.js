@@ -1,253 +1,11 @@
 $(document).ready(function() {
-	
-	function Amb(msg,time,fade){
-		$.ambiance({message: msg,
-					timeout: time,
-					fade: fade});
-	}
-	
-	var draggableArguments={
-		     revert: false,
-		     helper: 'clone',
-		     appendTo: '#wholepage',
-		     containment: 'DOM',
-		     zIndex: 1500,
-		     cancel: false,
-	};
-	
-	// Initialize Glass
-	Glass = new MEGlass();
-	
-	function cMetaSheet(){
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
-			Glass.create(glassargs);
-			EngraveMetaSheet(cmeta);
-			$('#MetaSheet').droppable({
-				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
-			});
-		});
-	}
-	
-	function cLocaSheet(){
-		$.getJSON('/edenop/location', function(cloc) {
-			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
-			Glass.create(glassargs);
-			EngraveLocaSheet(cloc);
-			$('#LocaSheet').droppable({
-				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
-			});
-		});
-	}
-	
-	function dMedoGlass(metakind,metaid,glassargs){
-		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
-			GlassFactory(medo,glassargs);
-		});
-	}
-	
-	dMedoGlass('Item',105);
-	
-	$(document).on('click','.obj',function(){
-		dMedoGlass($(this).data('metakind'),$(this).data('metaid'));
-	});
-	
-	function GlassFactory(medo,glassargs){
-		var metakind = medo.metakind;
-		var metaid = medo.metaid;
-		var name = medo.name;
-		var Anchor;
-		
-		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:medo.name,name:medo.kid,id:medo.kid};
-
-		
-		Glass.create(glassargs);
-		//Glass.empty(medo.kid);
-		
-		if (metakind == 'Item'){
-			//NGAG(sob,'This is definitely a '+metakind+'<br>');
-			EngraveItemGlass(medo);
-			Amb(metakind);
-		} else if (metakind =='Meta'){
-			//GAG(sob,'This is definitely a '+metakind+'<br>');
-			EngraveMetaGlass(medo);
-		} else if (metakind =='Location'){
-			//GAG(sob,'This is definitely a '+metakind+'<br>');
-			//SheetLocation(Anchor,sob);
-		} else {
-			//GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
-			//SheetUniCon(Anchor,sob);
-		}
-	}
-	
-	function EngraveMedoGlass(medo){
-		NGAL(medo.kid,'Name',medo.name);
-		NGAL(medo.kid,'Info',medo.info);
-		NGAL(medo.kid,'MetaKID',medo.kid);
-		NGAL(medo.kid,'Location',medo.xyz);
-	}
-	
-	function EngraveMetaGlass(medo){
-		$.getJSON('/edenop/fetchinventory', function(inventory) {
-			EngraveMedoGlass(medo);
-			NGAL(medo.kid,'MasterID',medo.masterid);
-			NGAL(medo.kid,'DataBits',medo.databits);
-			GAP(medo,30);
-			NGALO(medo.kid,'Inventory');
-			$.each(inventory, function() {
-				NGAO(medo.kid,this);
-			});
-		});
-	}
-	
-	function EngraveItemGlass(medo){
-		EngraveMedoGlass(medo);
-		if (medo.regtype == 'Mine'){
-			NGAL(medo.kid,'DataBits',medo.databits);
-		}
-		
-		if (medo.actions){
-			NGALO(medo.kid,'Actions');
-			for (var i = 0; i < medo.actions.length; i++) {
-				NGAA(medo,medo.actions[i]);				
-			}
-		}
-	}
-	
-	function NGAA(medo,action){
-		Glass.append(medo.kid,
-				"<input type='button' id='btnaction"+medo.metakind+medo.metaid+action + "' class='action' value='" + action + 
-				"' data-name='"+medo.name+"' data-metakind='"+medo.metakind+"' data-metaid='"+medo.metaid+"'" + " data-action='"+action+"'" +
-				">"
-				);
-	}
-	
-	$('body').on('click','.action',function(){
-		var metakind = $(this).data('metakind');
-		var metaid = $(this).data('metaid');
-		var action = $(this).data('action');
-		var item = $(this).data('name');
-		MetaAction(action,item,metakind,metaid);
-	});
-	
-	function NGALO(tGlass,label){
-		Glass.append(tGlass,
-				"<label>"+label+"</label><br>"
-				);
-	}
-	
-	function NGAO(tGlass,obj){
-		Glass.append(tGlass,
-				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-				">"
-				);
-		$('.dragit').draggable(draggableArguments);
-	}
-	
-	function NGAG(tGlass,appendage){
-		Glass.append(tGlass,appendage+'<br>');
-	}
-	
-	function NGAL(tGlass,label,appendage){
-		Glass.append(tGlass, "<label>"+label+"</label><br>"+
-			"<span>" + appendage + "</span><br>");
-	}
-	
-	function GAP(medo,percent){
-		medo.kid.append(
-			"<div class='meter orange nostripes'>" +
-			"<span style='width:"+percent+"%'></span>" +
-			"</div>"
-		);
-		
-	}
-	
-	///  Glass Append Functions START///
-	////// G - Generic / L - Label / A - Action / LO - Label Only / O - Object //////
-	
-	
-	
-//	function GAG(Anchor,sob,appendage){
-//		Anchor.append(appendage+'<br>');
-//	}
-//	
-//	function GAL(Anchor,sob,label,appendage){
-//		Anchor.append(
-//				"<span id='whatever'>" +
-//				"<h1>"+label+": "+"</h1>"+
-//				"<p>" + appendage + "</span><br>"
-//				);
-//	}
-//	
-//	
-//	
-//	function GALO(Anchor,sob,label){
-//		Anchor.append(
-//				"<label>"+label+": "+"</label><br>"
-//				);
-//	}
-//	
-//	
-//	
-//	function GAA(Anchor,sob,action){
-//		Anchor.append(
-//				"<input type='button' id='btnaction"+sob.metakind+sob.metaid+action + "' class='action' value='" + action + 
-//				"' data-name='"+sob.name+"' data-metakind='"+sob.metakind+"' data-metaid='"+sob.metaid+"'" + " data-action='"+action+"'" +
-//				">"
-//				);
-//	}
-//	
-	
-	
-	
-//	
-//	function GAO(Anchor,sob,obj){
-//		Anchor.append(
-//				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-//				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-//				">"
-//				);
-//		$('.dragit').draggable(draggableArguments);
-//	}
-//	
-//	
-//	
-//	
-//	
-//	function GAP(Anchor,sob,percent){
-//		Anchor.append(
-//			"<div class='meter orange nostripes'>" +
-//			"<span style='width:"+percent+"%'></span>" +
-//			"</div>"
-//		);
-//		
-//	}
-	
-	/// Append Functions END ///
-	
-	//myglass = new MEGlass();
-	
-	//var glassargs = {context:'body',content:'test',xpos:50,ypos:50,title:'Testtt',name:'Hah',id:'9430'};
-	//myglass.create(glassargs);
-	//myglass.title(9430,'New Title');
-	//myglass.append(9430,'test');
-
-	//myglass.remove(id,selector)
-	
-	// Settings for jQ Dialog Boxes
-	var ViewPlace = { position: { at: 'middle top' }, autoOpen: false };
-	var MetaSheetPlace = { width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'};
-	var LocSheetPlace = { width: 275, title: 'MetaLocation', position: { at: 'left top' }, dialogClass:'transparent90'};
-	
-	
 	//////////////
-	/// INITIALIZE SIMPLE UI ELEMENTS
+	/// INITIALIZE LOGIN
 	/////////////
+	
 	$('#wholepage').hide();
 	SessionHandler();
+	
 	function SessionHandler() {
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
 			if (cmeta == 'nometa'){
@@ -264,139 +22,73 @@ $(document).ready(function() {
 	function InitializeMetaEden(cmeta) {
 		Amb('Welcome to MetaEden! Enjoy your stay!',5);
 		$('#wholepage').show();
-		OpenSesh(); 			// Init Channel API
-		//GlassLocSheet(); 		// Load Static UX
-		//GlassMetaSheet();
-		BindKPMove();			// Misc
-		cMetaSheet();
-		cLocaSheet();
+		OpenSesh(); 	// Initialize Channel API
+		BindKPMove();	// Miscellaneous
+		cMetaSheet();	// Load Static UX
+		cLocaSheet();	// Load Static UX
 	}
 	
-	// Disabled for now. Potential feature.
+	// Disabled for now. Potential feature. Fetches item with attribute 'popup' and displays them.
+	//LoadPopUpItems();
 	function LoadPopUpItems(){
-		$.getJSON('/edenop/fetchpuis', function(sobs) {
-			for (var i = 0; i < sobs.length; i++) {
-				GlassFactory(sobs[i]);
+		$.getJSON('/edenop/fetchpuis', function(medos) {
+			for (var i = 0; i < medos.length; i++) {
+				GlassFactory(medos[i]);
 			}
 		});
 	}
 	
-	///////
-	//// Static Glass
-	//////
-//	function GlassLocSheet(){
-//		$('body').append("<div id='GlassLocSheet'></div>");
-//		var Anchor = $('#GlassLocSheet');
-//		Anchor.dialog(LocSheetPlace);
-//		$.getJSON('/edenop/location', function(cloc) {
-//			Anchor.empty();
-//			SheetLocation(Anchor,cloc);
-//			Anchor.droppable({
-//				drop: function (event, ui) {
-//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);
-//				}
-//			});
-//		});
-//	}
-//	
-//	function GlassMetaSheet(){
-//		$('body').append("<div id='GlassMetaSheet'></div>");
-//		var Anchor = $('#GlassMetaSheet');
-//		Anchor.dialog(MetaSheetPlace);
-//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-//			Anchor.empty();
-//			SheetMeta(Anchor,cmeta);
-//			Anchor.droppable({
-//				drop: function (event, ui) {
-//					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
-//			});
-//		});
-//	}
-	
-	function Drop(metakind,metaid,dkind,did){
-		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
-		} else {
-			$.ajax({
-				type: 'POST',
-				url: '/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did,
-				data: null,
-				success: function(data){
-					//GlassLocSheet(); 		// Load Static UX
-					//GlassMetaSheet();
-				}
-			});
-		}
+	function Amb(msg,time,fade){
+		$.ambiance({message: msg,
+					timeout: time,
+					fade: fade});
 	}
 	
-	///////
-	//// Dynamic Glass
-	//////
+	var draggableArguments={
+		     revert: false,
+		     helper: 'clone',
+		     appendTo: '#wholepage',
+		     containment: 'DOM',
+		     zIndex: 1500,
+		     cancel: false,
+	};
 	
-	//// Fetches selectedObject (sob) for GlassFactory() from Kind/ID (KID)
-//	function GlassBlueprint(metakind,metaid,title,glassopt){
-//		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(sob) {
-//			GlassFactory(sob,title,glassopt);
-//		});
-//	}
-//	
-//	function GlassFactory(sob,title,glassopt){
-//		var metakind = sob.metakind;
-//		var metaid = sob.metaid;
-//		var name = sob.name;
-//		var Anchor;
-//
-//		$('body').append("<div id='Glass"+metakind+metaid+"'></div>");
-//		Anchor = $('#Glass'+sob.metakind+sob.metaid);
-//		Anchor.empty();
-//		if (title){
-//			if(typeof glassopt === 'undefined'){
-//				Anchor.dialog({title: title});
-//			} else {
-//				Anchor.dialog({title: title},glassopt);
-//			}
-//		} else {
-//			Anchor.dialog({title: name});
-//		}
-//		
-//		if (metakind == 'Item'){
-//			//GAG(sob,'This is definitely a '+metakind+'<br>');
-//			SheetItem(Anchor,sob,'databits');
-//		} else if (metakind =='Meta'){
-//			//GAG(sob,'This is definitely a '+metakind+'<br>');
-//			SheetMeta(Anchor,sob,'masterid');
-//		} else if (metakind =='Location'){
-//			//GAG(sob,'This is definitely a '+metakind+'<br>');
-//			SheetLocation(Anchor,sob);
-//		} else {
-//			GAG(Anchor,sob,'This is probably a '+metakind+'<br>');
-//			SheetUniCon(Anchor,sob);
-//		}
-//	}
-//	
-//	
-//	
-//	/// Sheet Constructors LEVEL 1
-//	function SheetUniCon(Anchor,sob){
-//		GAL(Anchor,sob,'Name',sob.name);
-//		GAL(Anchor,sob,'Info',sob.info);
-//		GAL(Anchor,sob,'MetaKID',sob.kid);
-//		//GAL(Anchor,sob,'MetaKind/ID',sob.metakind+sob.metaid);
-//		GAL(Anchor,sob,'Location',sob.xyz);
-//	}
-//	
-//	/// Sheet Constructors LEVEL 2
-//	function SheetMeta(Anchor,sob,params){
-//		$.getJSON('/edenop/fetchinventory', function(inventory) {
-//			SheetUniCon(Anchor,sob);
-//			GAL(Anchor,sob,'MasterID',sob.masterid);
-//			GAL(Anchor,sob,'DataBits',sob.databits);
-//			GAP(Anchor,sob,30);
-//			GALO(Anchor,sob,'Inventory');
-//			$.each(inventory, function() {
-//				GAO(Anchor,sob,this);
-//			});
-//		});
-//	}
+	///
+	/// Initialize Glass
+	///
+	Glass = new MEGlass();
+	
+	function cMetaSheet(refresh){
+		$.getJSON('/edenop/loadcmeta', function(cmeta) {
+			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
+			if (refresh){
+				Glass.remove('MetaSheet');
+			} else {
+				Glass.create(glassargs);
+			}
+			EngraveMetaSheet(cmeta);
+			$('#MetaSheet').droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+			});
+		});
+	}
+	
+	function cLocaSheet(refresh){
+		$.getJSON('/edenop/location', function(cloc) {
+			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
+			if (refresh){
+				Glass.remove('LocaSheet');
+			} else {
+				Glass.create(glassargs);
+			}
+			EngraveLocaSheet(cloc);
+			$('#LocaSheet').droppable({
+				drop: function (event, ui) {
+					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
+			});
+		});
+	}
 	
 	function EngraveMetaSheet(cmeta){
 		var args = {
@@ -429,71 +121,152 @@ $(document).ready(function() {
 		
 		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
-				ShowExits('LocaSheet',cloca);
+				//ShowExits('LocaSheet',cloca);
 				$.each(args, function(k,v){
 					NGAL('LocaSheet',k,v);
 				});
 				NGALO('LocaSheet','MetaUsers Here');
-				$.each(localmetas, function() {
-					NGAO('LocaSheet',this);
-				});
+				$.each(localmetas, function() { NGAO('LocaSheet',this); });
 				NGAG('LocaSheet','');
 				NGALO('LocaSheet','Items Here');
-				$.each(localitems, function() {
-					NGAO('LocaSheet',this);
-				});
+				$.each(localitems, function() { NGAO('LocaSheet',this); });
 				NGAG('LocaSheet','');
 			});
 		});
+	}
+	
+	
+	
+	///
+	/// Phase Zero
+	///
+	
+	function dMedoGlass(metakind,metaid,glassargs){
+		$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
+			GlassFactory(medo,glassargs);
+		});
+	}
+	
+	$(document).on('click','.obj',function(){
+		dMedoGlass($(this).data('metakind'),$(this).data('metaid'));
+	});
+	
+	function GlassFactory(medo,glassargs){
+		
+		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:medo.name,name:medo.kid,id:medo.kid};
+		Glass.create(glassargs);
+		//Glass.empty(medo.kid);
+		switch(medo.metakind){
+			case 'Item': EngraveItemGlass(medo); break;
+			case 'Meta': EngraveMetaGlass(medo); break;
+			default: EngraveMedoGlass(medo); 
+				NGAG(medo.kid,'This is probably a '+medo.metakind+'<br>');
+		}
+	}
+	
+	///
+	/// Phase One
+	///
+	function EngraveMedoGlass(medo){
+		NGAL(medo.kid,'Name',medo.name);
+		NGAL(medo.kid,'Info',medo.info);
+		NGAL(medo.kid,'MetaKID',medo.kid);
+		NGAL(medo.kid,'Location',medo.xyz);
+	}
+	///
+	/// Phase Two - Decorators
+	///
+	
+	 // G - Generic / L - Label / A - Action / LO - Label Only / O - Object
+	
+	function EngraveMetaGlass(medo){
+		$.getJSON('/edenop/fetchinventory', function(inventory) {
+			EngraveMedoGlass(medo);
+			NGAL(medo.kid,'MasterID',medo.masterid);
+			NGAL(medo.kid,'DataBits',medo.databits);
+			GAP(medo,30);
+			NGALO(medo.kid,'Inventory');
+			$.each(inventory, function() {
+				NGAO(medo.kid,this);
+			});
+		});
+	}
+	
+	function EngraveItemGlass(medo){
+		EngraveMedoGlass(medo);
+		if (medo.regtype == 'Mine'){
+			NGAL(medo.kid,'DataBits',medo.databits);
+		}
+		
+		if (medo.actions){
+			NGALO(medo.kid,'Actions');
+			for (var i = 0; i < medo.actions.length; i++) {
+				NGAA(medo,medo.actions[i]);				
+			}
+		}
+	}
+	///
+	/// Phase Three - Constructors
+	///
+	function NGAA(medo,action){
+		Glass.append(medo.kid,
+				"<input type='button' id='btnaction"+medo.metakind+medo.metaid+action + "' class='action' value='" + action + 
+				"' data-name='"+medo.name+"' data-metakind='"+medo.metakind+"' data-metaid='"+medo.metaid+"'" + " data-action='"+action+"'" +
+				">"
+				);
+	}
+	
+	$('body').on('click','.action',function(){
+		var metakind = $(this).data('metakind');
+		var metaid = $(this).data('metaid');
+		var action = $(this).data('action');
+		var item = $(this).data('name');
+		if (action == 'Watch'){
+			parsedlink = $.parseyturl($('#btnobj'+metakind+metaid).data("ytlink"));
+			YouTube(parsedlink);
+		}
+		MetaAction(action,item,metakind,metaid);
+	});
+	
+	function NGALO(tGlass,label){
+		Glass.append(tGlass,
+				"<label>"+label+"</label><br>"
+				);
+	}
+	
+	function NGAO(tGlass,obj){
+		Glass.append(tGlass,
+				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
+				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+				">"
+				);
+		$('.dragit').draggable(draggableArguments);
+		if (obj.ytlink){
+			$('#btnobj'+obj.kid).attr('data-ytlink',obj.ytlink);
+		}
+	}
+	
+	function NGAG(tGlass,appendage){
+		Glass.append(tGlass,appendage+'<br>');
+	}
+	
+	function NGAL(tGlass,label,appendage){
+		Glass.append(tGlass, "<label>"+label+"</label><br>"+
+			"<span>" + appendage + "</span><br>");
+	}
+	
+	function GAP(medo,percent){
+		medo.kid.append(
+			"<div class='meter orange nostripes'>" +
+			"<span style='width:"+percent+"%'></span>" +
+			"</div>"
+		);
 		
 	}
 	
-//	function SheetItem(Anchor,sob,params){
-//		SheetUniCon(Anchor,sob);
-//		if (sob.regtype == 'Mine'){
-//			GAL(Anchor,sob,'DataBits',sob.databits);
-//		}
-//		
-//		if (sob.actions){
-//			GALO(Anchor,sob,'Actions');
-//			for (var i = 0; i < sob.actions.length; i++) {
-//				GAA(Anchor,sob,sob.actions[i]);				
-//			}
-//		}
-//	}
-//	
-//	function SheetLocation(Anchor,sob){
-//		ShowExits(Anchor,sob);
-//		SheetUniCon(Anchor,sob);
-//		
-//		UsersHere(Anchor,sob);
-//		ItemsHere(Anchor,sob);
-//	}
-	
-	/// Sheet Constructors LEVEL 3
-	
-//	function UsersHere(Anchor,sob){
-//		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
-//			GALO(Anchor,sob,'MetaUsers Here');
-//			$.each(localmetas, function() {
-//				GAO(Anchor,sob,this);
-//			});
-//			GAG(Anchor,sob,'');
-//		});
-//		
-//	}	function ItemsHere(Anchor,sob){
-//		$.getJSON('/edenop/fetchlocalitems', function(localitems) {
-//			GALO(Anchor,sob,'Items Here');
-//			$.each(localitems, function() {
-//				GAO(Anchor,sob,this);
-//			});
-//			GAG(Anchor,sob,'');
-//		});
-//	}
-	
 	function ShowExits(tGlass,loca){
 		Glass.append(tGlass,
-				"<label>Exits: </label><br />" +
+				"<h1>Exits: </h1>" +
 				"<center>" +
 				"<input class='move' id='nw' type='button' value='Northwest'>" +	
 				"<input class='move' id='n' type='button' value='North'>" +
@@ -523,72 +296,34 @@ $(document).ready(function() {
 			url: '/action/move/' + dir,
 			data: null,
 			success: function(data){
-				GlassLocSheet();
+				cLocaSheet('refresh');
+				Amb('take this out after installing bigbro');
 			}
 		});
 	});
 	
-	
+	function Drop(metakind,metaid,dkind,did){
+		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
+		} else {
+			$.ajax({
+				type: 'POST',
+				url: '/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did,
+				data: null,
+				success: function(data){
+					//GlassLocSheet(); 		// Load Static UX
+					//GlassMetaSheet();
+				}
+			});
+		}
+	}
 	
 	//////
 	//////
-	
-	
-	
-	
-	
-	
-	
+
 	/// Handles NumPad/Numeric Movment Unbinding for typing in fields. 
 	$(document)
 	.on('focusin','input,textarea',function(){$(document).unbind('keypress');})
 	.on('focusout','input,textarea',function(){BindKPMove();});
-	
-	function CreateIcon(mobj,target){
-		$('body').append("<div id='"+mobj.metakind+mobj.metaid+"'></div>");
-		$(target).append(
-				"<input class='dragie viewable' type='button' name='" + mobj.metaid + "' metakind='"+mobj.metakind+"' id='" + mobj.metaid + "' value='"+mobj.name+"'" +
-				"data-ytlink='"+mobj.ytlink+"' data-itype='"+mobj.itype+"' data-name='"+mobj.name+"' data-metakind='"+mobj.metakind+"' data-metaid='"+mobj.metaid+"'" +
-				"data-masterid='"+mobj.masterid+"' data-info='"+mobj.info+"' data-xloc='"+mobj.xloc+"' data-yloc='"+mobj.yloc+"' data-zloc='"+mobj.zloc+"' data-lattice='"+mobj.lattice+"'/>"
-				);
-		$('#'+mobj.metakind+mobj.metaid).dialog({ width: 275, title: mobj.name, dialogClass:'transparent90'}, ViewPlace);
-		$('#'+mobj.metaid).attr('value',mobj.name);
-	}
-	
-	function OpenObj(metakind,metaid){
-		$.getJSON('/edenop/load/' + metakind + '/' + metaid, function(sobj) {
-			var id = sobj.metakind+sobj.metaid;
-			$('#'+id).dialog('open');
-			$('#'+id).html(
-					"<form id='form"+id+"' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"'>" +
-						"<label>Name: </label><br /><span id='"+id+"name' name='name' class='editable' data-value=''>"+sobj.name+"</span><br>" +
-						"<label>MetaID: </label><br />" + sobj.metaid + "<br>" +
-						"<label>MasterID: </label><br />" + sobj.masterid + "<br>" +
-						"<label>Info: </label><br /><span id='"+id+"info' name='info' class='editable' data-value=''>"+sobj.info+"</span><br>" +
-						"<label>Location: </label><br />" + sobj.xloc + "." + sobj.yloc + "." + sobj.zloc + ":" + sobj.lattice + "<br>" +
-						"<label>Send Message: </label><br /><input type='textfield' id='newpm"+sobj.metakind+sobj.metaid+"' name='content'>" +
-						"<input type='button' id='btnnewpm"+sobj.metakind+sobj.metaid+"' class='newpm' value='send'><br>" +
-						"<input type='button' id='btncommit"+id+"' class='btncommit' value='Save Changes' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"' hidden>" +
-						"<input type='button' id='btncancel"+id+"' class='btncancel' value='Cancel' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"' hidden>" +
-						"<label>Actions: </label><br />" + sobj.actions + 
-						"<br>" +
-					"</form>"
-					);
-			
-			if (sobj.actions){
-				for (var i = 0; i < sobj.actions.length; i++) {
-					$('#'+id).append(
-							"<input type='button' id='btnaction"+sobj.metakind+sobj.metaid+sobj.actions[i] + "' class='action' value='" + sobj.actions[i] + 
-							"' data-name='"+sobj.name+"' data-metakind='"+sobj.metakind+"' data-metaid='"+sobj.metaid+"'" + " data-action='"+sobj.actions[i]+"'" +
-							"><br>"
-							);
-				}
-			}
-
-			$('#'+id+'name').data('value',sobj.name);
-			$('#'+id+'info').data('value',sobj.info);
-		});
-	}
 	
 	$('body').on('click','.newpm',function(){
 		var metakind = $(this).parent().data('metakind');
@@ -749,8 +484,8 @@ $(document).ready(function() {
 	
 	function RefreshAll() {
 		$.getJSON('/resolution/hasmeta', function(cmeta) {
-			//MetaSheet();
-			GlassLocSheet();
+			cMetaSheet('refresh');
+			cLocaSheet('refresh');
 		});
 	}
 	
@@ -791,10 +526,10 @@ $(document).ready(function() {
 	////
 	
 	
-	$('#BtnToggleUC').toggle(
-		function(){$('#UniCon').dialog('open');},
-		function(){$('#UniCon').dialog('close');}
-	);
+//	$('#BtnToggleUC').toggle(
+//		function(){$('#UniCon').dialog('open');},
+//		function(){$('#UniCon').dialog('close');}
+//	);
 	
 	$('#BtnOpenYTI').toggle(
 			function(){$('#YTLinken').dialog('open');},
@@ -804,34 +539,32 @@ $(document).ready(function() {
 	$("#BtnRefresh").click(function(){ Amb('Refreshed!');
 		RefreshAll();
 	});
-	$('#BtnDebugger').click(function(){ Amb('The Debugger is currently sleeping.');
-		Amb($.parseyturl('http://www.youtube.com/watch?v=BbizTBYs-rQ'));
-	});
 	
-	function ResetMenus(){
-		$('#ucformbutton, #ucselect, #ucnav, #ucform').hide();
-		$('#uniconwin').dialog('close');
-	}
+//	$('#BtnDebugger').click(function(){ Amb('The Debugger is currently sleeping.');
+//		Amb($.parseyturl('http://www.youtube.com/watch?v=BbizTBYs-rQ'));
+//	});
+	
+//	function ResetMenus(){
+//		$('#ucformbutton, #ucselect, #ucnav, #ucform').hide();
+//		$('#uniconwin').dialog('close');
+//	}
 	
 	////
 	// Create Dialogs & Apply Droppables
 	////
 	
-	$('#UniCon')
-		.dialog({ autoOpen: false, title: 'UniCon', dialogClass:'transparent90' });
+//	$('#UniCon')
+//		.dialog({ autoOpen: false, title: 'UniCon', dialogClass:'transparent90' });
 	
 	
 //	$('#WorkBench').dialog({ width: 350, height: 150, title: 'WorkBench', position: {my: 'middle middle', at: 'middle middle', of: document}, overflow: scroll })
 //		.droppable({ drop: function (event, ui){
-//			if (ui.draggable.data('itype') === 'YouTube'){
+//
 //					parsedlink = $.parseyturl(ui.draggable.data("ytlink"));
 //					Amb(parsedlink);
 //					Amb(ui.draggable.data("itype"));
 //					YouTube(parsedlink);
-//				} else {
-//					Amb("You can't load this type of object... yet.");
-//					OpenObj(ui.draggable.data('metakind'),ui.draggable.data('metaid'));
-//				}
+//				
 //			}
 //		});
 	
@@ -943,25 +676,19 @@ $(document).ready(function() {
 				$("#msg"+pack.masterid).dialog({height: 220}).append(pack.content+'<br>').scrollTop($(this).height()+99999);
 			}
 		} else if (pack.type === 'broadcast') {
-			
 			//new message handler for fancy chat box
 			newChatBoxMsg(pack);
-			
-//			$('#MetaVision').append("[" + pack.scopename + "] <b>" + pack.name + "</b> - " + pack.content + "<br>").scrollTop($(this).height()+99999);
 		} else if (pack.type === 'announcement') {
-//			$('#MetaVision').append("[System] <b>" + pack.content + '<br>').scrollTop($(this).height()+99999);
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'refresh') {
 			if (pack.scope === 'location') {
-				GlassLocSheet();
+				LocaSheet();
 			} else if (pack.scope === 'meta') {
-				GlassMetaSheet();
+				MetaSheet();
 			}
 		} else if (pack.type === 'move') {
-//			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'action') {
-//			$('#MetaVision').append(pack.content + "<br>").scrollTop($(this).height()+99999);
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'pm') {
 			Amb('New PM Recieved!');
@@ -979,11 +706,13 @@ $(document).ready(function() {
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'userleave') {
 			newChatBoxMsg(pack);
-		
 		} else {
 			Amb('No Type');
 		}
-		// Scope Loop (For sounds, etc.)
+
+		///
+		/// Scope Loop (For sounds, etc.)
+		///
 		if (pack.scope == 'local'){
 			Amb(pack.content,5);
 			MetaSound('beep');
@@ -1116,10 +845,6 @@ $(document).ready(function() {
 			// don't do shit...
 		}
 		
-		
-		
-		
-		
 	};
 	
 	// chatbox icon translator
@@ -1152,150 +877,6 @@ $(document).ready(function() {
 		}
 				
 	});
-	
-	/////////////////////////////
-	/// UI PANELS - METASHEET
-	/////////////////////////////
-	
-//	function MetaSheet(){
-//		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-//			$('#MetaSheet')
-//			.dialog({ width: 275, title: 'MetaSheet', position: { at: 'right top' }, dialogClass:'transparent90'})
-//			.droppable({
-//				drop: function (event, ui) {
-//				Drop(ui.draggable.attr('metakind'),ui.draggable.attr('name'),'Meta',cmeta.metaid);}
-//			});
-//		MetaInfo(cmeta);
-//		MetaInventory();
-//		});
-//	}
-	
-	function MetaInfo(cmeta){
-		$('#MetaInfo')
-		.empty()
-		.append("<label>Name: </label><br />" + cmeta.name + "<br>" +
-				"<label>MetaID: </label><br />" + cmeta.metaid + "<br>" +
-				"<label>MasterID: </label><br />" + cmeta.masterid + "<br>" +
-				"<label>Info: </label><br />" + cmeta.info + "<br>" +
-				"<label>Location: </label><br />" + cmeta.xloc + "." + cmeta.yloc + "." + cmeta.zloc + ":" + cmeta.lattice + "<br>");
-	}
-	
-	function MetaInventory(){
-		$('#MetaInventory')
-			.empty()
-			.append("<label>Your Inventory: </label><br />");
-			$.getJSON('/edenop/fetchinventory', function(localmetas) {
-				$.each(localmetas, function() {
-					CreateIcon(this,'#MetaInventory');
-				});
-				$('.dragie').draggable(draggableArguments);
-			});
-		}
-	
-	
-	
-	/////////////////////////////
-	/// UI PANELS - LOCATION SHEET
-	/////////////////////////////	
-	
-	function LocationSheet(){
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			$.getJSON('/edenop/location', function(locdata) {
-				$('#LocationSheet')
-					.dialog({ title: 'MetaLocation', position: {at: 'left top'}, width: 300, dialogClass:'transparent90'})
-					.droppable({
-						drop: function (event, ui) {
-							Drop(ui.draggable.attr('metakind'),ui.draggable.attr('name'),'Location',locdata.metaid);
-						}
-					});
-				LocationInfo(locdata);
-				$('#LocationMetas, #LocationItems')
-				.empty();
-				LocationMetas();
-				LocationItems();
-			});
-		});
-	}
-	
-	function LocationInfo(locdata){
-		$('#LocationInfo')
-		.empty()
-		.append(
-				"<label>Name: </label><br />" + locdata.name + '<br>' +
-				"<label>Info: </label><br />" + locdata.info + '<br>' +
-				"<label>Coordinates: </label><br />" + locdata.xloc + '.' +  locdata.yloc + '.' + locdata.zloc + ':' + locdata.lattice + '<br>' +
-				"<label>Exits: </label><br />" +
-				"<center>" +
-				"<input class='move' id='nw' type='button' value='Northwest'>" +	
-				"<input class='move' id='n' type='button' value='North'>" +
-				"<input class='move' id='ne' type='button' value='Northeast'><br>" +
-				"<input class='move' id='w' type='button' value='West'>" +
-				"<input class='move' id='e' type='button' value='East'><br>" +
-				"<input class='move' id='sw' type='button' value='Southwest'>" +
-				"<input class='move' id='s' type='button' value='South'>" +
-				"<input class='move' id='se' type='button' value='Southeast'><br>" +
-				"<input class='move' id='u' type='button' value='Up'>" +
-				"<input class='move' id='d' type='button' value='Down'><br>" +
-				"</center>"
-		);
-
-		
-	}
-	
-	
-	
-	function LocationMetas(){
-		$('#LocationMetas')
-			.empty()
-			.append("<label>MetaUsers Here: </label><br />");
-			$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
-				$.each(localmetas, function() {
-					CreateIcon(this,'#LocationMetas');
-				});
-			$('.dragie').draggable(draggableArguments);
-		});
-	}
-	
-	function LocationItems(){
-		$('#LocationItems')
-		.empty()
-		.append("<label>Items Here: </label><br />");
-		$.getJSON('/edenop/fetchlocalitems', function(localitems) {
-			$.each(localitems, function() {
-				CreateIcon(this,'#LocationItems');
-			});
-			$('.dragie').draggable(draggableArguments);
-		});
-	}
-	
-
-	
-	/////////////////////////////
-	/// METAVISION & MESSAGING
-	/////////////////////////////  
-	
-//	$('#MetaVision')
-//		.dialog({ autoOpen: false, title: 'MetaVision', height: 250, width: 550, overflow: scroll, dialogClass:'transparent90' }, MetaVisionPlace);
-//	
-//	$('#MetaVision')
-//		.after(
-//			"<label>Broadcast Message: </label><br />" +
-//			"<textarea type='text' id='mvprompt' class='typingfield' name='content' rows='1' cols='80' style='vertical-align:text-top'></textarea>" +
-//			"<input type='button' id='btnmsgglobal' class='bsendmsg' value='Global'>" +
-//			"<input type='button' id='btnmsglocal' class='bsendmsg' value='Local'>")
-//		.dialog();
-//			
-//	$('#btnmsglocal').parent().on('click','#btnmsglocal',function (){
-//		Broadcast('local');
-//	});
-//	$('#btnmsgglobal').parent().on('click','#btnmsgglobal',function (){
-//		Broadcast('global');
-//	});
-//	$('#mvprompt').parent().on('keypress','#mvprompt',function(e) {
-//	    if(e.which == 13) {Broadcast('local');}
-//	});
-	
-	
 	
 	//////////////
 	/// YOUTUBE STUFF
@@ -1340,316 +921,6 @@ $(document).ready(function() {
 		createYTItem(thisytid);
 		
 	});
-	
-	
-	
-	
-
-	/////////////////////////////
-	/// NOT YET ADDED
-	/////////////////////////////
-	
-//	function PopulateModifyForm(jsonGET) {
-//		$('.name').attr('value',jsonGET.name);
-//		$('.info').attr('value',jsonGET.info);
-//		$('#xloc').attr('value',jsonGET.xloc);
-//		$('#yloc').attr('value',jsonGET.yloc);
-//		$('#zloc').attr('value',jsonGET.zloc);
-//		$('#lattice').attr('value',jsonGET.lattice);
-//		$('.metaid').attr('value',jsonGET.metaid);
-//		$('.primertype').attr('value',jsonGET.primertype);
-//		$('.shardtype').attr('value',jsonGET.shardtype);
-//		$('.fragtype').attr('value',jsonGET.fragtype);
-//	}
-//	
-//	function PopulateCustomFields(jsonGET) {
-//		$('#ucform').append('<br>');
-//		for (field in jsonGET) {
-//			var hide = ['location','bpclass','name','info','metaid','shardtype','primertype','fragtype','crystalclass','xloc','yloc','zloc','lattice','North','East','West','South','xpos','ypos'];
-//			if (hide.indexOf(field) !== -1){continue;}
-//				$('#ucform').append('<label for="'+ field + '">' + field + '</label>'
-//					+  '<br><input type="text" name="' + field + '" id="' + field + '" value="'+ jsonGET[field] +'"><br />');
-//		}
-//	}
-//	
-//	function ModifyObject(metakind,metaid){
-//		$.getJSON('/unicon/load/' + metakind + '/' + metaid, function(jsonGET) {
-//			UCForm(metakind);
-//			$('#compilebutton').attr({
-//				action: 'modify',
-//			});
-//			$('#ucnav').show();
-//			$('#dynamenu').hide();
-//			$('#ucform').show();
-//			$('#ucformbutton').show();
-//			$('#compilebutton').show();
-//			$('#ucstaticmenu').hide();
-//			PopulateModifyForm(jsonGET);
-//			$('#crystalclassspan').hide().attr('disabled','disabled');
-//			$('.compilebutton').attr('metakind',jsonGET.metakind);
-//			PopulateCustomFields(jsonGET)
-//		});
-//	}
-//	
-//	/////////////////////////////
-//	/// MENU LOGIC
-//	/////////////////////////////
-//	
-//	
-//
-//	
-//	
-//	$('.ucstaticbutton').click(function() {
-//		action = $(this).attr('action');
-//		$('#compilebutton').attr({
-//			action: action,
-//		});
-//		if (action == 'create'){
-//			$('#UniCon').show();
-//			$('#destroybutton').hide();
-//		}
-//		else {
-//			$('#UniCon').hide();
-//			$('#destroybutton').show();
-//		}
-//		$('#ucstaticmenu').hide();
-//		$('#ucselect').show();
-//		$('#ucnav').show();
-//	});
-//	
-//	$('#ucback').click(function() {
-//		$('#ucstaticmenu').show();
-//		$('#ucselect').hide();
-//		$('#dynamenu').hide();
-//		$('#ucform').hide();
-//		$('#ucnav').hide();
-//		$('#ucformbutton').hide();
-//	});
-//	
-//	$('.dynamenu').click(function () {
-//		$('#dynamenu').hide();
-//		$('#ucform').show();
-//		$('#ucformbutton').show();
-//		$('#compilebutton').show();
-//	});
-//	
-//	function UCForm(metakind){
-//		$('.compilebutton').attr({
-//			metakind: metakind,
-//		});
-//		
-//		$('#ucselect').hide();
-//		$('#dynamenu').show();
-//		$('#ucform').empty();
-//		$('#dynamenu').empty();
-//		$('#ucform').html(
-//				"<span class='metaid'><label>Meta ID</label><br />" +
-//					"<input type='text' name='metaid' value='' class='metaid' id='metaid' disabled><br />" +
-//					"<input type='text' name='metaid' value='' class='metaid' hidden></span>" +
-//				"<span id='crystalclassspan'><label for='crystalclass'>"+metakind+" Class</label><br />" +
-//					"<input type='text' name='crystalclass' id='crystalclass' class='crystalclass' value='' disabled><br />" +
-//					"<input type='text' name='crystalclass' id='crystalclass' class='crystalclass' value='' hidden></span>" +
-//				"<span id='blueprintclassspan' hidden><label>"+metakind+" Class</label><br />" +
-//					"<input type='radio' name='bpclass' id='blueprintclass' class='blueprintclass' value='Original'>Original" +
-//					"<input type='radio' name='bpclass' id='blueprintclass' class='blueprintclass' value='Copy'>Copy <br /></span>" +
-//				"<label for='name'>"+metakind+" Name</label><br /><input type='text' name='name' class='name' id='name' value=''><br />"+
-//				"<label for='info'>"+metakind+" Info</label><br /><input type='text' name='info' class='info' id='info' value=''><br />"+
-//				"<label for='info'>"+metakind+" iType</label><br /><input type='text' name='info' class='info' id='info' value=''><br />"+
-//				"<span class='crystaltype'><span class='primertype'><label>Primer Type</label><br />" +
-//					"<input type='text' name='primertype' value='' class='primertype' id='primertype' disabled><br />" +
-//					"<input type='text' name='primertype' value='' class='primertype' hidden></span>" +
-//				"<span class='shardtype'><label>Shard Type</label><br />" +
-//					"<input type='text' name='shardtype' value='' class='shardtype' id='shardtype' disabled><br />" +
-//					"<input type='text' name='shardtype' value='' class='shardtype' hidden></span>" +
-//				"<span class='fragtype'><label>Frag Type</label><br />" +
-//					"<input type='text' name='fragtype' value='' class='fragtype' id='fragtype' disabled><br />" +
-//					"<input type='text' name='fragtype' value='' class='fragtype' hidden></span></span>" +
-//				"<span class='location'><label>Location Info</label><br />" +
-//					"<textarea type='text' name='xloc' id='xloc' value='' rows='1' cols='4' maxlength='3' placeholder='xxx'></textarea>."+
-//					"<textarea type='text' name='yloc' id='yloc' value='' rows='1' cols='4' maxlength='3' placeholder='yyy'></textarea>."+
-//					"<textarea type='text' name='zloc' id='zloc' value='' rows='1' cols='4' maxlength='3' placeholder='zzz'></textarea>:"+
-//					"<textarea type='text' name='lattice' id='lattice' value='' rows='1' cols=7' maxlength='3' placeholder='lattice'></textarea> "
-//		);
-//		
-//	}
-//	
-//	$('.ucselect').click(function () {
-//		var ucSelect = $(this).attr('name');
-//		var ucKind = $(this).attr('metakind');
-//		if (action == 'create'){
-//			var metakind = $(this).attr('creates');
-//		} else {
-//			var metakind = $(this).attr('metakind');
-//		}
-//		
-//		//alert(ucSelect+ucKind+metakind);
-//		
-//		UCForm(metakind);
-//		if (action == 'create'){
-//			$('.metaid').hide();
-//		}
-//		
-//		function LoadDynaMenu(GetObjects) {
-//			$.each(GetObjects, function() {
-//				$('#dynamenu').append(
-//						"<input type='button' name='" + this.metaid + "' metakind='"+this.metakind+"' id='" + this.metaid + "' class='button2 scrystal dynamenu' value='" + this.name + "' /> "
-//				);
-//				var thisID = this.metaid;
-//			});
-//		}
-//		function CreatePresets(jsonGET) {
-//			$('.primertype').attr('value',jsonGET.primertype);
-//			$('.shardtype').attr('value',jsonGET.shardtype);
-//			$('.fragtype').attr('value',jsonGET.fragtype);
-//		}
-//		if(ucSelect == 'UniCon'){
-//			$('.crystalclass').attr('value', 'Primer');
-//			$('#primertype').removeAttr('disabled');
-//			$('.shardtype').hide();
-//			$('.fragtype').hide();
-//			$('.compilebutton').attr({
-//				metakind: 'Crystal',
-//				metaid: 'New',
-//			});
-//		}
-//		else if (ucSelect == 'Primer'){
-//			$.getJSON('/unicon/fetch/' + ucKind + '/' + ucSelect, function(GetObjects) {
-//				LoadDynaMenu(GetObjects);
-//				$('.scrystal').on('click',function() {
-//					$.getJSON('/unicon/load/' + ucKind + '/' + $(this).attr('name'), function(jsonGET) {
-//						if (action == 'create'){
-//							CreatePresets(jsonGET);
-//							$('.crystalclass').attr('value','Shard');
-//							$('#shardtype').removeAttr('disabled');
-//							$('.fragtype').hide();
-//						}
-//						else {
-//							PopulateModifyForm(jsonGET);
-//							$('.crystalclass').attr('value','Primer')
-//							$('.primertype').removeAttr('disabled');
-//							$('.shardtype').hide();
-//							$('.fragtype').hide();
-//						}
-//					});
-//				});
-//			});
-//		} else if (ucSelect == 'Shard') {
-//			$.getJSON('/unicon/fetch/' + ucKind + '/' + ucSelect, function(GetObjects) {
-//				LoadDynaMenu(GetObjects);
-//				$('.scrystal').on('click',function() {
-//					$.getJSON('/unicon/load/' + ucKind + '/' + $(this).attr('name'), function(jsonGET) {
-//						if (action == 'create'){
-//							CreatePresets(jsonGET);
-//							$('.crystalclass').attr('value','Frag');
-//							$('#fragtype').removeAttr('disabled');
-//						}
-//						else {
-//							PopulateModifyForm(jsonGET);
-//							$('.crystalclass').attr('value','Shard')
-//							$('.shardtype').removeAttr('disabled');
-//							$('.fragtype').hide();
-//						}
-//					});
-//				});
-//			});
-//		} else if (ucSelect == 'Frag') {
-//			$.getJSON('/unicon/fetch/' + ucKind + '/' + ucSelect, function(GetObjects) {
-//				LoadDynaMenu(GetObjects);
-//				$('.scrystal').on('click',function() {
-//					$.getJSON('/unicon/load/' + ucKind + '/' + $(this).attr('name'), function(jsonGET) {
-//						if (action == 'create'){
-//							CreatePresets(jsonGET);
-//							$('#crystalclassspan').hide().attr('disabled','disabled');
-//							$('#blueprintclassspan').show();
-//						}
-//						else {
-//							PopulateModifyForm(jsonGET);
-//							$('.crystalclass').attr('value','Frag')
-//							$('.fragtype').removeAttr('disabled');
-//							$('#blueprintclass').hide();
-//						}
-//					});
-//				});
-//			});
-//		} else if (ucSelect == 'Blueprint') {
-//			$.getJSON('/unicon/fetch/' + ucSelect + '/', function(GetObjects) {
-//				LoadDynaMenu(GetObjects);
-//				$('.scrystal').on('click',function() {
-//					$.getJSON('/unicon/load/' + ucSelect + '/' + $(this).attr('name'), function(jsonGET) {
-//						if (action == 'create'){
-//							CreatePresets(jsonGET);
-//							$('#crystalclassspan').hide().attr('disabled','disabled');
-//							$('#compilebutton').attr('value','Compile New Object').attr('metakind',jsonGET.primertype);
-//							PopulateCustomFields(jsonGET)
-//						}
-//						else {
-//							PopulateModifyForm(jsonGET);
-//							$('#blueprintclassspan').show();
-//							$('#crystalclassspan').hide().attr('disabled','disabled');
-//							PopulateCustomFields(jsonGET)
-//						}
-//					});
-//				});
-//			});
-//		} else if (ucSelect == 'Object') {
-//			$.getJSON('/unicon/fetch/' + ucSelect + '/', function(GetObjects) {
-//				LoadDynaMenu(GetObjects);
-//				$('.scrystal').on('click',function() {
-//					var ucKind = $(this).attr('metakind');
-//					$('#destroybutton').attr('metakind',ucKind);
-//					$.getJSON('/unicon/load/' + ucKind + '/' + $(this).attr('name'), function(jsonGET) {
-//						if (action == 'create'){
-//							CreatePresets(jsonGET);
-//							PopulateModifyForm(jsonGET);
-//							$('#crystalclassspan').hide().attr('disabled','disabled');
-//							$('#compilebutton').hide();
-//							$('#destroybutton').show();
-//							$('#name').attr('disabled','disabled');
-//							$('#info').attr('disabled','disabled');
-//							PopulateCustomFields(jsonGET)
-//						}
-//						
-//						else {
-//							PopulateModifyForm(jsonGET);
-//							$('#crystalclassspan').hide().attr('disabled','disabled');
-//							$('.compilebutton').attr('metakind',jsonGET.metakind);
-//							PopulateCustomFields(jsonGET)
-//						}
-//					});
-//				});
-//			});
-//		}
-//	});
-//	
-//
-//	
-//	$('#addfield').click(function() {
-//		$("#ucform").append('<label for="' + $("#customField").val() + '">' + $("#customField").val() + '</label><br><input name="' + $("#customField").val() +'" id="' + $("#customField").val() + '" type="text"><br />');				
-//	});
-//	
-//	$('#dynamenu').on('click','.dynamenu',function() {
-//		metaid = $(this).attr('name');
-//		$('.compilebutton').attr({
-//			metaid: metaid,
-//		});
-//	});
-//	
-//	$('.compilebutton').click(function() {
-//		var action = $(this).attr('action');
-//		var metakind = $(this).attr('metakind');
-//		var metaid = $(this).attr('metaid');
-//		var formData = $('#ucform').serialize();
-//		//alert(metakind);
-//		$.ajax({
-//			type: 'POST',
-//			url: '/unicon/' + action + '/' + metakind + '/' + metaid,
-//			data: formData,
-//			success: function(data){
-//				SessionHandler();
-//			}
-//		})
-//	});
-	
 
 });
 
