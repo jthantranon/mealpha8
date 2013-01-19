@@ -289,8 +289,8 @@ $(document).ready(function() {
 		}
 	}
 	
-	$('body').on('click','.move',function() {
-		dir = this.id;
+	$('.navigationList').on('click','li',function() {
+		dir = $(this).text();
 		$.ajax({
 			type: 'POST',
 			url: '/action/move/' + dir,
