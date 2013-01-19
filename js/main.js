@@ -21,7 +21,7 @@ $(document).ready(function() {
 			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
 			Glass.create(glassargs);
 			EngraveLocaGlass(cloc);
-			$('#LocationSheet').droppable({
+			$('#LocaSheet').droppable({
 				drop: function (event, ui) {
 					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
 			});
@@ -318,6 +318,10 @@ $(document).ready(function() {
 		
 		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
+				ShowExits('LocaSheet',cloca);
+				$.each(args, function(k,v){
+					NGAL('LocaSheet',k,v);
+				});
 				NGALO('LocaSheet','MetaUsers Here');
 				$.each(localmetas, function() {
 					NGAO('LocaSheet',this);
@@ -330,9 +334,7 @@ $(document).ready(function() {
 				NGAG('LocaSheet','');
 			});
 		});
-		$.each(args, function(k,v){
-			NGAL('LocaSheet',k,v);
-		});
+		
 	}
 	
 	function SheetItem(Anchor,sob,params){
@@ -378,8 +380,8 @@ $(document).ready(function() {
 		});
 	}
 	
-	function ShowExits(Anchor,sob){
-		Anchor.append(
+	function ShowExits(tGlass,loca){
+		Glass.append(tGlass,
 				"<label>Exits: </label><br />" +
 				"<center>" +
 				"<input class='move' id='nw' type='button' value='Northwest'>" +	
@@ -394,7 +396,7 @@ $(document).ready(function() {
 				"<input class='move' id='d' type='button' value='Down'><br>" +
 				"</center>"
 		);
-		exits = sob.exits.split(',');
+		exits = loca.exits.split(',');
 		var dirs = ["n","s","w","e","ne","se","sw","nw","u","d"];
 
 		for (var i = 0; i < dirs.length; i++) {
