@@ -1,3 +1,6 @@
+$.getJSON('/edenop/location', function(currentloca) {
+	
+
 function MENav(context) {
 	/////////////
 	// initialize
@@ -22,8 +25,8 @@ function MENav(context) {
 		    <li id="navUp">u</li>\
 		    <li id="navDown">d</li>\
 		</ul>\
-		<p class="navLocation">Locacione</p>\
-		<p class="navCoords">500.500.500:0</p>\
+		<p class="navCoords">'+currentloca.xyz+'</p>\
+		<p class="navLocation">'+currentloca.name+'</p>\
 		</div>';
 	
 	////////////////////////
@@ -60,7 +63,7 @@ MENav.prototype.checkCSS = function() {
 MENav.prototype.create = function(context){
 	
 	var context = context || this.context;
-	var xpos = ($(window).width() / 2) - 210;	
+	var xpos = ($(window).width() / 2) - 210;
 		
 	// apply template
 	$(context).append(this.template);
@@ -88,6 +91,19 @@ MENav.prototype.remove = function(id,context,content) {
 	$('.navigationList').remove();	
 }
 
+MENav.prototype.refresh = function() {
+	$('.navCoords').remove();
+	$('.navLocation').remove();
+		
+	$.getJSON('/edenop/location', function(currentloca) {
+		var template =
+			'<p class="navCoords">'+currentloca.xyz+'</p>\
+			 <p class="navLocation">'+currentloca.name+'</p>';
+		$('.navigationWrapper').append(template);
+	});
+
+	
+}
 
 /////////////////////////////////////////
 // testing and examples
@@ -95,3 +111,5 @@ MENav.prototype.remove = function(id,context,content) {
 //
 mynav = new MENav();
 mynav.create();
+
+});

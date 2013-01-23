@@ -71,8 +71,8 @@ def CreateDigiFort():
 class SpawnMeta(webapp2.RequestHandler):
     def post(self):
         meta = Meta()
-        meta.name = self.request.get('name')
-        meta.info = self.request.get('info')
+        meta.name = self.request.get('regname')
+        meta.info = self.request.get('reginfo')
         meta.masterid = ops.cmasterid()
         meta.email = ops.cemail()
 
@@ -85,7 +85,7 @@ class CreateYTItem(webapp2.RequestHandler):
         cmeta = ops.loadmeta()
         spec = Item();
         spec.name = self.request.get('title')
-        spec.info = 'A YouTube video.'
+        spec.info = self.request.get('info')
         spec.itype = 'YouTube'
         spec.primertype = 'Item'
         spec.shardtype = 'Generic'
