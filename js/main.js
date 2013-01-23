@@ -1,5 +1,4 @@
 $(document).ready(function() {
-	$('#wholepage').hide();
 	$.getJSON('/edenop/loadcmeta', function(currentmeta) {
   
 		
@@ -35,7 +34,7 @@ $(document).ready(function() {
 	function RegiSheet(){
 		var id = 'RegiSheet';
 		//var content =
-		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:'Registration Sheet',name:'RegiSheet',id:id};
+		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:'Registration Sheet',name:'RegiSheet',id:id};
 		Glass.create(glassargs);
 		NGAF(id,'Meta Name','regname','regname');
 		NGAF(id,'Meta Description','reginfo','reginfo');
@@ -48,7 +47,7 @@ $(document).ready(function() {
 	function YTSheet(){
 		var id = 'YTSheet';
 		//var content =
-		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:'YoutTube Item Maker',name:'YTSheet',id:id};
+		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:'YoutTube Item Maker',name:'YTSheet',id:id};
 		Glass.create(glassargs);
 		NGAF(id,'YouTube Link','ytlink','ytlink');
 		NGASB(id,'Create YouTube Item','ytsubmit');
@@ -217,7 +216,7 @@ $(document).ready(function() {
 	
 	function GlassFactory(medo,glassargs){
 		if (medo != null){
-			glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2,ypos:document.documentElement.clientHeight/2,title:medo.name,name:medo.kid,id:medo.kid};
+			glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:medo.name,name:medo.kid,id:medo.kid};
 		}
 		Glass.create(glassargs);
 		//Glass.empty(medo.kid);
