@@ -59,7 +59,7 @@ class Location(ndb.Expando):
    
 class Item(ndb.Expando):
     name = ndb.StringProperty()
-    info = ndb.StringProperty()
+    info = ndb.TextProperty()
     itype = ndb.StringProperty()
     primertype = ndb.StringProperty() 
     shardtype = ndb.StringProperty()

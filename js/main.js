@@ -288,6 +288,12 @@ $(document).ready(function() {
 		MetaAction(action,item,metakind,metaid);
 	});
 	
+	$('body').on('click','#ytsubmit',function(){
+		thisytid = $.parseyturl($("#ytlink").val());
+		createYTItem(thisytid);
+		
+	});
+	
 	function NGALO(tGlass,label){
 		Glass.append(tGlass,
 				"<label>"+label+"</label><br>"
@@ -904,10 +910,10 @@ $(document).ready(function() {
 	//////////////
 	/// YOUTUBE STUFF
 	/////////////
-	$('#YouTubeGen').dialog({ width: 550, title: 'Drop A YouTube Link', position: {my: 'bottom middle', at: 'left bottom', of: document}, height: 150, overflow: scroll }).dialog('close');
-	
-	$('#YTLinken')
-		.dialog({ autoOpen: false, title: 'YT Linken', position: {at: 'middle middle'}, height: 100, width: 550});
+//	$('#YouTubeGen').dialog({ width: 550, title: 'Drop A YouTube Link', position: {my: 'bottom middle', at: 'left bottom', of: document}, height: 150, overflow: scroll }).dialog('close');
+//	
+//	$('#YTLinken')
+//		.dialog({ autoOpen: false, title: 'YT Linken', position: {at: 'middle middle'}, height: 100, width: 550});
 	
     function createYTItem(id) {
 		$.ajax({
@@ -939,11 +945,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	$('#ytsubmit').click(function(){
-		thisytid = $.parseyturl($("#ytlink").val());
-		createYTItem(thisytid);
-		
-	});
+	
 
 
   
