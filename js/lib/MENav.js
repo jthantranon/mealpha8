@@ -1,6 +1,3 @@
-
-	
-
 function MENav(context) {
 	/////////////
 	// initialize
@@ -10,7 +7,7 @@ function MENav(context) {
 	////////////
 	// variables
 	////////////
-	$.getJSON('/edenop/location', function(currentloca) {
+
 		this.context = context || 'body';
 		this.template = '\
 			<div class="navigationWrapper">\
@@ -26,10 +23,10 @@ function MENav(context) {
 			    <li id="navUp">u</li>\
 			    <li id="navDown">d</li>\
 			</ul>\
-			<p class="navCoords">'+currentloca.xyz+'</p>\
-			<p class="navLocation">'+currentloca.name+'</p>\
+			<p class="navCoords">test</p>\
+			<p class="navLocation">test</p>\
 			</div>';
-	});
+
 	////////////////////////
 	// initialization events
 	////////////////////////

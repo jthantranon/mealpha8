@@ -198,8 +198,9 @@ class ChanRouter(webapp2.RequestHandler):
 
 class LoadLocation(webapp2.RequestHandler):
     def get(self):
-        cmeta = ops.loadmeta()
+        
         try:
+            cmeta = ops.loadmeta()
             q = Location.query(
                                Location.xloc == cmeta.xloc,
                                Location.yloc == cmeta.yloc,
@@ -212,12 +213,18 @@ class LoadLocation(webapp2.RequestHandler):
             q = Location()
             q.exits = 'n,e,s,w,nw,ne,se,sw,u,d'
             q.metakind = 'Location'
-            q.xloc =  cmeta.xloc
-            q.yloc =  cmeta.yloc
-            q.zloc =  cmeta.zloc
-            q.lattice =  cmeta.lattice
             q.name = 'Beyond Eden'
             q.info = "You have wandered beyond constructed space. Don't get lost!"
+            if cmeta:
+                q.xloc =  cmeta.xloc
+                q.yloc =  cmeta.yloc
+                q.zloc =  cmeta.zloc
+                q.lattice =  cmeta.lattice
+            else:
+                q.xloc =  '500'
+                q.yloc =  '500'
+                q.zloc =  '500'
+                q.lattice =  '0'
             q = q.to_dict()
             jsonData = json.dumps(q)
             self.response.out.write(jsonData)

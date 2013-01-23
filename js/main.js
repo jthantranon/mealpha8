@@ -9,7 +9,7 @@ $(document).ready(function() {
 	///
 	Glass = new MEGlass();		
 	mynav = new MENav();
-	mynav.create();
+	
 
 	//////////////
 	/// INITIALIZE LOGIN
@@ -66,6 +66,8 @@ $(document).ready(function() {
 		} else {
 			cMetaSheet();	// Load Static UX
 			cLocaSheet();	// Load Static UX
+			mynav.create();
+			mynav.refresh();
 		}
 		
 	}
