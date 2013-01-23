@@ -1,19 +1,21 @@
 $(document).ready(function() {
-  $.getJSON('/edenop/loadcmeta', function(currentmeta) {
-  $.getJSON('/edenop/location', function(currentloca) {
+	$('#wholepage').hide();
+	$.getJSON('/edenop/loadcmeta', function(currentmeta) {
+  
 		
 		
 	///
 	/// Initialize Glass
 	///
 	Glass = new MEGlass();		
-		
+	mynav = new MENav();
+	mynav.create();
 
 	//////////////
 	/// INITIALIZE LOGIN
 	/////////////
 	
-	$('#wholepage').hide();
+	
 	SessionHandler();
 	
 	function SessionHandler() {
@@ -28,7 +30,7 @@ $(document).ready(function() {
 		});
 	}
 	
-	
+
 	
 	function RegiSheet(){
 		var id = 'RegiSheet';
@@ -197,6 +199,18 @@ $(document).ready(function() {
 		} else {
 			dMedoGlass(metakind,metaid);
 		}
+	});
+	
+	$('body').on('click','#regsubmit',function() {
+		$.ajax({
+		type: 'POST',
+		url: '/unicon/spawn/meta',
+		data: {'regname': $('#regname').val(),'reginfo': $('#reginfo').val()},
+		success: function(data){
+			Glass.destroy('RegiSheet');
+			InitializeMetaEden();
+			}
+		});
 	});
 	
 	function GlassFactory(medo,glassargs){
@@ -563,17 +577,7 @@ $(document).ready(function() {
 	//REGISTRATION CHECK
 	////
 
-	$('#regsubmit').click(function() {
-		$.ajax({
-		type: 'POST',
-		url: '/unicon/spawn/meta',
-		data: {'regname': $('#regname').val(),'reginfo': $('#reginfo').val()},
-		success: function(data){
-			Glass.destroy('RegiSheet');
-			InitializeMetaEden('refresh');
-			}
-		});
-	});
+	
 	
 	
 	$("#BtnRefresh").click(function(){ Amb('Refreshed!');
@@ -711,9 +715,9 @@ $(document).ready(function() {
 			newChatBoxMsg(pack);
 		} else if (pack.type === 'refresh') {
 			if (pack.scope === 'location') {
-				LocaSheet();
+				cLocaSheet('refresh');
 			} else if (pack.scope === 'meta') {
-				MetaSheet();
+				cMetaSheet('refresh');
 			}
 		} else if (pack.type === 'move') {
 			newChatBoxMsg(pack);
@@ -949,7 +953,6 @@ $(document).ready(function() {
 
 
   
-  });
   });
 });
 

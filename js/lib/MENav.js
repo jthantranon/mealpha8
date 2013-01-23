@@ -1,4 +1,4 @@
-$.getJSON('/edenop/location', function(currentloca) {
+
 	
 
 function MENav(context) {
@@ -10,25 +10,26 @@ function MENav(context) {
 	////////////
 	// variables
 	////////////
-	this.context = context || 'body';
-	this.template = '\
-		<div class="navigationWrapper">\
-		<ul class="navigationList">\
-			<li id="navNorth">n</li>\
-		    <li id="navNortheast">ne</li>\
-		    <li id="navEast">e</li>\
-		    <li id="navSoutheast">se</li>\
-		    <li id="navSouth">s</li>\
-		    <li id="navSouthwest">sw</li>\
-		    <li id="navWest">w</li>\
-		    <li id="navNorthwest">nw</li>\
-		    <li id="navUp">u</li>\
-		    <li id="navDown">d</li>\
-		</ul>\
-		<p class="navCoords">'+currentloca.xyz+'</p>\
-		<p class="navLocation">'+currentloca.name+'</p>\
-		</div>';
-	
+	$.getJSON('/edenop/location', function(currentloca) {
+		this.context = context || 'body';
+		this.template = '\
+			<div class="navigationWrapper">\
+			<ul class="navigationList">\
+				<li id="navNorth">n</li>\
+			    <li id="navNortheast">ne</li>\
+			    <li id="navEast">e</li>\
+			    <li id="navSoutheast">se</li>\
+			    <li id="navSouth">s</li>\
+			    <li id="navSouthwest">sw</li>\
+			    <li id="navWest">w</li>\
+			    <li id="navNorthwest">nw</li>\
+			    <li id="navUp">u</li>\
+			    <li id="navDown">d</li>\
+			</ul>\
+			<p class="navCoords">'+currentloca.xyz+'</p>\
+			<p class="navLocation">'+currentloca.name+'</p>\
+			</div>';
+	});
 	////////////////////////
 	// initialization events
 	////////////////////////
@@ -109,7 +110,5 @@ MENav.prototype.refresh = function() {
 // testing and examples
 /////////////////////////////////////////
 //
-mynav = new MENav();
-mynav.create();
-
-});
+//mynav = new MENav();
+//mynav.create();
