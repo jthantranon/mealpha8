@@ -41,10 +41,7 @@ $(document).ready(function() {
 		//GlassFactory(null,args)
 	}
 	
-	$('#BtnOpenYTI').toggle(
-			function(){YTSheet();},
-			function(){Glass.destroy('YTSheet');}
-	);
+	
 	
 	function YTSheet(){
 		var id = 'YTSheet';
@@ -187,8 +184,19 @@ $(document).ready(function() {
 		});
 	}
 	
+	$('#BtnOpenYTI').toggle(
+			function(){YTSheet();},
+			function(){Glass.destroy('YTSheet');}
+	);
+	
 	$(document).on('click','.obj',function(){
-		dMedoGlass($(this).data('metakind'),$(this).data('metaid'));
+		var metakind = $(this).data('metakind');
+		var metaid = $(this).data('metaid');
+		if ($('#'+metakind+metaid).length){
+			Glass.destroy(metakind+metaid);
+		} else {
+			dMedoGlass(metakind,metaid);
+		}
 	});
 	
 	function GlassFactory(medo,glassargs){
@@ -303,8 +311,8 @@ $(document).ready(function() {
 	}
 	
 	function NGAL(tGlass,label,appendage){
-		Glass.append(tGlass, "<label>"+label+"</label><br>"+
-			"<span>" + appendage + "</span><br>");
+		Glass.append(tGlass, "<div><label>"+label+"</label><br>"+
+			"<span class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</span></div>");
 	}
 	
 	function GAP(medo,percent){
@@ -548,14 +556,7 @@ $(document).ready(function() {
 	////
 	//REGISTRATION CHECK
 	////
-	
-	var doclosed = {autoOpen: false};
-	
-	$('#Register')
-	.dialog({ autoOpen: false, modal: true, title: 'Create MetaUser!', position: { my: 'middle middle', at: 'middle middle', of: document }, dialogClass:'transparent90', width: 250});
-	
-	
-	
+
 	$('#regsubmit').click(function() {
 		$.ajax({
 		type: 'POST',
@@ -568,37 +569,10 @@ $(document).ready(function() {
 		});
 	});
 	
-	////
-	//Initialize/Bind Buttons
-	////
-	
-	
-//	$('#BtnToggleUC').toggle(
-//		function(){$('#UniCon').dialog('open');},
-//		function(){$('#UniCon').dialog('close');}
-//	);
-	
-	
 	
 	$("#BtnRefresh").click(function(){ Amb('Refreshed!');
 		RefreshAll();
 	});
-	
-//	$('#BtnDebugger').click(function(){ Amb('The Debugger is currently sleeping.');
-//		Amb($.parseyturl('http://www.youtube.com/watch?v=BbizTBYs-rQ'));
-//	});
-	
-//	function ResetMenus(){
-//		$('#ucformbutton, #ucselect, #ucnav, #ucform').hide();
-//		$('#uniconwin').dialog('close');
-//	}
-	
-	////
-	// Create Dialogs & Apply Droppables
-	////
-	
-//	$('#UniCon')
-//		.dialog({ autoOpen: false, title: 'UniCon', dialogClass:'transparent90' });
 	
 	
 //	$('#WorkBench').dialog({ width: 350, height: 150, title: 'WorkBench', position: {my: 'middle middle', at: 'middle middle', of: document}, overflow: scroll })
@@ -632,6 +606,11 @@ $(document).ready(function() {
 			url: '/action/router/' + action,
 			data: {'sitem':sitem,'metakind':metakind,'metaid':metaid},
 			success: function(data){
+				//$('#Item101').empty();
+				//alert($('#Item101DataBits').text());
+				$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
+					Glass.reattr(medo.kid,'.DataBits',medo.databits);
+				});
 			}
 		});
 	}
@@ -703,9 +682,9 @@ $(document).ready(function() {
 		// Type Loop (For printing/formatting)
 		if  (pack.updater){
 			if (pack.metasheetupdater){
-				GlassMetaSheet();
+				cMetaSheet('refresh');
 			} else {
-				GlassFactory(pack);
+				RefreshAll();
 			}
 		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});

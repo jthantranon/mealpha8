@@ -127,6 +127,10 @@ MEGlass.prototype.replace = function(id,context,content) {
 	$('#'+id).children(context).append(content);	
 }
 
+MEGlass.prototype.reattr = function(id,context,content) {
+	$('#'+id).find(context).empty();
+	$('#'+id).find(context).append(content);	
+}
 
 /////////////////////////////////////////
 // testing and examples
