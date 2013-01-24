@@ -1,8 +1,10 @@
 function MEGlass(context) {
+	var self = this;
 	/////////////
 	// initialize
 	/////////////
 	this.checkCSS();
+	this.checkMinContainer();
 	
 	////////////
 	// variables
@@ -24,6 +26,8 @@ function MEGlass(context) {
 			</div>\
 		  <div class="glassTitle">The Title</div>\
 		  <div class="glassReflection"></div>\
+		  <div class="glassMinButton"></div>\
+		<div class="glassCloseButton"></div>\
 		  <div class="glassTabWrapper">\
 		      <div class="glassTabsLeft"></div>\
 		      <div class="glassTabsRightWrapper">\
@@ -32,6 +36,8 @@ function MEGlass(context) {
 		  </div>\
 		    <div class="glassContent">\
 		    </div>';
+	
+	
 	
 	////////////////////////
 	// initialization events
@@ -46,6 +52,18 @@ function MEGlass(context) {
 		$(this).draggable({handle:'.glassTabWrapper'});
 	});
 	
+	$('.glassMinButton').livequery('click',function(){
+		var context = $(this).parent();
+		var id = $(context).attr('id');
+		self.minimize(id);		
+	});
+	
+	$('.glassMinBar').livequery('click',function(){
+		var id = $(this).attr('id');
+		$(this).remove();
+		self.maximize(id);		
+	});
+	
 	
 } // end constructor
 
@@ -56,6 +74,14 @@ MEGlass.prototype.checkCSS = function() {
 	};
 };
 
+MEGlass.prototype.checkMinContainer = function() {
+	var mycontext = 'body';
+	var mytemplate = '<div class="glassMinContainer"></div>';
+	
+	if(!$('.glassMinContainer').length) {
+		$(mycontext).append(mytemplate);
+	};
+};
 
 
 MEGlass.prototype.create = function(args){
@@ -104,34 +130,56 @@ MEGlass.prototype.title = function(id,newTitle) {
 		console.log("error MEGlass.title() - incorrect arguments provided");
 	};
 	
-}
+};
 
 
 MEGlass.prototype.append = function(id,content) {
 	$('#'+id).children('.glassContent').append(content);	
-}
+};
 
 MEGlass.prototype.clear = function(id) {
 	$('#'+id).children('.glassContent').empty();
-}
+};
 
 MEGlass.prototype.remove = function(id,context) {
 	$('#'+id).children(context).empty();
-}
+};
 
 MEGlass.prototype.destroy = function(id) {
 	$('#'+id).remove();
-}
+};
 
 MEGlass.prototype.replace = function(id,context,content) {
 	$('#'+id).children(context).empty();
 	$('#'+id).children(context).append(content);	
-}
+};
 
 MEGlass.prototype.reattr = function(id,context,content) {
 	$('#'+id).find(context).empty();
 	$('#'+id).find(context).append(content);	
-}
+};
+
+MEGlass.prototype.destroy = function(id) {
+	$('#'+id).remove();	
+};
+
+MEGlass.prototype.hide = function(id) {
+	$('#'+id).hide();
+};
+
+MEGlass.prototype.show = function(id) {
+	$('#'+id).show();
+};
+
+MEGlass.prototype.minimize = function(id) {
+	$('#'+id).hide();
+	var minTitle = $('#'+id).children('.glassTitle').text();
+	$('.glassMinContainer').append('<div class="glassMinBar" id="' + id +'">' + minTitle + '<div class="glassMaxButton"></div></div>');
+};
+
+MEGlass.prototype.maximize = function(id) {
+	$('#'+id).show();	
+};
 
 /////////////////////////////////////////
 // testing and examples

@@ -12,6 +12,7 @@ body {
 	width:500px;
 	height:40px;
 	opacity:0;
+	z-index:20;
 }
 
 .chatAnchor {
