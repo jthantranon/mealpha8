@@ -15,15 +15,15 @@ from google.appengine.api import channel
 def BigBrother(target,targetattr,cmetachange):
     pack = Packet()
     pack.refresh = True
-    
+    cmeta = ops.loadmeta()
     #If there is a change to the source, update source's static sheet and observers' dynamic glass
     if cmetachange:
-        cmeta = ops.loadmeta()
-        pack.type = 'cMetaUpdate'
-        pack.attr = cmetachange
-        pack.metakind = cmeta.metakind
-        pack.metaid = cmeta.metaid
-        channel.send_message(str(cmeta.metaid), ops.jsonify(pack))
+        
+#        pack.type = 'cMetaUpdate'
+#        pack.attr = cmetachange
+#        pack.metakind = cmeta.metakind
+#        pack.metaid = cmeta.metaid
+#        channel.send_message(str(cmeta.metaid), ops.jsonify(pack))
 
         targetmetas = ops.fetchLocalMetaMetaIDs('Meta', cmeta.metaid)
         for targetmeta in targetmetas:
@@ -53,12 +53,15 @@ def BigBrother(target,targetattr,cmetachange):
     if target.metakind != 'Meta':
         targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
         for targetmeta in targetmetas:
-            pack.type = 'sMedoUpdate'
-            pack.attr = targetattr
-            pack.metakind = target.metakind
-            pack.metaid = target.metaid
-            pack.kid = target.kid
-            channel.send_message(str(targetmeta), ops.jsonify(pack))
+            if targetmeta == cmeta.metaid:
+                pass
+            else:
+                pack.type = 'sMedoUpdate'
+                pack.attr = targetattr
+                pack.metakind = target.metakind
+                pack.metaid = target.metaid
+                pack.kid = target.kid
+                channel.send_message(str(targetmeta), ops.jsonify(pack))
 
 def MetaEcho(content):
     cmeta = ops.loadmeta()

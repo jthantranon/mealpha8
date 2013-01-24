@@ -617,6 +617,7 @@ $(document).ready(function() {
 	}
 	
 	function MetaAction(action,sitem,metakind,metaid){
+		
 		$.ajax({
 			type: 'POST',
 			url: '/action/router/' + action,
@@ -624,7 +625,14 @@ $(document).ready(function() {
 			success: function(data){
 				//$('#Item101').empty();
 				//alert($('#Item101DataBits').text());
-				
+				if (action === 'Mine Node'){
+					$.getJSON('/edenop/loadcmeta', function(cmeta) {
+					$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
+						Glass.reattr('MetaSheet','.DataBits',cmeta.databits);
+						Glass.reattr(medo.kid,'.DataBits',medo.databits);
+					});
+					});
+				}
 			}
 		});
 	}
@@ -787,7 +795,7 @@ $(document).ready(function() {
 			Amb(pack.formatted,5);
 			MetaSound('boop');
 		} else {
-			Amb('NoScope',.1);
+			//Amb('NoScope',.1);
 			//$('#MetaVision').append(pack.content + '<br>').scrollTop($(this).height()+99999);
 			//$.ambiance({message: pack.content});
 		}
