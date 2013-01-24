@@ -388,15 +388,7 @@ $(document).ready(function() {
 		});
 	});
 	
-	function Drop(metakind,metaid,dkind,did){
-		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
-		} else {
-			$.post('/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did, function(data){
-				cLocaSheet('refresh'); 		// Load Static UX
-				cMetaSheet('refresh');
-			});
-		}
-	}
+	
 	
 	//////
 	//////
@@ -614,6 +606,16 @@ $(document).ready(function() {
 			success: function(data){
 			}
 		});
+	}
+	
+	function Drop(metakind,metaid,dkind,did){
+		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
+		} else {
+			$.post('/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did, function(data){
+				cLocaSheet('refresh'); 		// Load Static UX
+				cMetaSheet('refresh');
+			});
+		}
 	}
 	
 	function MetaAction(action,sitem,metakind,metaid){
