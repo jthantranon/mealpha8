@@ -56,9 +56,9 @@
 	height:36px;
 	background-image:url(../img/glass/glassTitleBGHover.png);
 	color:#FFFFFF;
-	font-family:Arial, Helvetica, sans-serif;
-	font-size:13px;
-	line-height:34px;
+	font-family: 'TitilliumText25L400wt', Arial, Helvetica, sans-serif;
+	font-size:14px;
+	line-height:40px;
 	text-transform:uppercase;
 	font-weight:bold;
 	text-indent:10px;
@@ -77,9 +77,9 @@
 
 .glassContent {
 	margin:10px;
-	color:#666;
-	font-family:Arial, Helvetica, sans-serif;
-	font-size:14px;
+	color:#888;
+	font-family: 'TitilliumText25L600wt', Arial, Helvetica, sans-serif;
+	font-size:15px;
 	overflow:auto;
 }
 
@@ -93,11 +93,45 @@
 
 .glassContent h1, .glassContent label {
 	color:#AA7528;
-	font-family:Arial, Helvetica, sans-serif;
+	font-family: 'TitilliumText25L600wt', Arial, Helvetica, sans-serif;
 	font-size:10px;
 	text-transform:uppercase;
-	margin-bottom:2px;
+	margin-bottom:3px;
 	margin-top:0;
+}
+
+.glassContent input {
+	margin-bottom:14px;
+	margin-left:0px;
+	color:#666;
+	font-family: 'TitilliumText25L600wt', Arial, Helvetica, sans-serif;
+	font-size:15px;
+	height:24px;
+	padding-top:2px;
+}
+
+.glassContent input[type=button] {
+	background-color:#DDD;
+	border-radius:3px;
+	border:#666 thin solid;
+}
+
+.glassContent input[type=button]:hover {
+	background-color:#39C;
+	border-radius:3px;
+	border:#666 thin solid;
+	color:#FFF;
+}
+
+.glassContent input[type=button]:active {
+	background-color:#FF0;
+	border-radius:3px;
+	border:#666 thin solid;
+	color:#666;
+}
+
+.glassContent input:last-child {
+	margin-bottom:0px;
 }
 
 .clearfix {

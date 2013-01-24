@@ -316,7 +316,7 @@ $(document).ready(function() {
 	
 	function NGALO(tGlass,label){
 		Glass.append(tGlass,
-				"<label>"+label+"</label><br>"
+				"<h1>"+label+"</h1>"
 				);
 	}
 	
@@ -333,18 +333,18 @@ $(document).ready(function() {
 	}
 	
 	function NGAG(tGlass,appendage){
-		Glass.append(tGlass,appendage+'<br>');
+		Glass.append(tGlass,appendage);
 	}
 	
 	function NGAL(tGlass,label,appendage){
-		Glass.append(tGlass, "<div><label>"+label+"</label><br>"+
-			"<span class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</span></div>");
+		Glass.append(tGlass, "<div><h1>"+label+"</h1>"+
+			"<p class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</p></div>");
 	}
 	
 	function GAP(medo,percent){
 		medo.kid.append(
 			"<div class='meter orange nostripes'>" +
-			"<span style='width:"+percent+"%'></span>" +
+			"<p style='width:"+percent+"%'></p>" +
 			"</div>"
 		);
 		

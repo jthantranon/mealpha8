@@ -46,6 +46,9 @@ handlers:
 - url: /js
   static_dir: js
   
+- url: /fonts
+  static_dir: fonts
+  
 - url: /vendor
   static_dir: vendor
 
