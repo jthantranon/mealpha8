@@ -218,7 +218,12 @@ $(document).ready(function() {
 		if (medo != null){
 			glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:medo.name,name:medo.kid,id:medo.kid};
 		}
-		Glass.create(glassargs);
+		if (glassargs === 'refresh'){
+			Glass.clear(medo.kid);
+		} else {
+			Glass.create(glassargs);
+		}
+		
 		//Glass.empty(medo.kid);
 		switch(medo.metakind){
 			case 'Item': EngraveItemGlass(medo); break;
@@ -619,9 +624,7 @@ $(document).ready(function() {
 			success: function(data){
 				//$('#Item101').empty();
 				//alert($('#Item101DataBits').text());
-				$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
-					Glass.reattr(medo.kid,'.DataBits',medo.databits);
-				});
+				
 			}
 		});
 	}
@@ -696,6 +699,33 @@ $(document).ready(function() {
 				cMetaSheet('refresh');
 			} else {
 				RefreshAll();
+			}
+		} else if (pack.refresh){
+			if (pack.type === 'cMetaUpdate'){
+				if (pack.attr === 'databits'){
+					//do stuff
+					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+						Glass.reattr('MetaSheet','.DataBits',medo.databits);
+					});
+				} else {
+					cMetaSheet('refresh');
+				}
+			} else if (pack.type === 'cLocaUpdate'){
+				if (pack.attr === 'itemshere'){
+					//do stuff
+				} else {
+					cLocaSheet('refresh');
+				}
+			} else if (pack.type === 'sMedoUpdate'){
+				if (pack.attr === 'databits'){
+					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+						Glass.reattr(medo.kid,'.DataBits',medo.databits);
+					});
+				} else {
+					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+						GlassFactory(medo,'refresh');
+					});
+				}
 			}
 		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});

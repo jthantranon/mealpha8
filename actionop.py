@@ -12,6 +12,54 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import channel
 
+def BigBrother(target,targetattr,cmetachange):
+    pack = Packet()
+    pack.refresh = True
+    
+    #If there is a change to the source, update source's static sheet and observers' dynamic glass
+    if cmetachange:
+        cmeta = ops.loadmeta()
+        pack.type = 'cMetaUpdate'
+        pack.attr = cmetachange
+        pack.metakind = cmeta.metakind
+        pack.metaid = cmeta.metaid
+        channel.send_message(str(cmeta.metaid), ops.jsonify(pack))
+
+        targetmetas = ops.fetchLocalMetaMetaIDs('Meta', cmeta.metaid)
+        for targetmeta in targetmetas:
+            pack.type = 'sMedoUpdate'
+            pack.attr = cmetachange
+            pack.metakind = cmeta.metakind
+            pack.metaid = cmeta.metaid
+            pack.kid = cmeta.kid
+            channel.send_message(str(targetmeta), ops.jsonify(pack))
+    
+    #If target is a Meta, update his static sheet and observer's dynamic glass
+    if target.metakind == 'Meta':
+        pack.type = 'cMetaUpdate'
+        pack.attr = targetattr
+        channel.send_message(str(target.metaid), ops.jsonify(pack))
+    
+        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        for targetmeta in targetmetas:
+            pack.type = 'sMedoUpdate'
+            pack.attr = targetattr
+            pack.metakind = target.metakind
+            pack.metaid = target.metaid
+            pack.kid = target.kid
+            channel.send_message(str(targetmeta), ops.jsonify(pack))
+    
+    #If target is not a Meta, update all observer's glass
+    if target.metakind != 'Meta':
+        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        for targetmeta in targetmetas:
+            pack.type = 'sMedoUpdate'
+            pack.attr = targetattr
+            pack.metakind = target.metakind
+            pack.metaid = target.metaid
+            pack.kid = target.kid
+            channel.send_message(str(targetmeta), ops.jsonify(pack))
+
 def MetaEcho(content):
     cmeta = ops.loadmeta()
     pack = Packet()
@@ -77,8 +125,9 @@ def MineNode(cmeta,sitem):
     sitem.put()
     cmeta.put()
     MetaEcho(content)
-    PackObj(sitem)
-    PackObj(cmeta)
+    #PackObj(sitem)
+    #PackObj(cmeta)
+    
 def Kick(cmeta,sitem):
     content = StandardActionContent(cmeta,'kicks',sitem)
     MetaEcho(content)
@@ -92,6 +141,7 @@ class ActionRouter(webapp2.RequestHandler):
 #                channel.send_message(str(localmeta), ops.jsonify(pack))
         if metaAction == 'Mine Node':
             MineNode(cmeta,sitem)
+            BigBrother(sitem,'databits','databits')
         if metaAction == 'Kick':
             Kick(cmeta,sitem)
 
