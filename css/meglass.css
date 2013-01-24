@@ -3,11 +3,12 @@
 
 .glassWrapper {
 	width:300px;
-	background-image:url(../img/glass/glassBG.png), url(../img/glass/glassSideBG.png);
+	background-image:url(../img/glass/glassSideBG.png);
+	background: -webkit-linear-gradient(-45deg, rgba(255,255,255,0.35) 0%,rgba(175,175,175,0.35) 100%);
 	background-position: center, left top;
-	background-repeat:repeat,repeat-y;
+	background-repeat:repeat-y;
 	position:absolute;
-	box-shadow: 0px 0px 10px rgba(0,0,0,.25);
+	box-shadow: 0px 0px 10px rgba(0,0,0,.25), inset 0px 0px 10px rgba(255,255,255,.35);	
 	border-radius:3px;
 	
 }
@@ -47,10 +48,22 @@
 
 .glassHeader {
 	position:absolute;
-	margin-top:-16px;
+	margin-top:-10px;
 	width:100%;
+	opacity:.5;
 }
 
+.glassReflection {
+	position:absolute;
+	top:2px;
+	right:2px;
+	background-image:url(../img/glass/glassReflection.png);
+	background-repeat:no-repeat;
+	width:196px;
+	height:44px;
+	pointer-events:none;
+}
+	
 .glassTitle {
 	width:100%;
 	height:36px;
@@ -63,8 +76,7 @@
 	font-weight:bold;
 	text-indent:10px;
 	box-shadow: 0px 0px 10px rgba(255,255,255,.5);
-	z-index: 2;
-	
+	z-index:2;	
 	transition: text-shadow 2s;
 	-moz-transition: text-shadow 2s; /* Firefox 4 */
 	-webkit-transition: text-shadow 2s; /* Safari and Chrome */
@@ -78,13 +90,14 @@
 .glassContent {
 	margin:10px;
 	color:#888;
-	font-family: 'TitilliumText25L600wt', Arial, Helvetica, sans-serif;
-	font-size:15px;
+	font-family: 'TitilliumText25L400wt', Arial, Helvetica, sans-serif;
+	font-size:18px;
 	overflow:auto;
 }
 
 .glassContent p {
 	margin-top:2px;
+	margin-bottom:10px;
 }
 
 .glassContent span {
@@ -92,7 +105,7 @@
 }
 
 .glassContent h1, .glassContent label {
-	color:#AA7528;
+	color:#39C;
 	font-family: 'TitilliumText25L600wt', Arial, Helvetica, sans-serif;
 	font-size:10px;
 	text-transform:uppercase;

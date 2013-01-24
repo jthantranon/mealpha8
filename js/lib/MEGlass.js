@@ -23,6 +23,7 @@ function MEGlass(context) {
 		        </div>   \
 			</div>\
 		  <div class="glassTitle">The Title</div>\
+		  <div class="glassReflection"></div>\
 		  <div class="glassTabWrapper">\
 		      <div class="glassTabsLeft"></div>\
 		      <div class="glassTabsRightWrapper">\
