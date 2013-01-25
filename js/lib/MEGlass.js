@@ -1,4 +1,6 @@
 function MEGlass(context) {
+	
+	
 	var self = this;
 	/////////////
 	// initialize
@@ -179,6 +181,24 @@ MEGlass.prototype.minimize = function(id) {
 
 MEGlass.prototype.maximize = function(id) {
 	$('#'+id).show();	
+};
+
+MEGlass.prototype.rObj = function(id,tKID) {
+	$('#'+id).find('#btnobj'+tKID).remove();
+};
+
+MEGlass.prototype.aObj = function(id,tMedo) {
+	var draggableArguments={revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false};
+	$('#'+id).children('.glassContent').append(
+		"<input type='button' id='btnobj"+tMedo.metakind+tMedo.metaid + "' class='obj dragit' value='" + tMedo.name + "' title='"+tMedo.kid+
+		"' data-name='"+tMedo.name+"' data-metakind='"+tMedo.metakind+"' data-metaid='"+tMedo.metaid+"'" + " data-obj='"+tMedo.metakind+tMedo.metaid+"'" +
+		">"
+	);
+	$('.dragit').draggable(draggableArguments);
+	if (tMedo.ytlink){
+		$('#btnobj'+tMedo.kid).attr('data-ytlink',tMedo.ytlink);
+	}
+	
 };
 
 /////////////////////////////////////////

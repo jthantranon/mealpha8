@@ -148,6 +148,7 @@ $(document).ready(function() {
 			$.each(inventory, function() {
 				NGAO('MetaSheet',this);
 			});
+			//alert($('#MetaSheet').find('#btnobjItem86').data('obj'));
 		});
 	}
 	
@@ -629,8 +630,19 @@ $(document).ready(function() {
 				if (action === 'Relo'){
 					$.getJSON('/edenop/loadcmeta', function(cmeta) {
 					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
-						cLocaSheet('refresh');
-						cMetaSheet('refresh');
+						if (medo.cowner != cmeta.kid){
+							Glass.rObj('MetaSheet',medo.kid)
+						} else {
+							Glass.rObj('LocaSheet',medo.kid)
+						}
+						if ((medo.cowner === cmeta.kid)&&(medo.cowner === rKind+rID)){
+							Glass.aObj('MetaSheet',medo)
+						}
+						if (rKind === 'Location'){
+							Glass.aObj('LocaSheet',medo)
+						}
+//						cLocaSheet('refresh');
+//						cMetaSheet('refresh');
 					});
 					});
 				}
