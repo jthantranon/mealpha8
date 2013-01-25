@@ -13,6 +13,11 @@ from google.appengine.ext import ndb
 # Load = Specific, Fetch = MultiLoad, is = check, , 
 ##########################################################
 
+def metasplit(s):
+    head = s.rstrip('0123456789')
+    tail = s[len(head):]
+    return head, tail
+
 def d10(dice):
     result = random.randint(1,10) * dice
     return result

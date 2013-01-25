@@ -134,11 +134,68 @@ def MineNode(cmeta,sitem):
 def Kick(cmeta,sitem):
     content = StandardActionContent(cmeta,'kicks',sitem)
     MetaEcho(content)
+
+# Relocate Medo
+def Relo(target,dest):
+    # Load Stuff
+    cmeta = ops.loadmeta()
+    
+    dKID = ops.metasplit(dest)
+    dKind = dKID[0]
+    dID = dKID[1]
+    dMedo = ndb.Key(dKind, int(dID)).get()
+    
+    tKID = ops.metasplit(target)
+    tKind = tKID[0]
+    tID = tKID[1]
+    tMedo = ndb.Key(tKind, int(tID)).get()
+    
+    origin = tMedo.cowner
+    oKID = ops.metasplit(origin)
+    oKind = oKID[0]
+    oID = oKID[1]
+    oMedo = ndb.Key(oKind, int(oID)).get()
+    
+    # Do Stuff
+    
+    tMedo.cowner = dMedo.kid
+    
+    if tKind == 'Meta':
+        pass
+    elif dKind == 'Location':
+        tMedo.xloc = dMedo.xloc
+        tMedo.yloc = dMedo.yloc
+        tMedo.zloc = dMedo.zloc
+        tMedo.put()
+        
+        BigBrother(tMedo,'location')
+        
+        if oKID == cmeta.kid:
+            BigBrother(dMedo,'itemshere','inventory')
+
+        
+        
+    elif dKind == 'Meta':
+        tMedo.xloc = ''
+        tMedo.yloc = ''
+        tMedo.zloc = ''
+        tMedo.put()
+        
+        if oKID == cmeta.kid:
+            BigBrother(dMedo,'inventory','inventory')
+    else:
+        BigBrother(dMedo,'itemshere')
+        if oKind == 'Location':
+            BigBrother(oMedo,'itemshere')
+        elif oKind == 'Meta':
+            BigBrother(oMedo,'inventory')
     
 class ActionRouter(webapp2.RequestHandler):
     def post(self,metaAction):
         cmeta = ops.loadmeta()
         sitem = ndb.Key(self.request.get('metakind'),int(self.request.get('metaid'))).get()
+        relotarget = self.request.get('relotarget')
+        relodest = self.request.get('relodest')
         if metaAction == 'Laugh':
             Laugh()
 #                channel.send_message(str(localmeta), ops.jsonify(pack))
@@ -147,6 +204,8 @@ class ActionRouter(webapp2.RequestHandler):
             BigBrother(sitem,'databits','databits')
         if metaAction == 'Kick':
             Kick(cmeta,sitem)
+        if metaAction == 'Relo':
+            Relo(relotarget,relodest)
 
 class Move(webapp2.RequestHandler):
     def post(self, direction):
