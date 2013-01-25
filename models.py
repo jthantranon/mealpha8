@@ -49,7 +49,7 @@ class Location(ndb.Expando):
         try:
             return self.key.id()
         except AttributeError:
-            return 'None'
+            return 'Zero'
     @ndb.ComputedProperty
     def kid(self):
         if self.metakind:

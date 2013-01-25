@@ -146,7 +146,10 @@ def Relo(tMedo,rMedo):
     oKID = ops.metasplit(origin)
     oKind = oKID[0]
     oID = oKID[1]
-    oMedo = ndb.Key(oKind, int(oID)).get()
+    try:
+        oMedo = ndb.Key(oKind, int(oID)).get()
+    except ValueError:
+        pass
     
     # Do Stuff
     tMedo.cowner = rMedo.kid
@@ -190,7 +193,15 @@ class ActionRouter(webapp2.RequestHandler):
         if self.request.get('rKind'):
             rKind = self.request.get('rKind')
             rID = self.request.get('rID')
-            rMedo = ndb.Key(rKind,int(rID)).get()
+            if rID == 'Zero':
+                rMedo = Location()
+                rMedo.metakind = 'Location'
+                rMedo.xloc = cmeta.xloc
+                rMedo.yloc = cmeta.yloc
+                rMedo.zloc = cmeta.zloc
+                rMedo.lattice = cmeta.lattice
+            else:
+                rMedo = ndb.Key(rKind,int(rID)).get()
         if metaAction == 'Laugh':
             Laugh()
 #                channel.send_message(str(localmeta), ops.jsonify(pack))

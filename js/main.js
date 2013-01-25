@@ -127,6 +127,7 @@ $(document).ready(function() {
 				drop: function (event, ui) {
 					MetaAction('Relo',ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
 			});
+			alert(cloc.xyz);
 		});
 	}
 	
