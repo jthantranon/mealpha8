@@ -136,20 +136,12 @@ def Kick(cmeta,sitem):
     MetaEcho(content)
 
 # Relocate Medo
-def Relo(target,reciever):
+def Relo(tMedo,rMedo):
     # Load Stuff
     cmeta = ops.loadmeta()
-    
-    rKID = ops.metasplit(reciever)
-    rKind = rKID[0]
-    rID = rKID[1]
-    rMedo = ndb.Key(rKind, int(rID)).get()
-    
-    tKID = ops.metasplit(target)
-    tKind = tKID[0]
-    tID = tKID[1]
-    tMedo = ndb.Key(tKind, int(tID)).get()
-    
+    rKind = rMedo.metakind
+    tKind = tMedo.metakind
+
     origin = tMedo.cowner
     oKID = ops.metasplit(origin)
     oKind = oKID[0]
@@ -157,7 +149,6 @@ def Relo(target,reciever):
     oMedo = ndb.Key(oKind, int(oID)).get()
     
     # Do Stuff
-    
     tMedo.cowner = rMedo.kid
     
     if tKind == 'Meta':
@@ -168,7 +159,7 @@ def Relo(target,reciever):
         tMedo.zloc = rMedo.zloc
         tMedo.put()
         
-        BigBrother(tMedo,'location')
+        BigBrother(tMedo,'location','')
         
         if oKID == cmeta.kid:
             BigBrother(rMedo,'itemshere','inventory')
@@ -186,19 +177,20 @@ def Relo(target,reciever):
     else:
         BigBrother(rMedo,'itemshere')
         if oKind == 'Location':
-            BigBrother(oMedo,'itemshere')
+            BigBrother(oMedo,'itemshere','')
         elif oKind == 'Meta':
-            BigBrother(oMedo,'inventory')
+            BigBrother(oMedo,'inventory','')
     
 class ActionRouter(webapp2.RequestHandler):
     def post(self,metaAction):
         cmeta = ops.loadmeta()
         tKind = self.request.get('tKind')
         tID = self.request.get('tID')
-        rKind = self.request.get('rKind')
-        rID = self.request.get('rID')
         tMedo = ndb.Key(tKind,int(tID)).get()
-        rMedo = ndb.Key(rKind,int(rID)).get()
+        if self.request.get('rKind'):
+            rKind = self.request.get('rKind')
+            rID = self.request.get('rID')
+            rMedo = ndb.Key(rKind,int(rID)).get()
         if metaAction == 'Laugh':
             Laugh()
 #                channel.send_message(str(localmeta), ops.jsonify(pack))

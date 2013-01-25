@@ -109,7 +109,7 @@ $(document).ready(function() {
 			EngraveMetaSheet(cmeta);
 			$('#MetaSheet').droppable({
 				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
+					MetaAction('Relo',ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
 			});
 		});
 	}
@@ -125,7 +125,7 @@ $(document).ready(function() {
 			EngraveLocaSheet(cloc);
 			$('#LocaSheet').droppable({
 				drop: function (event, ui) {
-					Drop(ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
+					MetaAction('Relo',ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
 			});
 		});
 	}
@@ -626,6 +626,15 @@ $(document).ready(function() {
 			success: function(data){
 				//$('#Item101').empty();
 				//alert($('#Item101DataBits').text());
+				if (action === 'Relo'){
+					$.getJSON('/edenop/loadcmeta', function(cmeta) {
+					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
+						cLocaSheet('refresh');
+						cMetaSheet('refresh');
+					});
+					});
+				}
+				
 				if (action === 'Mine Node'){
 					$.getJSON('/edenop/loadcmeta', function(cmeta) {
 					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {

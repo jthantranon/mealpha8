@@ -251,11 +251,11 @@ class FetchInventory(webapp2.RequestHandler):
     def get(self):
         cmeta = ops.loadmeta()
         q = []
-        for crystal in Crystal.query(Crystal.cowner == 'Meta.'+str(cmeta.metaid)).fetch(50):
+        for crystal in Crystal.query(Crystal.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
             q.append(crystal)
-        for blueprint in Blueprint.query(Blueprint.cowner == 'Meta.'+str(cmeta.metaid)).fetch(50):
+        for blueprint in Blueprint.query(Blueprint.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
             q.append(blueprint)
-        for item in Item.query(Item.cowner == 'Meta.'+str(cmeta.metaid)).fetch(50):
+        for item in Item.query(Item.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
             q.append(item)
 
         cinv = q
