@@ -136,14 +136,14 @@ def Kick(cmeta,sitem):
     MetaEcho(content)
 
 # Relocate Medo
-def Relo(target,dest):
+def Relo(target,reciever):
     # Load Stuff
     cmeta = ops.loadmeta()
     
-    dKID = ops.metasplit(dest)
-    dKind = dKID[0]
-    dID = dKID[1]
-    dMedo = ndb.Key(dKind, int(dID)).get()
+    rKID = ops.metasplit(reciever)
+    rKind = rKID[0]
+    rID = rKID[1]
+    rMedo = ndb.Key(rKind, int(rID)).get()
     
     tKID = ops.metasplit(target)
     tKind = tKID[0]
@@ -158,33 +158,33 @@ def Relo(target,dest):
     
     # Do Stuff
     
-    tMedo.cowner = dMedo.kid
+    tMedo.cowner = rMedo.kid
     
     if tKind == 'Meta':
         pass
-    elif dKind == 'Location':
-        tMedo.xloc = dMedo.xloc
-        tMedo.yloc = dMedo.yloc
-        tMedo.zloc = dMedo.zloc
+    elif rKind == 'Location':
+        tMedo.xloc = rMedo.xloc
+        tMedo.yloc = rMedo.yloc
+        tMedo.zloc = rMedo.zloc
         tMedo.put()
         
         BigBrother(tMedo,'location')
         
         if oKID == cmeta.kid:
-            BigBrother(dMedo,'itemshere','inventory')
+            BigBrother(rMedo,'itemshere','inventory')
 
         
         
-    elif dKind == 'Meta':
+    elif rKind == 'Meta':
         tMedo.xloc = ''
         tMedo.yloc = ''
         tMedo.zloc = ''
         tMedo.put()
         
         if oKID == cmeta.kid:
-            BigBrother(dMedo,'inventory','inventory')
+            BigBrother(rMedo,'inventory','inventory')
     else:
-        BigBrother(dMedo,'itemshere')
+        BigBrother(rMedo,'itemshere')
         if oKind == 'Location':
             BigBrother(oMedo,'itemshere')
         elif oKind == 'Meta':
@@ -193,19 +193,22 @@ def Relo(target,dest):
 class ActionRouter(webapp2.RequestHandler):
     def post(self,metaAction):
         cmeta = ops.loadmeta()
-        sitem = ndb.Key(self.request.get('metakind'),int(self.request.get('metaid'))).get()
-        relotarget = self.request.get('relotarget')
-        relodest = self.request.get('relodest')
+        tKind = self.request.get('tKind')
+        tID = self.request.get('tID')
+        rKind = self.request.get('rKind')
+        rID = self.request.get('rID')
+        tMedo = ndb.Key(tKind,int(tID)).get()
+        rMedo = ndb.Key(rKind,int(rID)).get()
         if metaAction == 'Laugh':
             Laugh()
 #                channel.send_message(str(localmeta), ops.jsonify(pack))
         if metaAction == 'Mine Node':
-            MineNode(cmeta,sitem)
-            BigBrother(sitem,'databits','databits')
+            MineNode(cmeta,tMedo)
+            BigBrother(tMedo,'databits','databits')
         if metaAction == 'Kick':
-            Kick(cmeta,sitem)
+            Kick(cmeta,tMedo)
         if metaAction == 'Relo':
-            Relo(relotarget,relodest)
+            Relo(tMedo,rMedo)
 
 class Move(webapp2.RequestHandler):
     def post(self, direction):

@@ -305,7 +305,7 @@ $(document).ready(function() {
 			parsedlink = $.parseyturl($('#btnobj'+metakind+metaid).data("ytlink"));
 			YouTube(parsedlink);
 		}
-		MetaAction(action,item,metakind,metaid);
+		MetaAction(action,metakind,metaid);
 	});
 	
 	$('body').on('click','#ytsubmit',function(){
@@ -618,18 +618,17 @@ $(document).ready(function() {
 		}
 	}
 	
-	function MetaAction(action,sitem,metakind,metaid){
-		
+	function MetaAction(action,tKind,tID,rKind,rID){
 		$.ajax({
 			type: 'POST',
 			url: '/action/router/' + action,
-			data: {'sitem':sitem,'metakind':metakind,'metaid':metaid},
+			data: {'tKind':tKind,'tID':tID,'rKind':rKind,'rID':rID},
 			success: function(data){
 				//$('#Item101').empty();
 				//alert($('#Item101DataBits').text());
 				if (action === 'Mine Node'){
 					$.getJSON('/edenop/loadcmeta', function(cmeta) {
-					$.getJSON('/edenop/load/'+metakind+'/'+metaid, function(medo) {
+					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
 						Glass.reattr('MetaSheet','.DataBits',cmeta.databits);
 						Glass.reattr(medo.kid,'.DataBits',medo.databits);
 					});
