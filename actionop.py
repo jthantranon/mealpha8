@@ -172,7 +172,7 @@ def Relo(tMedo,rMedo):
     try:
         oMedo = ndb.Key(oKind, int(oID)).get()
     except ValueError:
-        pass
+        oKind = 'Location'
     
     # Do Stuff
     tMedo.cowner = rMedo.kid
