@@ -127,7 +127,6 @@ $(document).ready(function() {
 				drop: function (event, ui) {
 					MetaAction('Relo',ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Location',cloc.metaid);}
 			});
-			alert(cloc.xyz);
 		});
 	}
 	
@@ -743,7 +742,11 @@ $(document).ready(function() {
 				}
 			} else if (pack.type === 'cLocaUpdate'){
 				if (pack.attr === 'itemshere'){
-					//do stuff
+					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+						Glass.aObj('LocaSheet',medo);
+					});
+				} else if (pack.attr === 'ihremove'){
+					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
 				} else {
 					cLocaSheet('refresh');
 				}
@@ -754,7 +757,8 @@ $(document).ready(function() {
 					});
 				} else {
 					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						GlassFactory(medo,'refresh');
+						//alert('this');
+						//GlassFactory(medo,'refresh');
 					});
 				}
 			}

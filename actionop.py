@@ -48,6 +48,29 @@ def BigBrother(target,targetattr,cmetachange):
             pack.metaid = target.metaid
             pack.kid = target.kid
             channel.send_message(str(targetmeta), ops.jsonify(pack))
+            
+    if target.metakind == 'Location':
+        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        for targetmeta in targetmetas:
+            pack.type = 'cLocaUpdate'
+            pack.attr = targetattr
+            pack.metakind = target.metakind
+            pack.metaid = target.metaid
+            pack.kid = target.kid
+            channel.send_message(str(targetmeta), ops.jsonify(pack))
+    
+    if target.metakind == 'Item':
+        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        for targetmeta in targetmetas:
+            if targetmeta == cmeta.metaid:
+                pass
+            else:
+                pack.type = 'cLocaUpdate'
+                pack.attr = targetattr
+                pack.metakind = target.metakind
+                pack.metaid = target.metaid
+                pack.kid = target.kid
+                channel.send_message(str(targetmeta), ops.jsonify(pack))
     
     #If target is not a Meta, update all observer's glass
     if target.metakind != 'Meta':
@@ -154,6 +177,9 @@ def Relo(tMedo,rMedo):
     # Do Stuff
     tMedo.cowner = rMedo.kid
     
+    if oKind == 'Location':
+        BigBrother(tMedo,'ihremove','')
+    
     if tKind == 'Meta':
         pass
     elif rKind == 'Location':
@@ -162,13 +188,11 @@ def Relo(tMedo,rMedo):
         tMedo.zloc = rMedo.zloc
         tMedo.put()
         
-        BigBrother(tMedo,'location','')
+        BigBrother(tMedo,'itemshere','')
         
         if oKID == cmeta.kid:
             BigBrother(rMedo,'itemshere','inventory')
 
-        
-        
     elif rKind == 'Meta':
         tMedo.xloc = ''
         tMedo.yloc = ''
