@@ -31,7 +31,7 @@ def CreateDataMine():
         spec.primertype = 'Generic'
         spec.shardtype = 'Generic'
         spec.fragtype = 'Generic'
-        spec.cowner = 'Meta.'+str(cmeta.metaid)
+        spec.cowner = 'Meta'+str(cmeta.metaid)
         spec.lattice = '0'
         spec.metakind = 'Item'
         spec.actions = ['Mine Node','Kick']
@@ -56,7 +56,7 @@ def CreateDigiFort():
         spec.primertype = 'Generic'
         spec.shardtype = 'Generic'
         spec.fragtype = 'Generic'
-        spec.cowner = 'Meta.'+str(cmeta.metaid)
+        spec.cowner = 'Meta'+str(cmeta.metaid)
         spec.lattice = '0'
         spec.metakind = 'Item'
         spec.actions = ['Enter']
@@ -90,7 +90,7 @@ class CreateYTItem(webapp2.RequestHandler):
         spec.primertype = 'Item'
         spec.shardtype = 'Generic'
         spec.fragtype = 'YouTube'
-        spec.cowner = 'Meta.'+str(cmeta.metaid)
+        spec.cowner = 'Meta'+str(cmeta.metaid)
         spec.lattice = '0'
         spec.metakind = 'Item'
         spec.ytlink = self.request.get('ytlink')
