@@ -89,12 +89,12 @@ MEGlass.prototype.checkMinContainer = function() {
 MEGlass.prototype.create = function(args){
 	if(args && args.id) {
 		
-		var context = args.context || this.context;
+		var context = args.context || "body";
 		var content = args.content || "";
 		var xpos = args.xpos || 100;
 		var ypos = args.ypos || 100;
-		var title = args.title || "New Window";
-		var name = args.name || "Anon";
+		var title = args.title || "Unknown Glass";
+		var name = args.name || args.id + "Glass";
 		var id = args.id;
 		
 		// set ID for template
@@ -183,22 +183,51 @@ MEGlass.prototype.maximize = function(id) {
 	$('#'+id).show();	
 };
 
-MEGlass.prototype.rObj = function(id,tKID) {
-	$('#'+id).find('#btnobj'+tKID).remove();
+function gAppend(id,appendage){
+	var thereturn = $('#'+id).children('.glassContent').append(appendage); 
+	return thereturn;
+};
+
+function attrAppend(id,appendage){
+	var thereturn = $('#mIcon'+id).attr(appendage); 
+	return thereturn;
+}
+
+MEGlass.prototype.aBreak = function(id){
+	gAppend(id,"<br>");
 };
 
 MEGlass.prototype.aObj = function(id,tMedo) {
-	var draggableArguments={revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false};
-	$('#'+id).children('.glassContent').append(
-		"<input type='button' id='btnobj"+tMedo.metakind+tMedo.metaid + "' class='obj dragit' value='" + tMedo.name + "' title='"+tMedo.kid+
-		"' data-name='"+tMedo.name+"' data-metakind='"+tMedo.metakind+"' data-metaid='"+tMedo.metaid+"'" + " data-obj='"+tMedo.metakind+tMedo.metaid+"'" +
-		">"
-	);
-	$('.dragit').draggable(draggableArguments);
-	if (tMedo.ytlink){
-		$('#btnobj'+tMedo.kid).attr('data-ytlink',tMedo.ytlink);
-	}
-	
+	gAppend(id,"<input type='button' id='mIcon"+tMedo.kid+"'>");
+	attrAppend(tMedo.kid,{class:'obj mIcon',value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
+	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
+	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
+};
+
+MEGlass.prototype.rObj = function(id,tKID) {
+	$('#'+id).find('#mIcon'+tKID).remove();
+};
+
+MEGlass.prototype.aLabel = function(id,label){
+	gAppend(id,
+			"<div><h1>"+label+"</h1>");
+};
+
+MEGlass.prototype.aData = function(id,label,appendage){
+	gAppend(id,
+			"<div><h1>"+label+"</h1>"+
+			"<p class='"+label+"' id='"+id+label+"'>" + appendage + "</p></div>");
+};
+
+MEGlass.prototype.aField = function(id,label,fieldID,fieldName){
+	gAppend(id,
+			"<h1>"+label+"</h1>"+
+			"<input id='"+fieldID+"' name='"+fieldName+"' type='text'><br>");
+};
+
+MEGlass.prototype.aSubmitButton = function(id,btnText,fieldID){
+	gAppend(id,
+			"<input value='"+btnText+"' id='"+fieldID+"' type='button' class='button'>");
 };
 
 /////////////////////////////////////////

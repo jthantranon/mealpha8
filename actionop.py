@@ -50,7 +50,10 @@ def BigBrother(target,targetattr,cmetachange):
             channel.send_message(str(targetmeta), ops.jsonify(pack))
             
     if target.metakind == 'Location':
-        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        if target.metaid == 'Zero':
+            targetmetas = ops.fetchXYZMetaIDs(target.xloc, target.yloc, target.zloc, target.lattice)
+        else:
+            targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
         for targetmeta in targetmetas:
             pack.type = 'cLocaUpdate'
             pack.attr = targetattr
@@ -74,7 +77,10 @@ def BigBrother(target,targetattr,cmetachange):
     
     #If target is not a Meta, update all observer's glass
     if target.metakind != 'Meta':
-        targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
+        if target.metaid == 'Zero':
+            targetmetas = ops.fetchXYZMetaIDs(target.xloc, target.yloc, target.zloc, target.lattice)
+        else:
+            targetmetas = ops.fetchLocalMetaMetaIDs(target.metakind, target.metaid)
         for targetmeta in targetmetas:
             if targetmeta == cmeta.metaid:
                 pass
@@ -240,6 +246,7 @@ class ActionRouter(webapp2.RequestHandler):
 class Move(webapp2.RequestHandler):
     def post(self, direction):
         cmeta = ops.loadmeta()
+        cloc = ops.loadcloc()
         localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
         
         pack = Packet()
@@ -254,9 +261,9 @@ class Move(webapp2.RequestHandler):
                 channel.send_message(str(localmeta), ops.jsonify(pack))
             else:
                 pack.content = cmeta.name + " has moved " + ops.dirFull(direction)
-                pack.type = 'userleave'
                 pack.name = cmeta.name
                 pack.destination = ops.dirFull(direction)
+                pack.type = 'userleave'
                 channel.send_message(str(localmeta), ops.jsonify(pack))
         
         if direction == 'n':
@@ -284,6 +291,9 @@ class Move(webapp2.RequestHandler):
             cmeta.xloc = str(int(cmeta.xloc)-1)
             cmeta.yloc = str(int(cmeta.yloc)+1)
         cmeta.put()
+        
+        BigBrother(cloc,'metashere','location')
+        
         newlocalmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
         
         for newlocalmeta in newlocalmetas:

@@ -1,64 +1,55 @@
 $(document).ready(function() {
 	$.getJSON('/edenop/loadcmeta', function(currentmeta) {
-  
-		
-		
 	///
 	/// Initialize Glass
 	///
 	Glass = new MEGlass();		
 	mynav = new MENav();
 	
-
-	//////////////
-	/// INITIALIZE LOGIN
-	/////////////
+	// document.documentElement POSITIONING Variables
+	var xmid = document.documentElement.clientWidth/2;
+	var ymid = document.documentElement.clientHeight/2;
 	
-	
-	SessionHandler();
-	
-	function SessionHandler() {
-		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			if (cmeta == 'nometa'){
-				Amb('No MetaUser, please register.',8);
-				RegiSheet();
-			}
-			else {
-				InitializeMetaEden();
-			}
-		});
-	}
-	
-
-	
-	function RegiSheet(){
-		var id = 'RegiSheet';
-		//var content =
-		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:'Registration Sheet',name:'RegiSheet',id:id};
-		Glass.create(glassargs);
-		NGAF(id,'Meta Name','regname','regname');
-		NGAF(id,'Meta Description','reginfo','reginfo');
-		NGASB(id,'Register MetaUser','regsubmit');
-		//GlassFactory(null,args)
-	}
-	
-	
+	// Arguments for jQuery.draggable
+	var dragArgs={ revert: false , helper: 'clone', appendTo: '#wholepage' , containment: 'DOM' , zIndex: 1500 , cancel: false};
 	
 	function YTSheet(){
 		var id = 'YTSheet';
-		//var content =
-		var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:'YoutTube Item Maker',name:'YTSheet',id:id};
-		Glass.create(glassargs);
-		NGAF(id,'YouTube Link','ytlink','ytlink');
-		NGASB(id,'Create YouTube Item','ytsubmit');
-		//GlassFactory(null,args)
+		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'YoutTube Item Maker',id:id});
+		Glass.aField(id, 'YouTube Link', 'ytlink', 'ytlink');
+		Glass.aSubmitButton(id, 'Create YouTube Item', 'ytsubmit');
+	}
+	
+	function Amb(msg,time,fade){
+		$.ambiance({message: msg,
+					timeout: time,
+					fade: fade});
+	}
+	
+	//////////////
+	/// INITIALIZE LOGIN
+	/////////////
+	SessionInit();
+	function SessionInit(newMetaData) {
+		var cmeta = currentmeta || newMetaData;
+		if (cmeta == 'nometa'){
+			Amb('Registration File Not Found. Please Register Before Proceeding.',8);
+			RegiSheet();
+		} else {InitializeMetaEden();}
+	}
+
+	function RegiSheet(){
+		var id = 'RegiSheet';
+		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'Registration Sheet',id:id});
+		Glass.aField(id,'Meta Name','regname','regname');
+		Glass.aField(id,'Meta Description','reginfo','reginfo');
+		Glass.aSubmitButton(id,'Register MetaUser','regsubmit');
 	}
 	
 	function InitializeMetaEden(refresh) {
 		Amb('Welcome to MetaEden! Enjoy your stay!',5);
-		$('#wholepage').show();
 		OpenSesh(); 	// Initialize Channel API
-		BindKPMove();	// Miscellaneous
+		BindKPMove();	// BindKeypadMovement
 		if (refresh){
 			cMetaSheet('refresh');	// Load Static UX
 			cLocaSheet('refresh');	// Load Static UX
@@ -80,23 +71,6 @@ $(document).ready(function() {
 			}
 		});
 	}
-	
-	function Amb(msg,time,fade){
-		$.ambiance({message: msg,
-					timeout: time,
-					fade: fade});
-	}
-	
-	var draggableArguments={
-		     revert: false,
-		     helper: 'clone',
-		     appendTo: '#wholepage',
-		     containment: 'DOM',
-		     zIndex: 1500,
-		     cancel: false,
-	};
-	
-
 	
 	function cMetaSheet(refresh){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
@@ -142,13 +116,13 @@ $(document).ready(function() {
 		
 		$.getJSON('/edenop/fetchinventory', function(inventory) {
 			$.each(args, function(k,v){
-				NGAL('MetaSheet',k,v);
+				Glass.aData('MetaSheet',k,v);
 			});
-			NGALO('MetaSheet','Inventory');
+			
+			Glass.aLabel('MetaSheet','Inventory');
 			$.each(inventory, function() {
-				NGAO('MetaSheet',this);
+				Glass.aObj('MetaSheet',this);
 			});
-			//alert($('#MetaSheet').find('#btnobjItem86').data('obj'));
 		});
 	}
 	
@@ -164,14 +138,13 @@ $(document).ready(function() {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
 				//ShowExits('LocaSheet',cloca);
 				$.each(args, function(k,v){
-					NGAL('LocaSheet',k,v);
+					Glass.aData('LocaSheet',k,v);
 				});
-				NGALO('LocaSheet','MetaUsers Here');
-				$.each(localmetas, function() { NGAO('LocaSheet',this); });
-				NGAG('LocaSheet','');
-				NGALO('LocaSheet','Items Here');
-				$.each(localitems, function() { NGAO('LocaSheet',this); });
-				NGAG('LocaSheet','');
+				Glass.aLabel('LocaSheet','MetaUsers Here');
+				$.each(localmetas, function() { Glass.aObj('LocaSheet',this); });
+				Glass.aBreak('LocaSheet');
+				Glass.aLabel('LocaSheet','Items Here');
+				$.each(localitems, function() { Glass.aObj('LocaSheet',this); });
 			});
 		});
 	}
@@ -217,7 +190,7 @@ $(document).ready(function() {
 	
 	function GlassFactory(medo,glassargs){
 		if (medo != null){
-			glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth/2-150,ypos:document.documentElement.clientHeight/2-75,title:medo.name,name:medo.kid,id:medo.kid};
+			glassargs = {xpos:xmid-150,ypos:ymid-75,title:medo.name,id:medo.kid};
 		}
 		if (glassargs === 'refresh'){
 			Glass.clear(medo.kid);
@@ -225,12 +198,11 @@ $(document).ready(function() {
 			Glass.create(glassargs);
 		}
 		
-		//Glass.empty(medo.kid);
 		switch(medo.metakind){
 			case 'Item': EngraveItemGlass(medo); break;
 			case 'Meta': EngraveMetaGlass(medo); break;
 			default: EngraveMedoGlass(medo); 
-				NGAG(medo.kid,'This is probably a '+medo.metakind+'<br>');
+				Glass.append(medo.kid,'This is probably a '+medo.metakind+'<br>');
 		}
 	}
 	
@@ -238,10 +210,10 @@ $(document).ready(function() {
 	/// Phase One
 	///
 	function EngraveMedoGlass(medo){
-		NGAL(medo.kid,'Name',medo.name);
-		NGAL(medo.kid,'Info',medo.info);
-		NGAL(medo.kid,'MetaKID',medo.kid);
-		NGAL(medo.kid,'Location',medo.xyz);
+		Glass.aData(medo.kid,'Name',medo.name);
+		Glass.aData(medo.kid,'Info',medo.info);
+		Glass.aData(medo.kid,'MetaKID',medo.kid);
+		Glass.aData(medo.kid,'Location',medo.xyz);
 	}
 	///
 	/// Phase Two - Decorators
@@ -252,12 +224,12 @@ $(document).ready(function() {
 	function EngraveMetaGlass(medo){
 		$.getJSON('/edenop/fetchinventory', function(inventory) {
 			EngraveMedoGlass(medo);
-			NGAL(medo.kid,'MasterID',medo.masterid);
-			NGAL(medo.kid,'DataBits',medo.databits);
+			Glass.aData(medo.kid,'MasterID',medo.masterid);
+			Glass.aData(medo.kid,'DataBits',medo.databits);
 			GAP(medo,30);
-			NGALO(medo.kid,'Inventory');
+			Glass.aLabel(medo.kid,'Inventory');
 			$.each(inventory, function() {
-				NGAO(medo.kid,this);
+				Glass.aObj(medo.kid,this);
 			});
 		});
 	}
@@ -265,11 +237,11 @@ $(document).ready(function() {
 	function EngraveItemGlass(medo){
 		EngraveMedoGlass(medo);
 		if (medo.regtype == 'Mine'){
-			NGAL(medo.kid,'DataBits',medo.databits);
+			Glass.aData(medo.kid,'DataBits',medo.databits);
 		}
 		
 		if (medo.actions){
-			NGALO(medo.kid,'Actions');
+			Glass.aLabel(medo.kid,'Actions');
 			for (var i = 0; i < medo.actions.length; i++) {
 				NGAA(medo,medo.actions[i]);				
 			}
@@ -279,15 +251,15 @@ $(document).ready(function() {
 	/// Phase Three - Constructors
 	///
 	
-	function NGASB(tGlass,value,fieldid){
-		Glass.append(tGlass, 
-			"<input value='"+value+"' id='"+fieldid+"' type='button' class='button'>");
-	}
+//	function NGASB(tGlass,value,fieldid){
+//		Glass.append(tGlass, 
+//			"<input value='"+value+"' id='"+fieldid+"' type='button' class='button'>");
+//	}
 	
-	function NGAF(tGlass,label,fieldid,fieldname){
-		Glass.append(tGlass, "<h1>"+label+"</h1>"+
-			"<input id='"+fieldid+"' name='"+fieldname+"' type='text'><br>");
-	}
+//	function NGAF(tGlass,label,fieldid,fieldname){
+//		Glass.append(tGlass, "<h1>"+label+"</h1>"+
+//			"<input id='"+fieldid+"' name='"+fieldname+"' type='text'><br>");
+//	}
 	
 	function NGAA(medo,action){
 		Glass.append(medo.kid,
@@ -301,7 +273,6 @@ $(document).ready(function() {
 		var metakind = $(this).data('metakind');
 		var metaid = $(this).data('metaid');
 		var action = $(this).data('action');
-		var item = $(this).data('name');
 		if (action == 'Watch'){
 			parsedlink = $.parseyturl($('#btnobj'+metakind+metaid).data("ytlink"));
 			YouTube(parsedlink);
@@ -315,32 +286,32 @@ $(document).ready(function() {
 		
 	});
 	
-	function NGALO(tGlass,label){
-		Glass.append(tGlass,
-				"<h1>"+label+"</h1>"
-				);
-	}
+//	function NGALO(tGlass,label){
+//		Glass.append(tGlass,
+//				"<h1>"+label+"</h1>"
+//				);
+//	}
 	
-	function NGAO(tGlass,obj){
-		Glass.append(tGlass,
-				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-				">"
-				);
-		$('.dragit').draggable(draggableArguments);
-		if (obj.ytlink){
-			$('#btnobj'+obj.kid).attr('data-ytlink',obj.ytlink);
-		}
-	}
+//	function NGAO(tGlass,obj){
+//		Glass.append(tGlass,
+//				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
+//				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
+//				">"
+//				);
+//		$('.dragit').draggable(dragArgs);
+//		if (obj.ytlink){
+//			$('#btnobj'+obj.kid).attr('data-ytlink',obj.ytlink);
+//		}
+//	}
 	
-	function NGAG(tGlass,appendage){
-		Glass.append(tGlass,appendage);
-	}
+//	function NGAG(tGlass,appendage){
+//		Glass.append(tGlass,appendage);
+//	}
 	
-	function NGAL(tGlass,label,appendage){
-		Glass.append(tGlass, "<div><h1>"+label+"</h1>"+
-			"<p class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</p></div>");
-	}
+//	function NGAL(tGlass,label,appendage){
+//		Glass.append(tGlass, "<div><h1>"+label+"</h1>"+
+//			"<p class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</p></div>");
+//	}
 	
 	function GAP(medo,percent){
 		medo.kid.append(
@@ -544,7 +515,7 @@ $(document).ready(function() {
 			else{
 				$.ajax({
 					type: 'POST',
-					url: '/edenop/move/' + dir,
+					url: '/action/move/' + dir,
 					data: null,
 					success: function(data){
 						cLocaSheet('refresh');
@@ -609,15 +580,15 @@ $(document).ready(function() {
 		});
 	}
 	
-	function Drop(metakind,metaid,dkind,did){
-		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
-		} else {
-			$.post('/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did, function(data){
-				cLocaSheet('refresh'); 		// Load Static UX
-				cMetaSheet('refresh');
-			});
-		}
-	}
+//	function Drop(metakind,metaid,dkind,did){
+//		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
+//		} else {
+//			$.post('/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did, function(data){
+//				cLocaSheet('refresh'); 		// Load Static UX
+//				cMetaSheet('refresh');
+//			});
+//		}
+//	}
 	
 	function MetaAction(action,tKind,tID,rKind,rID){
 		$.ajax({
@@ -747,7 +718,9 @@ $(document).ready(function() {
 					});
 				} else if (pack.attr === 'ihremove'){
 					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-				} else {
+				} else if (pack.attr === 'mhremove'){
+					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
+				}else  {
 					cLocaSheet('refresh');
 				}
 			} else if (pack.type === 'sMedoUpdate'){

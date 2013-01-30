@@ -313,66 +313,7 @@ class Drop(webapp2.RequestHandler):
 
         self.response.out.write(jsonData)
 
-class Move(webapp2.RequestHandler):
-    def post(self, direction):
-        cmeta = ops.loadmeta()
-        localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
-        
-        pack = Packet()
-        pack.scope = 'local'
-        pack.type = 'move'
-        
-        
-        for localmeta in localmetas:
-            if localmeta == cmeta.metaid:
-                pack.content = "You move " + ops.dirFull(direction) + "."
-                pack.type = 'usermove'
-                channel.send_message(str(localmeta), ops.jsonify(pack))
-            else:
-                pack.content = cmeta.name + " has moved " + ops.dirFull(direction)
-                pack.name = cmeta.name
-                pack.destination = ops.dirFull(direction)
-                pack.type = 'userleave'
-                channel.send_message(str(localmeta), ops.jsonify(pack))
-        
-        if direction == 'n':
-            cmeta.yloc = str(int(cmeta.yloc)+1)
-        elif direction == 's':
-            cmeta.yloc = str(int(cmeta.yloc)-1)
-        elif direction == 'e':
-            cmeta.xloc = str(int(cmeta.xloc)+1)
-        elif direction == 'w':
-            cmeta.xloc = str(int(cmeta.xloc)-1)
-        elif direction == 'u':
-            cmeta.zloc = str(int(cmeta.zloc)+1)
-        elif direction == 'd':
-            cmeta.zloc = str(int(cmeta.zloc)-1)
-        elif direction == 'ne':
-            cmeta.xloc = str(int(cmeta.xloc)+1)
-            cmeta.yloc = str(int(cmeta.yloc)+1)
-        elif direction == 'se':
-            cmeta.xloc = str(int(cmeta.xloc)+1)
-            cmeta.yloc = str(int(cmeta.yloc)-1)
-        elif direction == 'sw':
-            cmeta.xloc = str(int(cmeta.xloc)-1)
-            cmeta.yloc = str(int(cmeta.yloc)-1)
-        elif direction == 'nw':
-            cmeta.xloc = str(int(cmeta.xloc)-1)
-            cmeta.yloc = str(int(cmeta.yloc)+1)
-        cmeta.put()
-        newlocalmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
-        
-        for newlocalmeta in newlocalmetas:
-            if newlocalmeta == cmeta.metaid:
-                pass
-            else:
-                pack.content = cmeta.name + " has arrived from the " + ops.dirOpp(direction)
-                pack.type = 'userenter'
-                pack.name = cmeta.name
-                pack.destination = ops.dirFull(direction)
-                channel.send_message(str(newlocalmeta), ops.jsonify(pack))
-        
-        self.response.out.write(cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)
+
 
 class LoadObject(webapp2.RequestHandler):
     def get(self,metakind,metaid):
@@ -391,7 +332,6 @@ class Test(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([('/edenop/test', Test),
                                
                                (r'/edenop/load/(.*)/(.*)', LoadObject),
-                               (r'/edenop/move/(.*)', Move),
                                (r'/edenop/drop/(.*)/(.*)/(.*)/(.*)', Drop),
                                (r'/edenop/chanrouter/(.*)', ChanRouter),
                                ('/edenop/loadcmeta', LoadCMeta),

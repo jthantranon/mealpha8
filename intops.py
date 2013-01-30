@@ -54,6 +54,17 @@ def fetchAllMetaMetaIDs():
     allmetas = q
     return allmetas    
 
+def fetchXYZMetaIDs(x,y,z,l):
+    q = []
+    metas = Meta.query(Meta.xloc == str(x),
+                                 Meta.yloc == str(y),
+                                 Meta.zloc == str(z),
+                                 Meta.lattice == str(l)).fetch(50)
+    for meta in metas:
+        q.append(meta.metaid)
+    localmetas = q
+    return localmetas
+
 def fetchLocalMetaMetaIDs(metakind, metaid):
     sobj = ndb.Key(metakind, int(metaid)).get()
     q = []
@@ -114,6 +125,7 @@ def loadcloc():
         return q
     else:
         q = Location();
+        q.metakind = 'Location'
         q.name = cmeta.xloc + '.' + cmeta.yloc + '.' + cmeta.zloc + ':' + cmeta.lattice
         q.xloc = cmeta.xloc
         q.yloc = cmeta.yloc
