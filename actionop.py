@@ -6,12 +6,52 @@ import intops as ops
 import unicon
 #import json
 import json
+import copy
 
 from models import *
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import channel
 
+def MetaDebug(msg):
+    allmetas = ops.fetchAllMetaMetaIDs()
+    pack = Packet()
+    for meta in allmetas:
+        pack.type = 'This is a test.'
+        pack.msg = msg
+        channel.send_message(str(meta), ops.jsonify(pack))
+
+def DepthPerception(before,after):
+    cmeta = ops.loadmeta()
+    bMedos = ops.fetchXYZMIDs(before.xyz)
+    aMedos = ops.fetchXYZMIDs(after.xyz)
+    pack = Packet()
+    pack.refresh = True
+
+    if before.metakind == 'Meta':
+        #MetaDebug(before.xyz)
+        if before.xyz != after.xyz:
+            
+            for metaID in bMedos:
+                pack.type = 'cLocaUpdate'
+                pack.attr = 'mhRemove'
+                pack.metakind = cmeta.metakind
+                pack.metaid = cmeta.metaid
+                pack.kid = cmeta.kid
+                channel.send_message(str(metaID), ops.jsonify(pack))
+            for metaID in aMedos:
+                if metaID == cmeta.metaid:
+                    pass
+                else:
+                    pack.type = 'cLocaUpdate'
+                    pack.attr = 'mhAppend'
+                    pack.metakind = cmeta.metakind
+                    pack.metaid = cmeta.metaid
+                    pack.kid = cmeta.kid
+                    channel.send_message(str(metaID), ops.jsonify(pack))
+    else:
+        MetaDebug('This is else')
+        
 def BigBrother(target,targetattr,cmetachange):
     pack = Packet()
     pack.refresh = True
@@ -266,6 +306,8 @@ class Move(webapp2.RequestHandler):
                 pack.type = 'userleave'
                 channel.send_message(str(localmeta), ops.jsonify(pack))
         
+        premove = copy.copy(cmeta)
+        
         if direction == 'n':
             cmeta.yloc = str(int(cmeta.yloc)+1)
         elif direction == 's':
@@ -292,7 +334,11 @@ class Move(webapp2.RequestHandler):
             cmeta.yloc = str(int(cmeta.yloc)+1)
         cmeta.put()
         
-        BigBrother(cloc,'metashere','location')
+        DepthPerception(premove,cmeta)
+        
+        
+        
+        
         
         newlocalmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
         

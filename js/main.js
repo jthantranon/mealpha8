@@ -119,7 +119,7 @@ $(document).ready(function() {
 				Glass.aData('MetaSheet',k,v);
 			});
 			
-			Glass.aLabel('MetaSheet','Inventory');
+			Glass.aContainer('MetaSheet','Inventory','Inventory');
 			$.each(inventory, function() {
 				Glass.aObj('MetaSheet',this);
 			});
@@ -140,10 +140,9 @@ $(document).ready(function() {
 				$.each(args, function(k,v){
 					Glass.aData('LocaSheet',k,v);
 				});
-				Glass.aLabel('LocaSheet','MetaUsers Here');
-				$.each(localmetas, function() { Glass.aObj('LocaSheet',this); });
-				Glass.aBreak('LocaSheet');
-				Glass.aLabel('LocaSheet','Items Here');
+				Glass.aContainer('LocaSheet','MetaUsers Here','MetasHere');
+				$.each(localmetas, function() { Glass.aMeta('LocaSheet',this); });
+				Glass.aContainer('LocaSheet','Items Here','ItemsHere');
 				$.each(localitems, function() { Glass.aObj('LocaSheet',this); });
 			});
 		});
@@ -227,7 +226,7 @@ $(document).ready(function() {
 			Glass.aData(medo.kid,'MasterID',medo.masterid);
 			Glass.aData(medo.kid,'DataBits',medo.databits);
 			GAP(medo,30);
-			Glass.aLabel(medo.kid,'Inventory');
+			Glass.aContainer(medo.kid,'Inventory','Inventory');
 			$.each(inventory, function() {
 				Glass.aObj(medo.kid,this);
 			});
@@ -241,7 +240,7 @@ $(document).ready(function() {
 		}
 		
 		if (medo.actions){
-			Glass.aLabel(medo.kid,'Actions');
+			Glass.aContainer(medo.kid,'Actions','Actions');
 			for (var i = 0; i < medo.actions.length; i++) {
 				NGAA(medo,medo.actions[i]);				
 			}
@@ -718,9 +717,13 @@ $(document).ready(function() {
 					});
 				} else if (pack.attr === 'ihremove'){
 					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-				} else if (pack.attr === 'mhremove'){
+				} else if (pack.attr === 'mhRemove'){
 					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-				}else  {
+				} else if (pack.attr === 'mhAppend'){
+					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+						Glass.aMeta('LocaSheet',medo);
+					});
+				} else  {
 					cLocaSheet('refresh');
 				}
 			} else if (pack.type === 'sMedoUpdate'){

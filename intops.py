@@ -65,6 +65,14 @@ def fetchXYZMetaIDs(x,y,z,l):
     localmetas = q
     return localmetas
 
+def fetchXYZMIDs(xyz):
+    q = []
+    metas = Meta.query(Meta.xyz == xyz).fetch(50)
+    for meta in metas:
+        q.append(meta.metaid)
+    localmetas = q
+    return localmetas
+
 def fetchLocalMetaMetaIDs(metakind, metaid):
     sobj = ndb.Key(metakind, int(metaid)).get()
     q = []
