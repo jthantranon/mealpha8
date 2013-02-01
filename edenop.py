@@ -213,6 +213,7 @@ class LoadLocation(webapp2.RequestHandler):
             q = Location()
             q.exits = 'n,e,s,w,nw,ne,se,sw,u,d'
             q.metakind = 'Location'
+            q.metaid = cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice
             q.name = 'Beyond Eden'
             q.info = "You have wandered beyond constructed space. Don't get lost!"
             if cmeta:
@@ -248,14 +249,17 @@ class FetchPopUpItems(webapp2.RequestHandler):
         self.response.out.write(ops.sonify(puis))
 
 class FetchInventory(webapp2.RequestHandler):
-    def get(self):
-        cmeta = ops.loadmeta()
+    def get(self,target):
+        if target == 'self' or target == '':
+            tMeta = ops.loadmeta()
+        else:
+            tMeta = ops.KIDtoMedo(target)
         q = []
-        for crystal in Crystal.query(Crystal.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
+        for crystal in Crystal.query(Crystal.cowner == 'Meta'+str(tMeta.metaid)).fetch(50):
             q.append(crystal)
-        for blueprint in Blueprint.query(Blueprint.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
+        for blueprint in Blueprint.query(Blueprint.cowner == 'Meta'+str(tMeta.metaid)).fetch(50):
             q.append(blueprint)
-        for item in Item.query(Item.cowner == 'Meta'+str(cmeta.metaid)).fetch(50):
+        for item in Item.query(Item.cowner == 'Meta'+str(tMeta.metaid)).fetch(50):
             q.append(item)
 
         cinv = q
@@ -334,12 +338,13 @@ app = webapp2.WSGIApplication([('/edenop/test', Test),
                                (r'/edenop/load/(.*)/(.*)', LoadObject),
                                (r'/edenop/drop/(.*)/(.*)/(.*)/(.*)', Drop),
                                (r'/edenop/chanrouter/(.*)', ChanRouter),
+                               (r'/edenop/fetchinventory/(.*)', FetchInventory),
                                ('/edenop/loadcmeta', LoadCMeta),
                                ('/edenop/openchannel', OpenChannel),
                                ('/edenop/location', LoadLocation),
                                ('/edenop/fetchpuis', FetchPopUpItems),
                                ('/edenop/fetchlocalmetas', FetchLocalMetas),
                                ('/edenop/fetchlocalitems', FetchLocalItems),
-                               ('/edenop/fetchinventory', FetchInventory),
+                               
                                
                                ],debug=True)

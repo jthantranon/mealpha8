@@ -188,13 +188,13 @@ function gAppend(id,appendage){
 	return thereturn;
 };
 
-function gAppendC(id,container,appendage){
-	var thereturn = $('#'+id+container).append(appendage); 
+function gAppendC(container,appendage){
+	var thereturn = $('.'+container).append(appendage); 
 	return thereturn;
 };
 
 function attrAppend(id,appendage){
-	var thereturn = $('#mIcon'+id).attr(appendage); 
+	var thereturn = $('.mIcon'+id).attr(appendage); 
 	return thereturn;
 }
 
@@ -202,27 +202,27 @@ MEGlass.prototype.aBreak = function(id){
 	gAppend(id,"<br>");
 };
 
-MEGlass.prototype.aObj = function(id,tMedo) {
-	gAppend(id,"<input type='button' id='mIcon"+tMedo.kid+"'>");
-	attrAppend(tMedo.kid,{class:'obj mIcon',value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
+MEGlass.prototype.aObj = function(container,tMedo) {
+	gAppendC(container,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
+	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
 	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
 MEGlass.prototype.aMeta = function(id,tMedo) {
-	gAppendC(id,'MetasHere',"<input type='button' id='mIcon"+tMedo.kid+"'>");
-	attrAppend(tMedo.kid,{class:'obj mIcon',value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
+	gAppendC(id,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
+	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
 	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
 MEGlass.prototype.rObj = function(id,tKID) {
-	$('#'+id).find('#mIcon'+tKID).remove();
+	$('body').find('.mIcon'+tKID).remove();
 };
 
 MEGlass.prototype.aContainer = function(id,container,contID){
 	gAppend(id,
-			"<div><h1>"+container+"</h1><span id='"+id+contID+"'></span>");
+			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+"'></span>");
 };
 
 MEGlass.prototype.aData = function(id,label,appendage){

@@ -13,10 +13,32 @@ from google.appengine.ext import ndb
 # Load = Specific, Fetch = MultiLoad, is = check, , 
 ##########################################################
 
+def mdb(data,echo='none'): #META DEBUG
+    allmetas = fetchAllMetaMetaIDs()
+    pack = Packet()
+    for meta in allmetas:
+        pack.type = 'This is a test.'
+        pack.msg = echo
+        pack.data = data
+        channel.send_message(str(meta), jsonify(pack))
+
+def conKIDs(x,y):
+    setX = set(x)
+    setY = set(y)
+    uniqueY = setY - setX
+    return x + list(uniqueY)
+    
+
 def metasplit(s):
     head = s.rstrip('0123456789')
     tail = s[len(head):]
     return head, tail
+
+def KIDtoMedo(kid):
+    head = kid.rstrip('0123456789')
+    tail = kid[len(head):]
+    medo = ndb.Key(head, int(tail)).get()
+    return medo
 
 def d10(dice):
     result = random.randint(1,10) * dice
@@ -66,6 +88,9 @@ def fetchXYZMetaIDs(x,y,z,l):
     return localmetas
 
 def fetchXYZMIDs(xyz):
+    if 'Meta' in xyz:
+        cowner = KIDtoMedo(xyz)
+        xyz = cowner.xyz
     q = []
     metas = Meta.query(Meta.xyz == xyz).fetch(50)
     for meta in metas:

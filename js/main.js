@@ -114,14 +114,14 @@ $(document).ready(function() {
 					DataBits:cmeta.databits
 		};
 		
-		$.getJSON('/edenop/fetchinventory', function(inventory) {
+		$.getJSON('/edenop/fetchinventory/self', function(inventory) {
 			$.each(args, function(k,v){
 				Glass.aData('MetaSheet',k,v);
 			});
 			
-			Glass.aContainer('MetaSheet','Inventory','Inventory');
+			Glass.aContainer('MetaSheet','Inventory',cmeta.kid+'Items');
 			$.each(inventory, function() {
-				Glass.aObj('MetaSheet',this);
+				Glass.aObj(cmeta.kid+'Items',this);
 			});
 		});
 	}
@@ -140,10 +140,10 @@ $(document).ready(function() {
 				$.each(args, function(k,v){
 					Glass.aData('LocaSheet',k,v);
 				});
-				Glass.aContainer('LocaSheet','MetaUsers Here','MetasHere');
-				$.each(localmetas, function() { Glass.aMeta('LocaSheet',this); });
-				Glass.aContainer('LocaSheet','Items Here','ItemsHere');
-				$.each(localitems, function() { Glass.aObj('LocaSheet',this); });
+				Glass.aContainer('LocaSheet','MetaUsers Here',cloca.kid+'Metas');
+				$.each(localmetas, function() { Glass.aMeta(cloca.kid+'Metas',this); });
+				Glass.aContainer('LocaSheet','Items Here',cloca.kid+'Items');
+				$.each(localitems, function() { Glass.aObj(cloca.kid+'Items',this); });
 			});
 		});
 	}
@@ -221,14 +221,14 @@ $(document).ready(function() {
 	 // G - Generic / L - Label / A - Action / LO - Label Only / O - Object
 	
 	function EngraveMetaGlass(medo){
-		$.getJSON('/edenop/fetchinventory', function(inventory) {
+		$.getJSON('/edenop/fetchinventory/'+medo.kid, function(inventory) {
 			EngraveMedoGlass(medo);
 			Glass.aData(medo.kid,'MasterID',medo.masterid);
 			Glass.aData(medo.kid,'DataBits',medo.databits);
-			GAP(medo,30);
-			Glass.aContainer(medo.kid,'Inventory','Inventory');
+			//GAP(medo,30);
+			Glass.aContainer(medo.kid,'Inventory',medo.kid+'Items');
 			$.each(inventory, function() {
-				Glass.aObj(medo.kid,this);
+				Glass.aObj(medo.kid+'Items',this);
 			});
 		});
 	}
@@ -312,14 +312,14 @@ $(document).ready(function() {
 //			"<p class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</p></div>");
 //	}
 	
-	function GAP(medo,percent){
-		medo.kid.append(
-			"<div class='meter orange nostripes'>" +
-			"<p style='width:"+percent+"%'></p>" +
-			"</div>"
-		);
-		
-	}
+//	function GAP(medo,percent){
+//		medo.kid.append(
+//			"<div class='meter orange nostripes'>" +
+//			"<p style='width:"+percent+"%'></p>" +
+//			"</div>"
+//		);
+//		
+//	}
 	
 	function ShowExits(tGlass,loca){
 		Glass.append(tGlass,
@@ -597,34 +597,35 @@ $(document).ready(function() {
 			success: function(data){
 				//$('#Item101').empty();
 				//alert($('#Item101DataBits').text());
-				if (action === 'Relo'){
-					$.getJSON('/edenop/loadcmeta', function(cmeta) {
-					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
-						if (medo.cowner != cmeta.kid){
-							Glass.rObj('MetaSheet',medo.kid)
-						} else {
-							Glass.rObj('LocaSheet',medo.kid)
-						}
-						if ((medo.cowner === cmeta.kid)&&(medo.cowner === rKind+rID)){
-							Glass.aObj('MetaSheet',medo)
-						}
-						if (rKind === 'Location'){
-							Glass.aObj('LocaSheet',medo)
-						}
-//						cLocaSheet('refresh');
-//						cMetaSheet('refresh');
-					});
-					});
-				}
-				
-				if (action === 'Mine Node'){
-					$.getJSON('/edenop/loadcmeta', function(cmeta) {
-					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
-						Glass.reattr('MetaSheet','.DataBits',cmeta.databits);
-						Glass.reattr(medo.kid,'.DataBits',medo.databits);
-					});
-					});
-				}
+//				if (action === 'Relo'){
+//					$.getJSON('/edenop/loadcmeta', function(cmeta) {
+//					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
+//						if (medo.cowner != cmeta.kid){
+//							Glass.rObj('MetaSheet',medo.kid)
+//						} else {
+//							Glass.rObj('LocaSheet',medo.kid)
+//						}
+//						if ((medo.cowner === cmeta.kid)&&(medo.cowner === rKind+rID)){
+//							//alert('medo.kid');
+//							Glass.aObj(cmeta.kid+'Inventory',medo)
+//						}
+//						if (rKind === 'Location'){
+//							Glass.aObj(cmeta.xyzraw+'Items',medo)
+//						}
+////						cLocaSheet('refresh');
+////						cMetaSheet('refresh');
+//					});
+//					});
+//				}
+//				
+//				if (action === 'Mine Node'){
+//					$.getJSON('/edenop/loadcmeta', function(cmeta) {
+//					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
+//						Glass.reattr('MetaSheet','.DataBits',cmeta.databits);
+//						Glass.reattr(medo.kid,'.DataBits',medo.databits);
+//					});
+//					});
+//				}
 			}
 		});
 	}
@@ -701,43 +702,48 @@ $(document).ready(function() {
 				RefreshAll();
 			}
 		} else if (pack.refresh){
-			if (pack.type === 'cMetaUpdate'){
-				if (pack.attr === 'databits'){
-					//do stuff
-					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						Glass.reattr('MetaSheet','.DataBits',medo.databits);
-					});
-				} else {
-					cMetaSheet('refresh');
-				}
-			} else if (pack.type === 'cLocaUpdate'){
-				if (pack.attr === 'itemshere'){
-					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						Glass.aObj('LocaSheet',medo);
-					});
-				} else if (pack.attr === 'ihremove'){
-					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-				} else if (pack.attr === 'mhRemove'){
-					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-				} else if (pack.attr === 'mhAppend'){
-					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						Glass.aMeta('LocaSheet',medo);
-					});
-				} else  {
-					cLocaSheet('refresh');
-				}
-			} else if (pack.type === 'sMedoUpdate'){
-				if (pack.attr === 'databits'){
-					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						Glass.reattr(medo.kid,'.DataBits',medo.databits);
-					});
-				} else {
-					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-						//alert('this');
-						//GlassFactory(medo,'refresh');
-					});
-				}
+			if (pack.type === 'Relo'){
+				Glass.rObj('',pack.kid);
+				//alert(pack.medo.info);
+				Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
 			}
+//			if (pack.type === 'cMetaUpdate'){
+//				if (pack.attr === 'databits'){
+//					//do stuff
+//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+//						Glass.reattr('MetaSheet','.DataBits',medo.databits);
+//					});
+//				} else {
+//					cMetaSheet('refresh');
+//				}
+//			} else if (pack.type === 'cLocaUpdate'){
+//				if (pack.attr === 'itemshere'){
+//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+//						Glass.aObj('LocaSheet','ItemsHere',medo);
+//					});
+//				} else if (pack.attr === 'ihremove'){
+//					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
+//				} else if (pack.attr === 'mhRemove'){
+//					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
+//				} else if (pack.attr === 'mhAppend'){
+//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+//						Glass.aMeta('LocaSheet',medo);
+//					});
+//				} else  {
+//					cLocaSheet('refresh');
+//				}
+//			} else if (pack.type === 'sMedoUpdate'){
+//				if (pack.attr === 'databits'){
+//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+//						Glass.reattr(medo.kid,'.DataBits',medo.databits);
+//					});
+//				} else {
+//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
+//						//alert('this');
+//						//GlassFactory(medo,'refresh');
+//					});
+//				}
+//			}
 		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});
 			MetaSound('chirp');

@@ -13,44 +13,98 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import channel
 
-def MetaDebug(msg):
+def mdb(data,echo='none'): #META DEBUG
     allmetas = ops.fetchAllMetaMetaIDs()
     pack = Packet()
     for meta in allmetas:
         pack.type = 'This is a test.'
-        pack.msg = msg
+        pack.msg = echo
+        pack.data = data
         channel.send_message(str(meta), ops.jsonify(pack))
 
 def DepthPerception(before,after):
     cmeta = ops.loadmeta()
     bMedos = ops.fetchXYZMIDs(before.xyz)
     aMedos = ops.fetchXYZMIDs(after.xyz)
+    eMedos = ops.conKIDs(bMedos, aMedos)
     pack = Packet()
     pack.refresh = True
+    pack.who = cmeta.kid
+    
+#    ops.mdb(before.databits,'before databits')
+#    ops.mdb(after.databits,'after databits')
+    
+    if before.databits != after.databits:
+        pack.type = 'databits'
+        pack.metakind = before.metakind
+        pack.metaid = before.metaid
+        pack.kid = before.kid
+        pack.medo = after
+        for metaID in eMedos:
+            channel.send_message(str(metaID), ops.jsonify(pack))
+    
+    elif before.xyz != after.xyz: #Relocation
+        pack.type = 'Relo'
+        pack.metakind = before.metakind
+        pack.metaid = before.metaid
+        pack.kid = before.kid
+        pack.fromkind = before.cokind
+        pack.tokind = after.cokind 
+        pack.fromkid = before.cokind + str(before.coid)
+        pack.tokid = after.cokind + str(after.coid)
+        pack.medo = after
+        for metaID in eMedos:
+            channel.send_message(str(metaID), ops.jsonify(pack))
+#        for metaID in bMedos:
+#            pack.fade = 'out'
+#            channel.send_message(str(metaID), ops.jsonify(pack))
+#        for metaID in aMedos:
+#            pack.fade = 'in'
+#            channel.send_message(str(metaID), ops.jsonify(pack))
 
-    if before.metakind == 'Meta':
-        #MetaDebug(before.xyz)
-        if before.xyz != after.xyz:
-            
-            for metaID in bMedos:
-                pack.type = 'cLocaUpdate'
-                pack.attr = 'mhRemove'
-                pack.metakind = cmeta.metakind
-                pack.metaid = cmeta.metaid
-                pack.kid = cmeta.kid
-                channel.send_message(str(metaID), ops.jsonify(pack))
-            for metaID in aMedos:
-                if metaID == cmeta.metaid:
-                    pass
-                else:
-                    pack.type = 'cLocaUpdate'
-                    pack.attr = 'mhAppend'
-                    pack.metakind = cmeta.metakind
-                    pack.metaid = cmeta.metaid
-                    pack.kid = cmeta.kid
-                    channel.send_message(str(metaID), ops.jsonify(pack))
+#    if before.metakind == 'Meta':
+#        #MetaDebug(before.xyz)
+#        if before.xyz != after.xyz:
+#            
+#            for metaID in bMedos:
+#                pack.type = 'MetaMove'
+#                pack.attr = 'out'
+#                pack.metakind = cmeta.metakind
+#                pack.metaid = cmeta.metaid
+#                pack.kid = cmeta.kid
+#                channel.send_message(str(metaID), ops.jsonify(pack))
+#            for metaID in aMedos:
+#                if metaID == cmeta.metaid:
+#                    pass
+#                else:
+#                    pack.type = 'MetaMove'
+#                    pack.attr = 'in'
+#                    pack.metakind = cmeta.metakind
+#                    pack.metaid = cmeta.metaid
+#                    pack.kid = cmeta.kid
+#                    channel.send_message(str(metaID), ops.jsonify(pack))
+#    elif before.metakind == 'Item':
+#        if before.xyz != after.xyz:
+#            for metaID in bMedos:
+#                pack.type = 'ItemRelo'
+#                pack.attr = 'out'
+#                pack.metakind = cmeta.metakind
+#                pack.metaid = cmeta.metaid
+#                pack.kid = cmeta.kid
+#                channel.send_message(str(metaID), ops.jsonify(pack))
+#            for metaID in aMedos:
+#                if metaID == cmeta.metaid:
+#                    pass
+#                else:
+#                    pack.type = 'ItemRelo'
+#                    pack.attr = 'in'
+#                    pack.metakind = cmeta.metakind
+#                    pack.metaid = cmeta.metaid
+#                    pack.kid = cmeta.kid
+#                    channel.send_message(str(metaID), ops.jsonify(pack))
+                
     else:
-        MetaDebug('This is else')
+        ops.mdb('This is else')
         
 def BigBrother(target,targetattr,cmetachange):
     pack = Packet()
@@ -183,21 +237,25 @@ def Laugh():
     pass
 def StandardActionContent(cmeta,action,sitem):
     return cmeta.name + " " + action + " " + sitem.name + "."
-def MineNode(cmeta,sitem):
-    #content = StandardActionContent(cmeta,'mines',sitem)
-    amount = ops.d10(1)
+def MineNode(cmeta,medo):
+    #content = StandardActionContent(cmeta,'mines',medo)
+    preMedo = copy.copy(medo)
+    preCMeta = copy.copy(cmeta)
     
-    content = cmeta.name + " mines " + str(amount) + " databits from " + sitem.name + "."
+    amount = ops.d10(1)
+    content = cmeta.name + " mines " + str(amount) + " databits from " + medo.name + "."
     
     if cmeta.databits:
         cmeta.databits = cmeta.databits + amount
     else:
         cmeta.databits = 10
-    sitem.databits = sitem.databits - amount
-    sitem.put()
+    medo.databits = medo.databits - amount
+    medo.put()
+    DepthPerception(preMedo,medo)
     cmeta.put()
+    DepthPerception(preCMeta,cmeta)
     MetaEcho(content)
-    #PackObj(sitem)
+    #PackObj(medo)
     #PackObj(cmeta)
     
 def Kick(cmeta,sitem):
@@ -210,6 +268,7 @@ def Relo(tMedo,rMedo):
     cmeta = ops.loadmeta()
     rKind = rMedo.metakind
     tKind = tMedo.metakind
+    premove = copy.copy(tMedo)
 
     origin = tMedo.cowner
     oKID = ops.metasplit(origin)
@@ -224,7 +283,8 @@ def Relo(tMedo,rMedo):
     tMedo.cowner = rMedo.kid
     
     if oKind == 'Location':
-        BigBrother(tMedo,'ihremove','')
+        pass
+        #BigBrother(tMedo,'ihremove','')
     
     if tKind == 'Meta':
         pass
@@ -232,27 +292,35 @@ def Relo(tMedo,rMedo):
         tMedo.xloc = rMedo.xloc
         tMedo.yloc = rMedo.yloc
         tMedo.zloc = rMedo.zloc
+        tMedo.lattice = rMedo.lattice
+        tMedo.cokind = 'Location'
+        tMedo.coid = str(rMedo.xloc)+str(rMedo.yloc)+str(rMedo.zloc)+str(rMedo.lattice)
         tMedo.put()
         
-        BigBrother(tMedo,'itemshere','')
+        #BigBrother(tMedo,'itemshere','')
         
         if oKID == cmeta.kid:
-            BigBrother(rMedo,'itemshere','inventory')
+            pass
+            #BigBrother(rMedo,'itemshere','inventory')
 
     elif rKind == 'Meta':
         tMedo.xloc = ''
         tMedo.yloc = ''
         tMedo.zloc = ''
+        tMedo.lattice = rMedo.lattice
+        tMedo.cokind = 'Meta'
+        tMedo.coid = str(rMedo.metaid)
         tMedo.put()
         
         if oKID == cmeta.kid:
-            BigBrother(rMedo,'inventory','inventory')
+            pass#BigBrother(rMedo,'inventory','inventory')
     else:
-        BigBrother(rMedo,'itemshere')
+        #BigBrother(rMedo,'itemshere')
         if oKind == 'Location':
-            BigBrother(oMedo,'itemshere','')
+            pass#BigBrother(oMedo,'itemshere','')
         elif oKind == 'Meta':
-            BigBrother(oMedo,'inventory','')
+            pass#BigBrother(oMedo,'inventory','')
+    DepthPerception(premove,tMedo)
     
 class ActionRouter(webapp2.RequestHandler):
     def post(self,metaAction):
@@ -262,8 +330,10 @@ class ActionRouter(webapp2.RequestHandler):
         tMedo = ndb.Key(tKind,int(tID)).get()
         if self.request.get('rKind'):
             rKind = self.request.get('rKind')
+            
             rID = self.request.get('rID')
-            if rID == 'Zero':
+            
+            if rKind == 'Location':
                 rMedo = Location()
                 rMedo.metakind = 'Location'
                 rMedo.xloc = cmeta.xloc
@@ -277,7 +347,7 @@ class ActionRouter(webapp2.RequestHandler):
 #                channel.send_message(str(localmeta), ops.jsonify(pack))
         if metaAction == 'Mine Node':
             MineNode(cmeta,tMedo)
-            BigBrother(tMedo,'databits','databits')
+            #BigBrother(tMedo,'databits','databits')
         if metaAction == 'Kick':
             Kick(cmeta,tMedo)
         if metaAction == 'Relo':
@@ -286,6 +356,11 @@ class ActionRouter(webapp2.RequestHandler):
 class Move(webapp2.RequestHandler):
     def post(self, direction):
         cmeta = ops.loadmeta()
+        cmeta.cokind = 'Location' #Not robust
+        premove = copy.copy(ops.loadmeta())
+        
+        
+        
         cloc = ops.loadcloc()
         localmetas = ops.fetchLocalMetaMetaIDs('Meta',cmeta.metaid)
         
@@ -306,7 +381,7 @@ class Move(webapp2.RequestHandler):
                 pack.type = 'userleave'
                 channel.send_message(str(localmeta), ops.jsonify(pack))
         
-        premove = copy.copy(cmeta)
+        
         
         if direction == 'n':
             cmeta.yloc = str(int(cmeta.yloc)+1)
@@ -334,8 +409,9 @@ class Move(webapp2.RequestHandler):
             cmeta.yloc = str(int(cmeta.yloc)+1)
         cmeta.put()
         
-        DepthPerception(premove,cmeta)
         
+        #MetaDebug(premove,'premove')
+        #MetaDebug(cmeta)
         
         
         
@@ -352,6 +428,7 @@ class Move(webapp2.RequestHandler):
                 pack.destination = ops.dirFull(direction)
                 channel.send_message(str(newlocalmeta), ops.jsonify(pack))
         
+        DepthPerception(premove,cmeta)
         self.response.out.write(cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)
 
 class Test(webapp2.RequestHandler):
