@@ -96,6 +96,7 @@ MEGlass.prototype.create = function(args){
 		var title = args.title || "Unknown Glass";
 		var name = args.name || args.id + "Glass";
 		var id = args.id;
+		var kid = args.kid;
 		
 		// set ID for template
 		var wrapperStart = '<div class="glassWrapper" id="' + id + '">';
@@ -118,6 +119,9 @@ MEGlass.prototype.create = function(args){
 		
 		// set name
 		$('#'+id).attr('data-name',name);
+		
+		// add class (important for sheets)
+		$('#'+id).addClass(kid);
 		
 	} else {
 		console.log("error MEGlass.create() - incorrect arguments provided");
@@ -151,11 +155,6 @@ MEGlass.prototype.destroy = function(id) {
 	$('#'+id).remove();
 };
 
-MEGlass.prototype.replace = function(id,context,content) {
-	$('#'+id).children(context).empty();
-	$('#'+id).children(context).append(content);	
-};
-
 MEGlass.prototype.reattr = function(id,context,content) {
 	$('#'+id).find(context).empty();
 	$('#'+id).find(context).append(content);	
@@ -184,7 +183,7 @@ MEGlass.prototype.maximize = function(id) {
 };
 
 function gAppend(id,appendage){
-	var thereturn = $('#'+id).children('.glassContent').append(appendage); 
+	var thereturn = $('.'+id).children('.glassContent').append(appendage); 
 	return thereturn;
 };
 
@@ -198,6 +197,10 @@ function attrAppend(id,appendage){
 	return thereturn;
 }
 
+MEGlass.prototype.clear = function(id,context) {
+	$('#'+id).find('.'+context).empty();
+};
+
 MEGlass.prototype.aBreak = function(id){
 	gAppend(id,"<br>");
 };
@@ -209,6 +212,15 @@ MEGlass.prototype.aObj = function(container,tMedo) {
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
+MEGlass.prototype.aSOO = function(tMedo) {
+	var kid = tMedo.kid;
+	var name = tMedo.name;
+	var kind = tMedo.metakind;
+	var id = tMedo.metaid;
+	var thereturn = "<input type='button' id='mIcon"+kid+"' class='obj mIcon mIcon"+kid+"' value='"+name+"' title='"+kid+"' data-name='"+name+"' data-metakind='"+kind+"' data-metaid='"+id+"'>"; 
+	return  thereturn;
+};
+
 MEGlass.prototype.aMeta = function(id,tMedo) {
 	gAppendC(id,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
 	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
@@ -216,19 +228,27 @@ MEGlass.prototype.aMeta = function(id,tMedo) {
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
-MEGlass.prototype.rObj = function(id,tKID) {
+MEGlass.prototype.replace = function(context,content) {
+	$('body').find('.'+context).html(content);
+};
+
+MEGlass.prototype.reData = function(context,appendage) {
+	$('body').find('.'+context).html("<p>"+appendage+"</p>");
+};
+
+MEGlass.prototype.rObj = function(tKID) {
 	$('body').find('.mIcon'+tKID).remove();
 };
 
-MEGlass.prototype.aContainer = function(id,container,contID){
+MEGlass.prototype.aContainer = function(id,container,contID,sheetID){
 	gAppend(id,
-			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+"'></span>");
+			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span>");
 };
 
-MEGlass.prototype.aData = function(id,label,appendage){
+MEGlass.prototype.aData = function(id,label,dataname,appendage){
 	gAppend(id,
-			"<div><h1>"+label+"</h1>"+
-			"<p class='"+label+"' id='"+id+label+"'>" + appendage + "</p></div>");
+			"<div><h1>"+label+"</h1><span class='"+dataname+"'>"+
+			"<p>" + appendage + "</p></span></div>");
 };
 
 MEGlass.prototype.aField = function(id,label,fieldID,fieldName){

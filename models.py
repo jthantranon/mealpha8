@@ -126,6 +126,12 @@ class Meta(ndb.Expando):
             return self.xloc+self.yloc+ self.zloc+self.lattice
         else:
             return 'Limbo'
+    @ndb.ComputedProperty
+    def cokid(self): #duplicate of xyzraw
+        if self.xloc:
+            return 'Location'+self.xloc+self.yloc+ self.zloc+self.lattice
+        else:
+            return 'Limbo'
     
 
 class Base(ndb.Expando):

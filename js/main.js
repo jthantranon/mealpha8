@@ -74,7 +74,7 @@ $(document).ready(function() {
 	
 	function cMetaSheet(refresh){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet'};
+			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet',kid:cmeta.kid};
 			if (refresh){
 				Glass.clear('MetaSheet');
 			} else {
@@ -90,7 +90,7 @@ $(document).ready(function() {
 	
 	function cLocaSheet(refresh){
 		$.getJSON('/edenop/location', function(cloc) {
-			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet'};
+			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet',kid:cloc.kid};
 			if (refresh){
 				Glass.clear('LocaSheet');
 			} else {
@@ -115,11 +115,11 @@ $(document).ready(function() {
 		};
 		
 		$.getJSON('/edenop/fetchinventory/self', function(inventory) {
-			$.each(args, function(k,v){
-				Glass.aData('MetaSheet',k,v);
+			$.each(args, function(label,appendage){
+				Glass.aData(cmeta.kid,label,cmeta.kid+label,appendage);
 			});
 			
-			Glass.aContainer('MetaSheet','Inventory',cmeta.kid+'Items');
+			Glass.aContainer(cmeta.kid,'Inventory',cmeta.kid+'Items');
 			$.each(inventory, function() {
 				Glass.aObj(cmeta.kid+'Items',this);
 			});
@@ -137,12 +137,12 @@ $(document).ready(function() {
 		$.getJSON('/edenop/fetchlocalmetas', function(localmetas) {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
 				//ShowExits('LocaSheet',cloca);
-				$.each(args, function(k,v){
-					Glass.aData('LocaSheet',k,v);
+				$.each(args, function(label,appendage){
+					Glass.aData(cloca.kid,label,currentmeta.kid+label,appendage);
 				});
-				Glass.aContainer('LocaSheet','MetaUsers Here',cloca.kid+'Metas');
+				Glass.aContainer(cloca.kid,'MetaUsers Here',cloca.kid+'Metas');
 				$.each(localmetas, function() { Glass.aMeta(cloca.kid+'Metas',this); });
-				Glass.aContainer('LocaSheet','Items Here',cloca.kid+'Items');
+				Glass.aContainer(cloca.kid,'Items Here',cloca.kid+'Items');
 				$.each(localitems, function() { Glass.aObj(cloca.kid+'Items',this); });
 			});
 		});
@@ -189,7 +189,7 @@ $(document).ready(function() {
 	
 	function GlassFactory(medo,glassargs){
 		if (medo != null){
-			glassargs = {xpos:xmid-150,ypos:ymid-75,title:medo.name,id:medo.kid};
+			glassargs = {xpos:xmid-150,ypos:ymid-75,title:medo.name,id:medo.kid,kid:medo.kid};
 		}
 		if (glassargs === 'refresh'){
 			Glass.clear(medo.kid);
@@ -209,10 +209,10 @@ $(document).ready(function() {
 	/// Phase One
 	///
 	function EngraveMedoGlass(medo){
-		Glass.aData(medo.kid,'Name',medo.name);
-		Glass.aData(medo.kid,'Info',medo.info);
-		Glass.aData(medo.kid,'MetaKID',medo.kid);
-		Glass.aData(medo.kid,'Location',medo.xyz);
+		Glass.aData(medo.kid,'Name',medo.kid+'Name',medo.name);
+		Glass.aData(medo.kid,'Info',medo.kid+'Info',medo.info);
+		Glass.aData(medo.kid,'MetaKid',medo.kid+'MetaKID',medo.kid);
+		Glass.aData(medo.kid,'Location',medo.kid+'Location',medo.xyz);
 	}
 	///
 	/// Phase Two - Decorators
@@ -223,8 +223,8 @@ $(document).ready(function() {
 	function EngraveMetaGlass(medo){
 		$.getJSON('/edenop/fetchinventory/'+medo.kid, function(inventory) {
 			EngraveMedoGlass(medo);
-			Glass.aData(medo.kid,'MasterID',medo.masterid);
-			Glass.aData(medo.kid,'DataBits',medo.databits);
+			Glass.aData(medo.kid,'MasterID',medo.kid+'MasterID',medo.masterid);
+			Glass.aData(medo.kid,'DataBits',medo.kid+'DataBits',medo.databits);
 			//GAP(medo,30);
 			Glass.aContainer(medo.kid,'Inventory',medo.kid+'Items');
 			$.each(inventory, function() {
@@ -236,7 +236,7 @@ $(document).ready(function() {
 	function EngraveItemGlass(medo){
 		EngraveMedoGlass(medo);
 		if (medo.regtype == 'Mine'){
-			Glass.aData(medo.kid,'DataBits',medo.databits);
+			Glass.aData(medo.kid,'DataBits',medo.kid+'DataBits',medo.databits);
 		}
 		
 		if (medo.actions){
@@ -353,8 +353,8 @@ $(document).ready(function() {
 			url: '/action/move/' + dir,
 			data: null,
 			success: function(data){
-				cLocaSheet('refresh');
-				Amb('take this out after installing bigbro');
+				//cLocaSheet('refresh');
+				//Amb('take this out after installing bigbro');
 			}
 		});
 	});
@@ -517,8 +517,7 @@ $(document).ready(function() {
 					url: '/action/move/' + dir,
 					data: null,
 					success: function(data){
-						cLocaSheet('refresh');
-						mynav.refresh();
+						alert(data);
 					}
 				});
 			}
@@ -595,37 +594,7 @@ $(document).ready(function() {
 			url: '/action/router/' + action,
 			data: {'tKind':tKind,'tID':tID,'rKind':rKind,'rID':rID},
 			success: function(data){
-				//$('#Item101').empty();
-				//alert($('#Item101DataBits').text());
-//				if (action === 'Relo'){
-//					$.getJSON('/edenop/loadcmeta', function(cmeta) {
-//					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
-//						if (medo.cowner != cmeta.kid){
-//							Glass.rObj('MetaSheet',medo.kid)
-//						} else {
-//							Glass.rObj('LocaSheet',medo.kid)
-//						}
-//						if ((medo.cowner === cmeta.kid)&&(medo.cowner === rKind+rID)){
-//							//alert('medo.kid');
-//							Glass.aObj(cmeta.kid+'Inventory',medo)
-//						}
-//						if (rKind === 'Location'){
-//							Glass.aObj(cmeta.xyzraw+'Items',medo)
-//						}
-////						cLocaSheet('refresh');
-////						cMetaSheet('refresh');
-//					});
-//					});
-//				}
-//				
-//				if (action === 'Mine Node'){
-//					$.getJSON('/edenop/loadcmeta', function(cmeta) {
-//					$.getJSON('/edenop/load/'+tKind+'/'+tID, function(medo) {
-//						Glass.reattr('MetaSheet','.DataBits',cmeta.databits);
-//						Glass.reattr(medo.kid,'.DataBits',medo.databits);
-//					});
-//					});
-//				}
+
 			}
 		});
 	}
@@ -658,8 +627,12 @@ $(document).ready(function() {
 			};
 			
 			onMessage = function(msg) {
-			    console.debug('onMessage: ' + msg.data);
-			    pack = JSON.parse(msg.data);
+				pack = JSON.parse(msg.data);
+				if (pack.console){
+					console.debug('onMessage: ' + pack.console);
+				} else {
+					console.debug('onMessage: ' + msg.data);
+				}
 			    UpdateStatus(pack);
 			};
 			
@@ -702,48 +675,24 @@ $(document).ready(function() {
 				RefreshAll();
 			}
 		} else if (pack.refresh){
+			
 			if (pack.type === 'Relo'){
-				Glass.rObj('',pack.kid);
-				//alert(pack.medo.info);
+				Glass.rObj(pack.kid);
 				Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
+			} else if (pack.type === 'MetaMove'){
+				Glass.clear('LocaSheet','Here');
+				//Glass.rObj(pack.kid);
+				//Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
+				//alert(pack.tokid);
+				Glass.reData(pack.medo.kid+'Location', pack.medo.xyz);
+				Glass.reData(pack.medo.cokid+'Location',pack.medo.cokid);
+				
+			} else if (pack.type === 'Databits'){
+				//alert(pack.kid+'DataBits'+pack.medo.databits);
+				Glass.replace(pack.kid+'DataBits', pack.medo.databits);
 			}
-//			if (pack.type === 'cMetaUpdate'){
-//				if (pack.attr === 'databits'){
-//					//do stuff
-//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-//						Glass.reattr('MetaSheet','.DataBits',medo.databits);
-//					});
-//				} else {
-//					cMetaSheet('refresh');
-//				}
-//			} else if (pack.type === 'cLocaUpdate'){
-//				if (pack.attr === 'itemshere'){
-//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-//						Glass.aObj('LocaSheet','ItemsHere',medo);
-//					});
-//				} else if (pack.attr === 'ihremove'){
-//					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-//				} else if (pack.attr === 'mhRemove'){
-//					Glass.rObj('LocaSheet',pack.metakind+pack.metaid);
-//				} else if (pack.attr === 'mhAppend'){
-//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-//						Glass.aMeta('LocaSheet',medo);
-//					});
-//				} else  {
-//					cLocaSheet('refresh');
-//				}
-//			} else if (pack.type === 'sMedoUpdate'){
-//				if (pack.attr === 'databits'){
-//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-//						Glass.reattr(medo.kid,'.DataBits',medo.databits);
-//					});
-//				} else {
-//					$.getJSON('/edenop/load/'+pack.metakind+'/'+pack.metaid, function(medo) {
-//						//alert('this');
-//						//GlassFactory(medo,'refresh');
-//					});
-//				}
-//			}
+		} else if (pack.vision){
+			newChatBoxMsg(pack);
 		} else if (pack.type == 'msg') {
 			$.ambiance({message: pack.content});
 			MetaSound('chirp');
@@ -815,6 +764,14 @@ $(document).ready(function() {
 	// NEW FANCY CHATBOX MSG RECIEVER
 	/////////////////////////////////
 	newChatBoxMsg = function(pack) {
+		if(pack.vision){
+			context = $(".messages");
+			outmsg = '<p>' + pack.formatted + '</p>';
+			$(context).append(outmsg);
+			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);
+			$('.tabWrapper').fadeTo(250, .5).fadeTo(500, 0);
+		}
+		
 		switch(pack.type)
 		{
 		case "broadcast":
@@ -871,7 +828,8 @@ $(document).ready(function() {
 			if (pack.type == 'action'){
 				outmsg = '<p>' + pack.formatted + '</p>';
 			} else {
-				outmsg = '<p><span class="channelAnnounce">' + pack.name +' <img class="iconTranslator" src="img/icons/connect1.png" data-icontype="userlogin" width="20" height="20" />MetaEden</span></p>';
+				outmsg = '<p><span class="channelAnnounce">' + Glass.aSOO(pack.medo) +
+					' <img class="iconTranslator" src="img/icons/connect1.png" data-icontype="userlogin" width="20" height="20" />MetaEden</span></p>';
 			}
 			$(context).append(outmsg);
 			$(context).animate({ scrollTop: $(context).prop("scrollHeight") - $(context).height() }, 100);

@@ -85,7 +85,7 @@ def cProc(command):
         content = 'Invalid Command: ' + command
         SelfEcho(content)
 
-def PackPacket(packtype,scopename,scope,formatted,content):
+def PackPacket(console,packtype,scopename,scope,formatted,content,smeta='No meta provided'):
     cmeta = ops.loadmeta()
     pack = Packet()
     
@@ -104,6 +104,8 @@ def PackPacket(packtype,scopename,scope,formatted,content):
                 pack.name = cmeta.name
                 pack.metakind = cmeta.metakind
                 pack.metaid = cmeta.metaid
+                pack.medo = smeta
+                pack.console = console
                 channel.send_message(str(targetmeta), ops.jsonify(pack))
 
 class ChanRouter(webapp2.RequestHandler):
@@ -122,7 +124,7 @@ class ChanRouter(webapp2.RequestHandler):
             packtype = 'broadcast'
             scopename = sloc.name
             scope = 'local'
-            #PackPacket(packtype,scopename,scope,formatted,content)
+            #PackPacket(console,packtype,scopename,scope,formatted,content)
 #            for localmeta in localmetas:
 #                pack.scopename = sloc.name
 #                pack.type = 'broadcast'
@@ -140,8 +142,9 @@ class ChanRouter(webapp2.RequestHandler):
             scopename = sloc.name
             scope = 'local'
             formatted = "["+sloc.name+"]<b> " + cmeta.name + "</b>: " + self.request.get('content')
-
-            PackPacket(packtype,scopename,scope,formatted,content)
+            console = True
+            
+            PackPacket(console,packtype,scopename,scope,formatted,content)
             
         if dest == 'global':
 #            if self.request.get('content')[0] == '@':
@@ -153,8 +156,9 @@ class ChanRouter(webapp2.RequestHandler):
             scopename = 'Global'
             scope = 'global'
             formatted = "[Global]<b> " + cmeta.name + "</b>: " + self.request.get('content')
-
-            PackPacket(packtype,scopename,scope,formatted,content)
+            console = True
+            
+            PackPacket(console,packtype,scopename,scope,formatted,content)
 
         elif dest == 'login':
           
@@ -163,8 +167,9 @@ class ChanRouter(webapp2.RequestHandler):
             scope = 'system'
             content = cmeta.name + "</b> has logged into MetaEden."
             formatted = "[System]<b> " + cmeta.name + "</b> has logged into MetaEden."
+            console = 'edenop.ChanRouter.dest==login'
             
-            PackPacket(packtype,scopename,scope,formatted,content)
+            PackPacket(console,packtype,scopename,scope,formatted,content,cmeta)
             
         elif dest == 'pm':
             metakind = self.request.get('metakind')
