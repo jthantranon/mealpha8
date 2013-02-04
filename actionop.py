@@ -222,7 +222,7 @@ class ActionRouter(webapp2.RequestHandler):
         if metaAction == 'Laugh':
             Laugh()
 #                channel.send_message(str(localmeta), ops.jsonify(pack))
-        if metaAction == 'Mine Node':
+        if metaAction == 'MineNode':
             MineNode(cmeta,tMedo)
         if metaAction == 'Kick':
             Kick(cmeta,tMedo)

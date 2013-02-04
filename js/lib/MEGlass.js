@@ -197,6 +197,11 @@ function attrAppend(id,appendage){
 	return thereturn;
 }
 
+function actionAttrAppend(id,appendage){
+	var thereturn = $('.'+id).attr(appendage); 
+	return thereturn;
+}
+
 MEGlass.prototype.remove = function(id,context) {
 	$('#'+id).find('.'+context).remove();
 };
@@ -244,14 +249,9 @@ MEGlass.prototype.rObj = function(tKID) {
 	$('body').find('.mIcon'+tKID).remove();
 };
 
-MEGlass.prototype.aContainer = function(id,container,contID,sheetID){
+MEGlass.prototype.aContainer = function(id,container,contID){
 	gAppend(id,
 			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span>");
-};
-
-MEGlass.prototype.aContOnly = function(id,container,contID,sheetID){
-	gAppend(id,
-			"<span id='"+contID+"' class='"+contID+" "+container+"'></span>");
 };
 
 MEGlass.prototype.aData = function(id,label,dataname,appendage){
@@ -269,6 +269,12 @@ MEGlass.prototype.aField = function(id,label,fieldID,fieldName){
 MEGlass.prototype.aSubmitButton = function(id,btnText,fieldID){
 	gAppend(id,
 			"<input value='"+btnText+"' id='"+fieldID+"' type='button' class='button'>");
+};
+
+MEGlass.prototype.aAction = function(container,tMedo,action){
+	var act =  action.replace(/ /g,'');
+	gAppendC(container,"<input type='button' id='"+tMedo.kid+act+"' class='"+tMedo.kid+act+"'>");
+	actionAttrAppend(tMedo.kid+act,{class:'action btnaction '+tMedo.kid+act,value:action,title:tMedo.kid+act,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid,'data-action':act});
 };
 
 /////////////////////////////////////////

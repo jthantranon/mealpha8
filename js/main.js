@@ -31,7 +31,7 @@ $(document).ready(function() {
 	/////////////
 	SessionInit();
 	function SessionInit(newMetaData) {
-		var cmeta = currentmeta || newMetaData;
+		var cmeta = newMetaData || currentmeta;
 		if (cmeta == 'nometa'){
 			Amb('Registration File Not Found. Please Register Before Proceeding.',8);
 			RegiSheet();
@@ -241,9 +241,9 @@ $(document).ready(function() {
 		}
 		
 		if (medo.actions){
-			Glass.aContainer(medo.kid,'Actions','Actions');
+			Glass.aContainer(medo.kid,'Actions',medo.kid+'Actions');
 			for (var i = 0; i < medo.actions.length; i++) {
-				NGAA(medo,medo.actions[i]);				
+				Glass.aAction(medo.kid+'Actions',medo,medo.actions[i]);				
 			}
 		}
 	}
@@ -260,14 +260,6 @@ $(document).ready(function() {
 //		Glass.append(tGlass, "<h1>"+label+"</h1>"+
 //			"<input id='"+fieldid+"' name='"+fieldname+"' type='text'><br>");
 //	}
-	
-	function NGAA(medo,action){
-		Glass.append(medo.kid,
-				"<input type='button' id='btnaction"+medo.metakind+medo.metaid+action + "' class='action' value='" + action + 
-				"' data-name='"+medo.name+"' data-metakind='"+medo.metakind+"' data-metaid='"+medo.metaid+"'" + " data-action='"+action+"'" +
-				">"
-				);
-	}
 	
 	$('body').on('click','.action',function(){
 		var metakind = $(this).data('metakind');
