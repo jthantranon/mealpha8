@@ -97,6 +97,7 @@ MEGlass.prototype.create = function(args){
 		var name = args.name || args.id + "Glass";
 		var id = args.id;
 		var kid = args.kid;
+		var gClass = args.gClass;
 		
 		// set ID for template
 		var wrapperStart = '<div class="glassWrapper" id="' + id + '">';
@@ -119,6 +120,9 @@ MEGlass.prototype.create = function(args){
 		
 		// set name
 		$('#'+id).attr('data-name',name);
+		
+		// add class (important for sheets)
+		$('#'+id).addClass(gClass);
 		
 		// add class (important for sheets)
 		$('#'+id).addClass(kid);
@@ -145,10 +149,6 @@ MEGlass.prototype.append = function(id,content) {
 
 MEGlass.prototype.clear = function(id) {
 	$('#'+id).children('.glassContent').empty();
-};
-
-MEGlass.prototype.remove = function(id,context) {
-	$('#'+id).children(context).empty();
 };
 
 MEGlass.prototype.destroy = function(id) {
@@ -197,6 +197,10 @@ function attrAppend(id,appendage){
 	return thereturn;
 }
 
+MEGlass.prototype.remove = function(id,context) {
+	$('#'+id).find('.'+context).remove();
+};
+
 MEGlass.prototype.clear = function(id,context) {
 	$('#'+id).find('.'+context).empty();
 };
@@ -243,6 +247,11 @@ MEGlass.prototype.rObj = function(tKID) {
 MEGlass.prototype.aContainer = function(id,container,contID,sheetID){
 	gAppend(id,
 			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span>");
+};
+
+MEGlass.prototype.aContOnly = function(id,container,contID,sheetID){
+	gAppend(id,
+			"<span id='"+contID+"' class='"+contID+" "+container+"'></span>");
 };
 
 MEGlass.prototype.aData = function(id,label,dataname,appendage){

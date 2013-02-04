@@ -90,7 +90,7 @@ $(document).ready(function() {
 	
 	function cLocaSheet(refresh){
 		$.getJSON('/edenop/location', function(cloc) {
-			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet',kid:cloc.kid};
+			var glassargs = {context:'body',content:'',xpos:5,ypos:5,title:'LocationSheet',name:'LocationSheet',id:'LocaSheet',gClass:'LocaSheet'};
 			if (refresh){
 				Glass.clear('LocaSheet');
 			} else {
@@ -138,12 +138,13 @@ $(document).ready(function() {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
 				//ShowExits('LocaSheet',cloca);
 				$.each(args, function(label,appendage){
-					Glass.aData(cloca.kid,label,currentmeta.kid+label,appendage);
+					Glass.aData('LocaSheet',label,currentmeta.kid+label,appendage);
 				});
-				Glass.aContainer(cloca.kid,'MetaUsers Here',cloca.kid+'Metas');
-				$.each(localmetas, function() { Glass.aMeta(cloca.kid+'Metas',this); });
-				Glass.aContainer(cloca.kid,'Items Here',cloca.kid+'Items');
-				$.each(localitems, function() { Glass.aObj(cloca.kid+'Items',this); });
+				
+				Glass.aContainer('LocaSheet','MetaUsers Here','LocaSheetMetas');
+				$.each(localmetas, function() { Glass.aMeta('LocaSheetMetas',this); });
+				Glass.aContainer('LocaSheet','Items Here','LocaSheetItems');
+				$.each(localitems, function() { Glass.aObj('LocaSheetItems',this); });
 			});
 		});
 	}
@@ -517,7 +518,8 @@ $(document).ready(function() {
 					url: '/action/move/' + dir,
 					data: null,
 					success: function(data){
-						alert(data);
+//						stuff = JSON.parse(data);
+//						console.debug(stuff.locdata);
 					}
 				});
 			}
@@ -680,12 +682,27 @@ $(document).ready(function() {
 				Glass.rObj(pack.kid);
 				Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
 			} else if (pack.type === 'MetaMove'){
-				Glass.clear('LocaSheet','Here');
+				//Glass.remove('LocaSheet','LocaSheetMetas');
+				//alert(pack.fromkid);
 				//Glass.rObj(pack.kid);
 				//Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
 				//alert(pack.tokid);
 				Glass.reData(pack.medo.kid+'Location', pack.medo.xyz);
 				Glass.reData(pack.medo.cokid+'Location',pack.medo.cokid);
+				
+			} else if (pack.type === 'YouArrive'){
+				Glass.clear('LocaSheet','LocaSheetMetas');
+				$.each(pack.nMetas, function() { Glass.aMeta('LocaSheetMetas',this); });
+				Glass.clear('LocaSheet','LocaSheetItems');
+				$.each(pack.nItems, function() { Glass.aMeta('LocaSheetItems',this); });
+				Glass.reData(pack.medo.kid+'Location', pack.medo.xyz);
+				Glass.reData(pack.medo.cokid+'Location',pack.medo.cokid);
+				
+			} else if (pack.type === 'MetaArrive'){
+				Glass.aMeta('LocaSheetMetas',pack.medo);
+				
+			} else if (pack.type === 'MetaLeave'){
+				Glass.rObj(pack.medo.kid);
 				
 			} else if (pack.type === 'Databits'){
 				//alert(pack.kid+'DataBits'+pack.medo.databits);

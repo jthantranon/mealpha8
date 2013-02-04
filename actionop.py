@@ -43,8 +43,20 @@ def DepthPerception(before,after,vision=False):
         pack.fromkid = before.cokind + str(before.coid)
         pack.tokid = after.cokind + str(after.coid)
         pack.medo = after
-        for metaID in eMedos:
-            channel.send_message(str(metaID), ops.jsonify(pack))
+#        for metaID in eMedos:
+#            channel.send_message(str(metaID), ops.jsonify(pack))
+        for bMeta in bMedos:
+            pack.type = 'MetaLeave'
+            channel.send_message(str(bMeta), ops.jsonify(pack))
+        for aMeta in aMedos:
+            if aMeta == cmeta.metaid:
+                #ops.mdb(aMeta, 'test')
+                pack.type = 'YouArrive'
+                pack.nMetas = ops.fetchLocalMetas(after.metakind, after.metaid)
+                pack.nItems = ops.fetchLocalItems(after.metakind, after.metaid)
+            else:
+                pack.type = 'MetaArrive'    
+            channel.send_message(str(aMeta), ops.jsonify(pack))
     else:
         ops.mdb('This is else')
 
@@ -286,7 +298,11 @@ class Move(webapp2.RequestHandler):
         
         DepthPerception(premove,cmeta)
         #self.response.out.write(cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)
-        self.response.out.write('Location'+cmeta.xloc+cmeta.yloc+cmeta.zloc+cmeta.lattice)
+        nLocaMetas = ops.fetchLocalMetas(Meta, cmeta.metaid)
+        nloc = Packet()
+        nloc.locdata = cloc
+        nloc.metashere = nLocaMetas
+        self.response.out.write(ops.jsonify(nloc))
 
 class Test(webapp2.RequestHandler):
     def get(self):
