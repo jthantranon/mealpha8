@@ -678,19 +678,7 @@ $(document).ready(function() {
 			}
 		} else if (pack.refresh){
 			
-			if (pack.type === 'Relo'){
-				Glass.rObj(pack.kid);
-				Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
-			} else if (pack.type === 'MetaMove'){
-				//Glass.remove('LocaSheet','LocaSheetMetas');
-				//alert(pack.fromkid);
-				//Glass.rObj(pack.kid);
-				//Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
-				//alert(pack.tokid);
-				Glass.reData(pack.medo.kid+'Location', pack.medo.xyz);
-				Glass.reData(pack.medo.cokid+'Location',pack.medo.cokid);
-				
-			} else if (pack.type === 'YouArrive'){
+			if (pack.type === 'YouArrive'){
 				Glass.clear('LocaSheet','LocaSheetMetas');
 				$.each(pack.nMetas, function() { Glass.aMeta('LocaSheetMetas',this); });
 				Glass.clear('LocaSheet','LocaSheetItems');
@@ -701,8 +689,14 @@ $(document).ready(function() {
 			} else if (pack.type === 'MetaArrive'){
 				Glass.aMeta('LocaSheetMetas',pack.medo);
 				
-			} else if (pack.type === 'MetaLeave'){
+			} else if (pack.type === 'MedoMove'){
 				Glass.rObj(pack.medo.kid);
+				
+			} else if (pack.type === 'ItemArrive'){
+				Glass.aObj('LocaSheetItems', pack.medo);
+				
+			} else if (pack.type === 'ItemUpdate'){
+				Glass.aObj(pack.tokid+pack.metakind+'s', pack.medo);
 				
 			} else if (pack.type === 'Databits'){
 				//alert(pack.kid+'DataBits'+pack.medo.databits);
@@ -754,7 +748,7 @@ $(document).ready(function() {
 		} else if (pack.type === 'userleave') {
 			newChatBoxMsg(pack);
 		} else {
-			Amb('No Type');
+			console.debug('pack.type not registered for sound/echo');
 		}
 
 		///

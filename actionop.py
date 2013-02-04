@@ -15,9 +15,9 @@ from google.appengine.api import channel
 
 def DepthPerception(before,after,vision=False):
     cmeta = ops.loadmeta()
-    bMedos = ops.fetchXYZMIDs(before.xyz)
-    aMedos = ops.fetchXYZMIDs(after.xyz)
-    eMedos = ops.conKIDs(bMedos, aMedos)
+    bMetaIDs = ops.fetchXYZMIDs(before.xyz)
+    aMetaIDs = ops.fetchXYZMIDs(after.xyz)
+    eMetaIDs = ops.conKIDs(bMetaIDs, aMetaIDs)
     pack = Packet()
     pack.refresh = True
     pack.who = cmeta.kid
@@ -28,13 +28,9 @@ def DepthPerception(before,after,vision=False):
         pack.metaid = before.metaid
         pack.kid = before.kid
         pack.medo = after
-        for metaID in eMedos:
+        for metaID in eMetaIDs:
             channel.send_message(str(metaID), ops.jsonify(pack))
     elif before.xyz != after.xyz: #Relocation
-        if before.metakind == 'Meta':
-            pack.type = 'MetaMove'
-        else:
-            pack.type = 'Relo'
         pack.metakind = before.metakind
         pack.metaid = before.metaid
         pack.kid = before.kid
@@ -43,13 +39,18 @@ def DepthPerception(before,after,vision=False):
         pack.fromkid = before.cokind + str(before.coid)
         pack.tokid = after.cokind + str(after.coid)
         pack.medo = after
-#        for metaID in eMedos:
+#        for metaID in eMetaIDs:
 #            channel.send_message(str(metaID), ops.jsonify(pack))
-        for bMeta in bMedos:
-            pack.type = 'MetaLeave'
+        for bMeta in bMetaIDs:
+            pack.type = 'MedoMove'
             channel.send_message(str(bMeta), ops.jsonify(pack))
-        for aMeta in aMedos:
-            if aMeta == cmeta.metaid:
+        for aMeta in aMetaIDs:
+            if after.metakind != 'Meta':
+                if after.cowner == cmeta.kid:
+                    pack.type = 'ItemUpdate'
+                else:
+                    pack.type = 'ItemArrive'
+            elif aMeta == cmeta.metaid:
                 #ops.mdb(aMeta, 'test')
                 pack.type = 'YouArrive'
                 pack.nMetas = ops.fetchLocalMetas(after.metakind, after.metaid)
@@ -61,7 +62,7 @@ def DepthPerception(before,after,vision=False):
         ops.mdb('This is else')
 
     if vision:
-        for metaID in eMedos:
+        for metaID in eMetaIDs:
             pack = Packet()
             pack.type = 'vision'
             pack.vision = True
