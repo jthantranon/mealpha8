@@ -15,13 +15,14 @@ from google.appengine.api import channel
 
 def DepthPerception(before,after,vision=False):
     cmeta = ops.loadmeta()
+    cloc = ops.loadcloc()
     bMetaIDs = ops.fetchXYZMIDs(before.xyz)
     aMetaIDs = ops.fetchXYZMIDs(after.xyz)
     eMetaIDs = ops.conKIDs(bMetaIDs, aMetaIDs)
     pack = Packet()
     pack.refresh = True
     pack.who = cmeta.kid
-
+    
     if before.databits != after.databits:
         pack.type = 'Databits'
         pack.metakind = before.metakind
@@ -53,6 +54,7 @@ def DepthPerception(before,after,vision=False):
             elif aMeta == cmeta.metaid:
                 #ops.mdb(aMeta, 'test')
                 pack.type = 'YouArrive'
+                pack.cloc = cloc
                 pack.nMetas = ops.fetchLocalMetas(after.metakind, after.metaid)
                 pack.nItems = ops.fetchLocalItems(after.metakind, after.metaid)
             else:
@@ -150,7 +152,10 @@ def Relo(tMedo,rMedo):
     tKind = tMedo.metakind
     premove = copy.copy(tMedo)
 
-    origin = tMedo.cowner
+    if tMedo.cowner:
+        origin = tMedo.cowner
+    else:
+        origin = 'Location'+tMedo.xloc+tMedo.yloc+tMedo.zloc+tMedo.lattice
     oKID = ops.metasplit(origin)
     oKind = oKID[0]
     oID = oKID[1]
@@ -196,6 +201,7 @@ def Relo(tMedo,rMedo):
     else:
         what = ' moves ...'
     vision = who + what
+    
     DepthPerception(premove,tMedo,vision)
     
 class ActionRouter(webapp2.RequestHandler):

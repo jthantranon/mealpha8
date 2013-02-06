@@ -3,6 +3,7 @@ import jinja2
 import os
 #import jsonutil
 import intops as ops
+import prototypes as protos
 import unicon
 #import json
 import json
@@ -25,17 +26,6 @@ class OpenChannel(webapp2.RequestHandler):
         token = channel.create_channel(str(cmeta.metaid),1440)
         
         self.response.out.write(ops.sonify(token))
-        
-#        pack = Packet()
-#        pack.type = 'alert'
-#        pack.scope = 'global'
-#        pack.content = ' has logged on.'
-#        pack.fcontent = cmeta.name + ' has logged on.'
-#        pack.masterid = str(cmeta.masterid)
-#        pack.name = cmeta.name
-#        pack.metakind = cmeta.metakind
-#        pack.metaid = cmeta.metaid
-#        pack = ops.jsonify(pack)
 
 def MetaEcho(content):
     cmeta = ops.loadmeta()
@@ -72,6 +62,7 @@ def SelfEcho(content):
     channel.send_message(str(cmeta.metaid), ops.jsonify(pack))
         
 def cProc(command):
+    cmeta = ops.loadmeta()
     if command == '/datamine':
         unicon.CreateDataMine()
         SelfEcho('DataMine Created.')
@@ -81,6 +72,15 @@ def cProc(command):
     if command == '/spawnloc':
         unicon.Spawn().Location()
         SelfEcho('Location Created.')
+    if command == '/newloc':
+        para = Packet()
+        para.name = 'Test'
+        para.info = 'Test Info'
+        para.xloc = cmeta.xloc
+        para.yloc = cmeta.yloc
+        para.zloc = cmeta.zloc
+        para.lattice = cmeta.lattice
+        protos.spawnLoca(para)
     else:
         content = 'Invalid Command: ' + command
         SelfEcho(content)
@@ -112,30 +112,17 @@ class ChanRouter(webapp2.RequestHandler):
     def post(self,dest):
         cmeta = ops.loadmeta()
         sloc = ops.loadcloc()
-        #content = "<b> " + cmeta.name + "</b>: " + self.request.get('content')
         content = self.request.get('content')
         pack = Packet()
         
         if dest == 'command':
-            #SelfEcho(self.request.get('content'))
             cProc(self.request.get('content'))
-
+            ops.mdb(self.request.get('content'), 'command pack')
             formatted = "["+sloc.name+"]<b> " + cmeta.name + "</b>: " + self.request.get('content')
             packtype = 'broadcast'
             scopename = sloc.name
             scope = 'local'
-            #PackPacket(console,packtype,scopename,scope,formatted,content)
-#            for localmeta in localmetas:
-#                pack.scopename = sloc.name
-#                pack.type = 'broadcast'
-#                pack.scope = 'local'
-#                pack.formatted = formatted
-#                pack.content = self.request.get('content')
-#                pack.masterid = str(cmeta.masterid)
-#                pack.name = cmeta.name
-#                pack.metakind = cmeta.metakind
-#                pack.metaid = cmeta.metaid
-#                channel.send_message(str(localmeta), ops.jsonify(pack))
+
         if dest == 'local':
             
             packtype = 'broadcast'

@@ -14,12 +14,11 @@ from google.appengine.ext import ndb
 ##########################################################
 
 def mdb(data,echo='none'): #META DEBUG
-    allmetas = fetchAllMetaMetaIDs()
     pack = Packet()
-    for meta in allmetas:
-        pack.type = 'This is a test.'
-        pack.msg = echo
-        pack.data = data
+    pack.type = '### This is a test. ###'
+    pack.msg = echo
+    pack.data = data
+    for meta in fetchAllMetaMetaIDs():
         channel.send_message(str(meta), jsonify(pack))
 
 def conKIDs(x,y):
@@ -160,6 +159,7 @@ def loadcloc():
         q = Location();
         q.metakind = 'Location'
         q.name = cmeta.xloc + '.' + cmeta.yloc + '.' + cmeta.zloc + ':' + cmeta.lattice
+        q.info = 'Nondescript.'
         q.xloc = cmeta.xloc
         q.yloc = cmeta.yloc
         q.zloc = cmeta.zloc

@@ -187,7 +187,12 @@ function gAppend(id,appendage){
 	return thereturn;
 };
 
-function gAppendC(container,appendage){
+function gcAppendForm(id,appendage){
+	var thereturn = $('.'+id).find('.'+id+'Form').append(appendage); 
+	return thereturn;
+};
+
+function gcAppend(container,appendage){
 	var thereturn = $('.'+container).append(appendage); 
 	return thereturn;
 };
@@ -215,7 +220,7 @@ MEGlass.prototype.aBreak = function(id){
 };
 
 MEGlass.prototype.aObj = function(container,tMedo) {
-	gAppendC(container,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
+	gcAppend(container,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
 	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
 	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
@@ -231,7 +236,7 @@ MEGlass.prototype.aSOO = function(tMedo) {
 };
 
 MEGlass.prototype.aMeta = function(id,tMedo) {
-	gAppendC(id,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
+	gcAppend(id,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
 	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
 	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
@@ -254,16 +259,33 @@ MEGlass.prototype.aContainer = function(id,container,contID){
 			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span>");
 };
 
+MEGlass.prototype.aForm = function(id){
+	gAppend(id,
+			"<form id='"+id+"Form' class='"+id+"Form'></form>");
+};
+
 MEGlass.prototype.aData = function(id,label,dataname,appendage){
 	gAppend(id,
 			"<div><h1>"+label+"</h1><span class='"+dataname+"'>"+
 			"<p>" + appendage + "</p></span></div>");
 };
 
-MEGlass.prototype.aField = function(id,label,fieldID,fieldName){
+MEGlass.prototype.aField = function(id,label,fieldID,fieldName){ //Depcricated, Use aFormField
 	gAppend(id,
 			"<h1>"+label+"</h1>"+
 			"<input id='"+fieldID+"' name='"+fieldName+"' type='text'><br>");
+};
+
+MEGlass.prototype.aFormField = function(id,longname,shortname){ //Depcricated, Use aFormField
+	gcAppendForm(id,
+			"<h1>"+longname+"</h1>"+
+			"<input id='"+id+"Form"+shortname+"' name='"+shortname+"' type='text'><br>");
+};
+
+MEGlass.prototype.aFormFieldD = function(id,longname,shortname,value){ //Depcricated, Use aFormField
+	gcAppendForm(id,
+			"<h1>"+longname+"</h1>"+
+			"<input id='"+id+"Form"+shortname+"' name='"+shortname+"' type='text' value='"+value+"' disabled><br>");
 };
 
 MEGlass.prototype.aSubmitButton = function(id,btnText,fieldID){
@@ -273,7 +295,7 @@ MEGlass.prototype.aSubmitButton = function(id,btnText,fieldID){
 
 MEGlass.prototype.aAction = function(container,tMedo,action){
 	var act =  action.replace(/ /g,'');
-	gAppendC(container,"<input type='button' id='"+tMedo.kid+act+"' class='"+tMedo.kid+act+"'>");
+	gcAppend(container,"<input type='button' id='"+tMedo.kid+act+"' class='"+tMedo.kid+act+"'>");
 	actionAttrAppend(tMedo.kid+act,{class:'action btnaction '+tMedo.kid+act,value:action,title:tMedo.kid+act,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid,'data-action':act});
 };
 

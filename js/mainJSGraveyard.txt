@@ -28,3 +28,15 @@
 		}
 		
 	}
+	
+		
+	function Broadcast(scale){
+		content = $("#mvprompt").val();
+		$("#mvprompt").val('').focus();
+		$.ajax({
+			type: 'POST',
+			url: '/edenop/chanrouter/'+scale,
+			data: {'content':content},
+			success: function(data){}
+		});
+	}

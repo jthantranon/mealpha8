@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+import intops as ops
 
 class Crystal(ndb.Expando):
     metakind = ndb.StringProperty()
@@ -56,26 +57,38 @@ class Location(ndb.Expando):
             return self.metakind+str(self.xloc+self.yloc+self.zloc+self.lattice)
         else:
             return 'No kid(ding).'
-   
-class Item(ndb.Expando):
+    
+
+class Medo(ndb.Expando):
+    medotype = ndb.StringProperty()
     name = ndb.StringProperty()
     info = ndb.TextProperty()
-    itype = ndb.StringProperty()
+    stuff = ndb.StringProperty()
+    
+class Item(ndb.Expando):
+    metakind = ndb.StringProperty(default='Item')
+    name = ndb.StringProperty(default='Indescript Medo')
+    info = ndb.TextProperty(default='An Indescript Medo')
+    itype = ndb.StringProperty(default='Unknown')
     primertype = ndb.StringProperty() 
     shardtype = ndb.StringProperty()
     fragtype = ndb.StringProperty()
-    cowner = ndb.StringProperty()
-    cokind = ndb.StringProperty()
-    coid = ndb.StringProperty()
-    xloc = ndb.StringProperty()
-    yloc = ndb.StringProperty()
-    zloc = ndb.StringProperty()
-    lattice = ndb.StringProperty(default=0)
-    databits = ndb.IntegerProperty(default=0)
+    cowner = ndb.StringProperty(default='Location5005005000')
+    cokind = ndb.StringProperty(default='Location')
+    coid = ndb.StringProperty(default='5005005000')
+    xloc = ndb.StringProperty(default='500')
+    yloc = ndb.StringProperty(default='500')
+    zloc = ndb.StringProperty(default='500')
+    lattice = ndb.StringProperty(default='0')
+    databits = ndb.StringProperty()
+    databitsint = ndb.IntegerProperty(default=0) #TODO: Create computed property
     suptype = ndb.StringProperty()
     regtype = ndb.StringProperty()
     subtype = ndb.StringProperty()
     ispopup = ndb.BooleanProperty(default=False)
+#    @ndb.ComputedProperty
+#    def metaid(self):
+#        return str(self.id)
     @ndb.ComputedProperty
     def xyz(self):
         if self.xloc:
@@ -90,6 +103,7 @@ class Item(ndb.Expando):
             return self.metakind+str(self.metaid)
         except AttributeError:
             return 'No kid(ding).'
+    
 
 class Meta(ndb.Expando):
     metakind = ndb.StringProperty(default='Meta')
@@ -132,7 +146,10 @@ class Meta(ndb.Expando):
             return 'Location'+self.xloc+self.yloc+ self.zloc+self.lattice
         else:
             return 'Limbo'
-    
+    @ndb.ComputedProperty
+    def locname(self):
+        cloc = ops.loadcloc()
+        return cloc.name
 
 class Base(ndb.Expando):
     name = ndb.StringProperty()

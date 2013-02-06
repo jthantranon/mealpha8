@@ -1,4 +1,10 @@
 $(document).ready(function(e){
+
+	Glass = new MEGlass();
+	
+	var xmid = document.documentElement.clientWidth/2;
+	var ymid = document.documentElement.clientHeight/2;
+	
 	////////////
 	// variables
 	////////////
@@ -100,25 +106,77 @@ $(document).ready(function(e){
 	//////////////////////
 	// Chat Input Bindings
 	//////////////////////
+	function UniCon(mkType,params){
+		//alert(mkType+params);
+		var randid = (Math.floor((Math.random()*1000000)+1)).toString();
+		var id = 'CreateNew'+mkType+randid;
+		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'UniCon',id:id,gClass:id});
+		Glass.aForm(id);
+		Glass.aFormFieldD(id,'MedoType','medotype',mkType);
+//		if (params.indexOf('actions') >= 0){
+//			alert('actions here!');
+//		}
+		$.each(params,function(){
+			if (this == 'actions'){ // can't put '===' or it'll not catch
+				alert('actions here!');
+			} else {
+				Glass.aFormField(id,this,this);
+			}
+			
+			//alert(id+' '+this);
+		});
+		Glass.aSubmitButton(id,'Create Medo',id+'ucSubmit');
+		$('#'+id).on('click','#'+id+'ucSubmit',function() {
+			$('#'+id+'Formmedotype').attr('disabled', false);
+			var data = $('#'+id+'Form').serialize();
+			$('#'+id+'Formmedotype').attr('disabled', true);
+			alert(data);
+			$.ajax({
+			type: 'POST',
+			url: '/unicon/aMedo',
+			data: data,
+			success: function(data){
+//				Glass.destroy('RegiSheet');
+//				InitializeMetaEden();
+				}
+			});
+		});
+		
+	}
+	
 	$(".chatInputMsg").livequery(function(e){
 		// entering a message
 		$(this).keyup(function(event){
+			var content = $(this).val();
 			if (event.which == 13) {
 				event.preventDefault();
 				context = this;
+				//var content = $("#chatInputMsg1").val();
 				//SendScaleM($("#chatChannel").val(), context);
-				if ($(this).val().charAt(0) == "/") {
-					chatLoopback($(this).val());
-					Broadcast("command");
+				if (content.charAt(0) == "/") {
+					var cSplit = content.split(' ');
+					var command = cSplit[0];
+					chatLoopback('COMMAND RECIEVED:'+content);
+					if (command === '/create'){
+						//alert('create');
+						var mkType = cSplit[1];
+						var rawParams = cSplit[2];
+						var params = rawParams.split(',');
+						UniCon(mkType,params);
+					} else {
+						Broadcast("command",content);
+					}
+					
+					
 				} else {
 					if ($('.chatChannel').val() == "Loopback") {
 						chatLoopback($(this).val());
 					}
 					if ($('.chatChannel').val() == "Global") {
-						Broadcast($('.chatChannel').val());
+						Broadcast($('.chatChannel',content).val());
 					}
 					if ($('.chatChannel').val() == "Local") {
-						Broadcast($('.chatChannel').val());
+						Broadcast($('.chatChannel',content).val());
 					}
 				}
 								
@@ -200,16 +258,16 @@ $(document).ready(function(e){
 	
 	
 	
-	function Broadcast(scale){
-		content = $("#chatInputMsg1").val();
-		//$("#chatInputMsg1").val('').focus();
-		scale = scale.toLowerCase();
-		$.ajax({
-			type: 'POST',
-			url: '/edenop/chanrouter/'+scale,
-			data: {'content':content},
-			success: function(data){}
-		});
+	
+	function Broadcast(dest,content){
+		var name = 'A Name. 5643';
+		var info = 'Some info. 3242';
+		dest = dest.toLowerCase();
+		$.post('/edenop/chanrouter/'+dest,{name:name,info:info,content:content},
+			function(data){
+				//on success
+			}
+		);
 	}
 	
 	

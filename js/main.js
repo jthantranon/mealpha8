@@ -15,7 +15,7 @@ $(document).ready(function() {
 	
 	function YTSheet(){
 		var id = 'YTSheet';
-		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'YoutTube Item Maker',id:id});
+		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'YoutTube Item Maker',id:id,gClass:id});
 		Glass.aField(id, 'YouTube Link', 'ytlink', 'ytlink');
 		Glass.aSubmitButton(id, 'Create YouTube Item', 'ytsubmit');
 	}
@@ -40,7 +40,7 @@ $(document).ready(function() {
 
 	function RegiSheet(){
 		var id = 'RegiSheet';
-		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'Registration Sheet',id:id});
+		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'Registration Sheet',id:id,gClass:id});
 		Glass.aField(id,'Meta Name','regname','regname');
 		Glass.aField(id,'Meta Description','reginfo','reginfo');
 		Glass.aSubmitButton(id,'Register MetaUser','regsubmit');
@@ -74,7 +74,7 @@ $(document).ready(function() {
 	
 	function cMetaSheet(refresh){
 		$.getJSON('/edenop/loadcmeta', function(cmeta) {
-			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet',kid:cmeta.kid};
+			var glassargs = {context:'body',content:'',xpos:document.documentElement.clientWidth-320,ypos:5,title:'MetaSheet',name:'MetaSheet',id:'MetaSheet',kid:cmeta.kid,gClass:'MetaSheet'};
 			if (refresh){
 				Glass.clear('MetaSheet');
 			} else {
@@ -138,7 +138,7 @@ $(document).ready(function() {
 			$.getJSON('/edenop/fetchlocalitems', function(localitems) {
 				//ShowExits('LocaSheet',cloca);
 				$.each(args, function(label,appendage){
-					Glass.aData('LocaSheet',label,currentmeta.kid+label,appendage);
+					Glass.aData('LocaSheet',label,'LocaSheet'+label,appendage);
 				});
 				
 				Glass.aContainer('LocaSheet','MetaUsers Here','LocaSheetMetas');
@@ -247,19 +247,6 @@ $(document).ready(function() {
 			}
 		}
 	}
-	///
-	/// Phase Three - Constructors
-	///
-	
-//	function NGASB(tGlass,value,fieldid){
-//		Glass.append(tGlass, 
-//			"<input value='"+value+"' id='"+fieldid+"' type='button' class='button'>");
-//	}
-	
-//	function NGAF(tGlass,label,fieldid,fieldname){
-//		Glass.append(tGlass, "<h1>"+label+"</h1>"+
-//			"<input id='"+fieldid+"' name='"+fieldname+"' type='text'><br>");
-//	}
 	
 	$('body').on('click','.action',function(){
 		var metakind = $(this).data('metakind');
@@ -277,33 +264,6 @@ $(document).ready(function() {
 		createYTItem(thisytid);
 		
 	});
-	
-//	function NGALO(tGlass,label){
-//		Glass.append(tGlass,
-//				"<h1>"+label+"</h1>"
-//				);
-//	}
-	
-//	function NGAO(tGlass,obj){
-//		Glass.append(tGlass,
-//				"<input type='button' id='btnobj"+obj.metakind+obj.metaid + "' class='obj dragit' value='" + obj.name + "' title='"+obj.kid+
-//				"' data-name='"+obj.name+"' data-metakind='"+obj.metakind+"' data-metaid='"+obj.metaid+"'" + " data-obj='"+obj.metakind+obj.metaid+"'" +
-//				">"
-//				);
-//		$('.dragit').draggable(dragArgs);
-//		if (obj.ytlink){
-//			$('#btnobj'+obj.kid).attr('data-ytlink',obj.ytlink);
-//		}
-//	}
-	
-//	function NGAG(tGlass,appendage){
-//		Glass.append(tGlass,appendage);
-//	}
-	
-//	function NGAL(tGlass,label,appendage){
-//		Glass.append(tGlass, "<div><h1>"+label+"</h1>"+
-//			"<p class='"+label+"' id='"+tGlass+label+"'>" + appendage + "</p></div>");
-//	}
 	
 //	function GAP(medo,percent){
 //		medo.kid.append(
@@ -531,16 +491,10 @@ $(document).ready(function() {
 		$('#MetaTube').YouTubePopup('destroy');
 		$('#MetaTube').YouTubePopup({ youtubeId: ytlink, draggable: true, modal: false }).click();
 	}
-	
-	
-	
-	
+
 	////
 	//REGISTRATION CHECK
 	////
-
-	
-	
 	
 	$("#BtnRefresh").click(function(){ Amb('Refreshed!');
 		RefreshAll();
@@ -571,17 +525,7 @@ $(document).ready(function() {
 			}
 		});
 	}
-	
-//	function Drop(metakind,metaid,dkind,did){
-//		if (metakind == 'Meta' || metakind == 'Location'){alert("You can't pick up "+metakind+" types... yet.");
-//		} else {
-//			$.post('/edenop/drop/' + metakind + '/' + metaid + '/' + dkind + '/' + did, function(data){
-//				cLocaSheet('refresh'); 		// Load Static UX
-//				cMetaSheet('refresh');
-//			});
-//		}
-//	}
-	
+
 	function MetaAction(action,tKind,tID,rKind,rID){
 		$.ajax({
 			type: 'POST',
@@ -592,18 +536,7 @@ $(document).ready(function() {
 			}
 		});
 	}
-	
-	function Broadcast(scale){
-		content = $("#mvprompt").val();
-		$("#mvprompt").val('').focus();
-		$.ajax({
-			type: 'POST',
-			url: '/edenop/chanrouter/'+scale,
-			data: {'content':content},
-			success: function(data){}
-		});
-	}
-	
+
 	function OpenSesh(){
 		var channel;
 		var handler;
@@ -623,9 +556,9 @@ $(document).ready(function() {
 			onMessage = function(msg) {
 				pack = JSON.parse(msg.data);
 				if (pack.console){
-					console.debug('onMessage: ' + pack.console);
+					console.debug('###  ON MESSAGE ###: ' + pack.console);
 				} else {
-					console.debug('onMessage: ' + msg.data);
+					console.debug('### ON MESSAGE ###: ' + msg.data);
 				}
 			    UpdateStatus(pack);
 			};
@@ -675,8 +608,10 @@ $(document).ready(function() {
 				$.each(pack.nMetas, function() { Glass.aMeta('LocaSheetMetas',this); });
 				Glass.clear('LocaSheet','LocaSheetItems');
 				$.each(pack.nItems, function() { Glass.aMeta('LocaSheetItems',this); });
-				Glass.reData(pack.medo.kid+'Location', pack.medo.xyz);
-				Glass.reData(pack.medo.cokid+'Location',pack.medo.cokid);
+				Glass.reData('LocaSheet'+'Name', pack.cloc.name);
+				Glass.reData('LocaSheet'+'Info', pack.cloc.info);
+				Glass.reData('LocaSheet'+'Location', pack.medo.xyz);
+				Glass.reData('LocaSheet'+'KID',pack.medo.cokid);
 				
 			} else if (pack.type === 'MetaArrive'){
 				Glass.aMeta('LocaSheetMetas',pack.medo);
@@ -740,7 +675,7 @@ $(document).ready(function() {
 		} else if (pack.type === 'userleave') {
 			newChatBoxMsg(pack);
 		} else {
-			console.debug('pack.type not registered for sound/echo');
+			console.debug('pack.type not registered for echo');
 		}
 
 		///

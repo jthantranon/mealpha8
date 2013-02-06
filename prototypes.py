@@ -11,17 +11,6 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import channel
 
-class ActualizeMedo(webapp2.RequestHandler):
-    def post(self):
-        #ops.mdb(self.request.arguments())
-        nMedo = Item()
-        for attr in self.request.arguments():
-            #ops.mdb(self.request.get(attr))
-            setattr(nMedo,attr,self.request.get(attr))
-        nMedo.put()
-        nMedo.metaid = nMedo.key.id()
-        #ops.mdb(nMedo.id())
-        nMedo.put()
 class Spawn():
         def Location(self):
             nloc = Location()
@@ -32,6 +21,19 @@ class Spawn():
             nloc.zloc = '500'
             nloc.lattice = '0'
             nloc.put()
+
+def spawnLoca(para):
+    nloc = Location()
+    nloc.name = para.name
+    nloc.info = para.info
+    nloc.xloc = para.xloc
+    nloc.yloc = para.yloc
+    nloc.zloc = para.zloc
+    nloc.lattice = para.lattice
+    nloc.exits = 'n,s,e,w'
+    nloc.walls = 'nw,ne,se,sw'
+    nloc.put()
+    
 
 def CreateDataMine():
         cmeta = ops.loadmeta()
@@ -131,7 +133,6 @@ app = webapp2.WSGIApplication([('/unicon/test', Test),
                                
                                (r'/unicon/modify/(.*)/(.*)', Modify),
                                ('/unicon/spawn/meta', SpawnMeta),
-                               ('/unicon/aMedo', ActualizeMedo),
                                ('/unicon/create/ytitem', CreateYTItem),
 
                                ],debug=True)
