@@ -11,7 +11,7 @@ $(document).ready(function() {
 	var ymid = document.documentElement.clientHeight/2;
 	
 	// Arguments for jQuery.draggable
-	var dragArgs={ revert: false , helper: 'clone', appendTo: '#wholepage' , containment: 'DOM' , zIndex: 1500 , cancel: false};
+	var dragArgs={ revert: false , helper: 'clone', appendTo: '#wholepage' , containment: 'DOM' , zIndex: 1500 , cancel: false, delay: 1000};
 	
 	function YTSheet(){
 		var id = 'YTSheet';
@@ -84,7 +84,7 @@ $(document).ready(function() {
 			$('#MetaSheet').droppable({
 				drop: function (event, ui) {
 					MetaAction('Relo',ui.draggable.data('metakind'),ui.draggable.data('metaid'),'Meta',cmeta.metaid);}
-			});
+			}).sortable();
 		});
 	}
 	
@@ -242,8 +242,8 @@ $(document).ready(function() {
 		
 		if (medo.actions){
 			Glass.aContainer(medo.kid,'Actions',medo.kid+'Actions');
-			for (var i = 0; i < medo.actions.length; i++) {
-				Glass.aAction(medo.kid+'Actions',medo,medo.actions[i]);				
+			for (var i = 0; i < medo.actionlist.length; i++) {
+				Glass.aAction(medo.kid+'Actions',medo,medo.actionlist[i]);				
 			}
 		}
 	}

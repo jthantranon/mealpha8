@@ -182,6 +182,8 @@ MEGlass.prototype.maximize = function(id) {
 	$('#'+id).show();	
 };
 
+var dragArgs = {revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false, delay: 250};
+
 function gAppend(id,appendage){
 	var thereturn = $('.'+id).children('.glassContent').append(appendage); 
 	return thereturn;
@@ -207,6 +209,24 @@ function actionAttrAppend(id,appendage){
 	return thereturn;
 }
 
+function gfAppendCList(id,listdata){
+	
+}
+
+MEGlass.prototype.aCheckList = function(id,list){
+	//alert(list);
+	$('#'+id).children('.glassContent').children('#'+id+'Form').append(
+			"<fieldset name='actions'>" +
+			"<h1>Actions</h1>" +
+			"</fieldset>"
+		);
+		$.each(list,function(){
+			$('#'+id).children('.glassContent').children('#'+id+'Form').children('fieldset').append(
+				"<input type='checkbox' id='"+this+"' name='"+this+"' value='"+this+"'>" + this
+			);
+		});
+};
+
 MEGlass.prototype.remove = function(id,context) {
 	$('#'+id).find('.'+context).remove();
 };
@@ -222,7 +242,7 @@ MEGlass.prototype.aBreak = function(id){
 MEGlass.prototype.aObj = function(container,tMedo) {
 	gcAppend(container,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
 	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
-	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
+	$('.mIcon').draggable(dragArgs);
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
@@ -238,7 +258,7 @@ MEGlass.prototype.aSOO = function(tMedo) {
 MEGlass.prototype.aMeta = function(id,tMedo) {
 	gcAppend(id,"<input type='button' id='mIcon"+tMedo.kid+"' class='mIcon"+tMedo.kid+"'>");
 	attrAppend(tMedo.kid,{class:'obj mIcon mIcon'+tMedo.kid,value:tMedo.name,title:tMedo.kid,'data-name':tMedo.name,'data-metakind':tMedo.metakind,'data-metaid':tMedo.metaid});
-	$('.mIcon').draggable({revert: false,helper: 'clone',appendTo: '#wholepage',containment: 'DOM',zIndex: 1500,cancel: false});
+	$('.mIcon').draggable(dragArgs);
 	if (tMedo.ytlink){attrAppend(tMedo.kid,{'data-ytlink':tMedo.ytlink});}
 };
 
@@ -256,7 +276,7 @@ MEGlass.prototype.rObj = function(tKID) {
 
 MEGlass.prototype.aContainer = function(id,container,contID){
 	gAppend(id,
-			"<div><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span>");
+			"<div title='"+container+"'><h1>"+container+"</h1><span id='"+contID+"' class='"+contID+" "+container+"'></span></div>");
 };
 
 MEGlass.prototype.aForm = function(id){
@@ -276,7 +296,7 @@ MEGlass.prototype.aField = function(id,label,fieldID,fieldName){ //Depcricated, 
 			"<input id='"+fieldID+"' name='"+fieldName+"' type='text'><br>");
 };
 
-MEGlass.prototype.aFormField = function(id,longname,shortname){ //Depcricated, Use aFormField
+MEGlass.prototype.aFormField = function(id,longname,shortname){
 	gcAppendForm(id,
 			"<h1>"+longname+"</h1>"+
 			"<input id='"+id+"Form"+shortname+"' name='"+shortname+"' type='text'><br>");

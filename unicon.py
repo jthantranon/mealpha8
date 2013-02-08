@@ -14,10 +14,20 @@ from google.appengine.api import channel
 class ActualizeMedo(webapp2.RequestHandler):
     def post(self):
         #ops.mdb(self.request.arguments())
-        nMedo = Item()
+        
+        if self.request.get('medotype') == 'Crystal':
+            nMedo = Crystal()
+        else:
+            nMedo = Item()
         for attr in self.request.arguments():
             #ops.mdb(self.request.get(attr))
-            setattr(nMedo,attr,self.request.get(attr))
+            if attr == 'Mine Node':
+                if nMedo.actions: 
+                    nMedo.actions = nMedo.actions+','+attr
+                else: 
+                    nMedo.actions = attr
+            else:
+                setattr(nMedo,attr,self.request.get(attr))
         nMedo.put()
         nMedo.metaid = nMedo.key.id()
         #ops.mdb(nMedo.id())
@@ -33,10 +43,23 @@ class Spawn():
             nloc.lattice = '0'
             nloc.put()
 
+class EdenCrystal(webapp2.RequestHandler):
+    def get(self,mAttr):
+        
+        EC = Crystal.query(
+                            Crystal.name == 'EdenCrystal')
+        EC = EC.get()
+        
+        EC.sysactsraw = 'mine,kick'
+        EC.put()
+        
+        if mAttr == 'actions':
+            self.response.out.write(ops.sonify(EC.sysacts))
+        
 def CreateDataMine():
         cmeta = ops.loadmeta()
         spec = Item();
-        spec.name = 'Data Mine 4'
+        spec.name = 'Data Mine 5'
         spec.info = 'This is a test item.'
         spec.itype = 'Test'
         spec.primertype = 'Generic'
@@ -45,10 +68,10 @@ def CreateDataMine():
         spec.cowner = 'Meta'+str(cmeta.metaid)
         spec.lattice = '0'
         spec.metakind = 'Item'
-        spec.actions = ['Mine Node','Kick']
+        spec.actions = 'Mine Node,Kick'
         spec.supertype = 'Landmark'
         spec.regtype = 'Mine'
-        spec.databit = 0
+        spec.databits = 0
         spec.ispopup = True
         spec.xloc = '500'
         spec.yloc = '500'
@@ -129,6 +152,7 @@ class Test(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([('/unicon/test', Test),
                                
+                               (r'/unicon/ec/(.*)', EdenCrystal),
                                (r'/unicon/modify/(.*)/(.*)', Modify),
                                ('/unicon/spawn/meta', SpawnMeta),
                                ('/unicon/aMedo', ActualizeMedo),

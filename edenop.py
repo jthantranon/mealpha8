@@ -66,13 +66,13 @@ def cProc(command):
     if command == '/datamine':
         unicon.CreateDataMine()
         SelfEcho('DataMine Created.')
-    if command == '/digifort':
+    elif command == '/digifort':
         unicon.CreateDigiFort()
         SelfEcho('DigitalFortress Created.')
-    if command == '/spawnloc':
+    elif command == '/spawnloc':
         unicon.Spawn().Location()
         SelfEcho('Location Created.')
-    if command == '/newloc':
+    elif command == '/newloc':
         para = Packet()
         para.name = 'Test'
         para.info = 'Test Info'

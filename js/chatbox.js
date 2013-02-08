@@ -113,19 +113,21 @@ $(document).ready(function(e){
 		Glass.create({xpos:xmid-150,ypos:ymid-75,title:'UniCon',id:id,gClass:id});
 		Glass.aForm(id);
 		Glass.aFormFieldD(id,'MedoType','medotype',mkType);
-//		if (params.indexOf('actions') >= 0){
-//			alert('actions here!');
-//		}
-		$.each(params,function(){
-			if (this == 'actions'){ // can't put '===' or it'll not catch
-				alert('actions here!');
-			} else {
-				Glass.aFormField(id,this,this);
-			}
-			
-			//alert(id+' '+this);
-		});
-		Glass.aSubmitButton(id,'Create Medo',id+'ucSubmit');
+		if (params.indexOf('actions') >= 0){
+			$.getJSON('/unicon/ec/actions', function(aList){
+				$.each(params,function(){
+					if (this != 'actions'){
+						Glass.aFormField(id,this,this);						
+					}
+				});
+				Glass.aCheckList(id,aList);
+				Glass.aSubmitButton(id,'Create Medo',id+'ucSubmit');
+			});
+		} else {
+			$.each(params,function(){Glass.aFormField(id,this,this);});
+			Glass.aSubmitButton(id,'Create Medo',id+'ucSubmit');
+		}
+
 		$('#'+id).on('click','#'+id+'ucSubmit',function() {
 			$('#'+id+'Formmedotype').attr('disabled', false);
 			var data = $('#'+id+'Form').serialize();

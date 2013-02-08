@@ -15,6 +15,7 @@ class Crystal(ndb.Expando):
     yloc = ndb.StringProperty()
     zloc = ndb.StringProperty()
     lattice = ndb.StringProperty()
+    sysacts = ndb.ComputedProperty(lambda self: self.actions.split(','),repeated=True)
 
 class Blueprint(ndb.Expando):
     metakind = ndb.StringProperty()
@@ -69,6 +70,7 @@ class Item(ndb.Expando):
     metakind = ndb.StringProperty(default='Item')
     name = ndb.StringProperty(default='Indescript Medo')
     info = ndb.TextProperty(default='An Indescript Medo')
+    actions = ndb.StringProperty(default='')
     itype = ndb.StringProperty(default='Unknown')
     primertype = ndb.StringProperty() 
     shardtype = ndb.StringProperty()
@@ -80,15 +82,17 @@ class Item(ndb.Expando):
     yloc = ndb.StringProperty(default='500')
     zloc = ndb.StringProperty(default='500')
     lattice = ndb.StringProperty(default='0')
-    databits = ndb.StringProperty()
-    databitsint = ndb.IntegerProperty(default=0) #TODO: Create computed property
+    databits = ndb.IntegerProperty(default=0)
+    databitsString = ndb.StringProperty(default='0') #TODO: Create computed property
     suptype = ndb.StringProperty()
     regtype = ndb.StringProperty()
     subtype = ndb.StringProperty()
     ispopup = ndb.BooleanProperty(default=False)
+    actionlist = ndb.ComputedProperty(lambda self: self.actions.split(','),repeated=True)
 #    @ndb.ComputedProperty
-#    def metaid(self):
-#        return str(self.id)
+#    def actionlist(self):
+#        alist = self.actions
+#        return alist.split(',')
     @ndb.ComputedProperty
     def xyz(self):
         if self.xloc:
